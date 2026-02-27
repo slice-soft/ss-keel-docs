@@ -1,49 +1,58 @@
-# Starlight Starter Kit: Basics
+<img src="assets/boat.svg" width="400" />
 
-[![Built with Starlight](https://astro.badg.es/v2/built-with-starlight/tiny.svg)](https://starlight.astro.build)
+# Keel
+
+Keel is a Go framework for building REST APIs with modular 
+architecture, automatic OpenAPI, and built-in validation.
+
+[![CI](https://github.com/slice-soft/ss-keel-core/actions/workflows/ci.yml/badge.svg)](https://github.com/slice-soft/ss-keel-core/actions)
+![Go](https://img.shields.io/badge/Go-1.25+-00ADD8?logo=go&logoColor=white)
+[![Go Report Card](https://goreportcard.com/badge/github.com/slice-soft/ss-keel-core)](https://goreportcard.com/report/github.com/slice-soft/ss-keel-core)
+[![Go Reference](https://pkg.go.dev/badge/github.com/slice-soft/ss-keel-core.svg)](https://pkg.go.dev/github.com/slice-soft/ss-keel-core)
+![License](https://img.shields.io/badge/License-MIT-green)
+![Made in Colombia](https://img.shields.io/badge/Made%20in-Colombia-FCD116?labelColor=003893)
+
+**Live site:** [docs.keel-go.dev](https://docs.keel-go.dev)
+**Framework repo:** [slice-soft/ss-keel-core](https://github.com/slice-soft/ss-keel-core)
+
+## Content structure
 
 ```
-npm create astro@latest -- --template starlight
+src/content/docs/
+├── guides/          # Step-by-step guides (getting started, controllers, modules…)
+├── cli/             # CLI reference
+├── addons/          # Official addon documentation (ss-keel-gorm, ss-keel-jwt…)
+└── reference/       # API reference (App, Route, Ctx, errors…)
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+All pages are `.md` or `.mdx` files. Each file maps directly to a URL route.
 
-## 🚀 Project Structure
+## Local development
 
-Inside of your Astro + Starlight project, you'll see the following folders and files:
-
-```
-.
-├── public/
-├── src/
-│   ├── assets/
-│   ├── content/
-│   │   └── docs/
-│   └── content.config.ts
-├── astro.config.mjs
-├── package.json
-└── tsconfig.json
+```bash
+npm install
+npm run dev       # http://localhost:4321
 ```
 
-Starlight looks for `.md` or `.mdx` files in the `src/content/docs/` directory. Each file is exposed as a route based on its file name.
+```bash
+npm run build     # Production build → ./dist/
+npm run preview   # Preview the built site locally
+```
 
-Images can be added to `src/assets/` and embedded in Markdown with a relative link.
+## Contributing
 
-Static assets, like favicons, can be placed in the `public/` directory.
+Content lives in `src/content/docs/` — find the relevant `.md` file and edit it directly. New pages are picked up automatically by filename; update the sidebar in `astro.config.mjs` if you add a new section.
 
-## 🧞 Commands
+The base workflow, commit conventions, and community standards live in [ss-keel-community](https://github.com/slice-soft/ss-keel-community/blob/main/CONTRIBUTING.md).
+For changes to the framework itself, open a PR in the [core repo](https://github.com/slice-soft/ss-keel-core).
 
-All commands are run from the root of the project, from a terminal:
+## Community
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Check out [Starlight’s docs](https://starlight.astro.build/), read [the Astro documentation](https://docs.astro.build), or jump into the [Astro Discord server](https://astro.build/chat).
+| Document | |
+|---|---|
+| [CONTRIBUTING.md](https://github.com/slice-soft/ss-keel-community/blob/main/CONTRIBUTING.md) | Workflow, commit conventions, and PR guidelines |
+| [GOVERNANCE.md](https://github.com/slice-soft/ss-keel-community/blob/main/GOVERNANCE.md) | Decision-making, roles, and release process |
+| [CODE_OF_CONDUCT.md](https://github.com/slice-soft/ss-keel-community/blob/main/CODE_OF_CONDUCT.md) | Community standards |
+| [VERSIONING.md](https://github.com/slice-soft/ss-keel-community/blob/main/VERSIONING.md) | SemVer policy and breaking changes |
+| [SECURITY.md](https://github.com/slice-soft/ss-keel-community/blob/main/SECURITY.md) | How to report vulnerabilities |
+| [MAINTAINERS.md](https://github.com/slice-soft/ss-keel-community/blob/main/MAINTAINERS.md) | Active maintainers |
