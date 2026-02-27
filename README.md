@@ -41,6 +41,18 @@ npm run preview   # Preview the built site locally
 
 ## Contributing
 
-To add or edit content, find the relevant file under `src/content/docs/` and edit it directly. New pages are picked up automatically by filename — update the sidebar in `astro.config.mjs` if you add a new section or page.
+Content lives in `src/content/docs/` — find the relevant `.md` file and edit it directly. New pages are picked up automatically by filename; update the sidebar in `astro.config.mjs` if you add a new section.
 
-For changes to the framework itself, see the [core repo](https://github.com/slice-soft/ss-keel-core).
+The base workflow, commit conventions, and community standards live in [ss-keel-community](https://github.com/slice-soft/ss-keel-community/blob/main/CONTRIBUTING.md).
+For changes to the framework itself, open a PR in the [core repo](https://github.com/slice-soft/ss-keel-core).
+
+## Community
+
+| Document | |
+|---|---|
+| [CONTRIBUTING.md](https://github.com/slice-soft/ss-keel-community/blob/main/CONTRIBUTING.md) | Workflow, commit conventions, and PR guidelines |
+| [GOVERNANCE.md](https://github.com/slice-soft/ss-keel-community/blob/main/GOVERNANCE.md) | Decision-making, roles, and release process |
+| [CODE_OF_CONDUCT.md](https://github.com/slice-soft/ss-keel-community/blob/main/CODE_OF_CONDUCT.md) | Community standards |
+| [VERSIONING.md](https://github.com/slice-soft/ss-keel-community/blob/main/VERSIONING.md) | SemVer policy and breaking changes |
+| [SECURITY.md](https://github.com/slice-soft/ss-keel-community/blob/main/SECURITY.md) | How to report vulnerabilities |
+| [MAINTAINERS.md](https://github.com/slice-soft/ss-keel-community/blob/main/MAINTAINERS.md) | Active maintainers |
