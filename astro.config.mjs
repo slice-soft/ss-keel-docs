@@ -73,6 +73,12 @@ export default defineConfig({
                       label: 'Reference',
                       autogenerate: { directory: 'reference' },
                   },
+                  {
+                      label: 'Community',
+                      items: [
+                          { label: 'Overview',        slug: 'community/overview' },
+                      ],
+                  },
               ],
           }),
       ],
