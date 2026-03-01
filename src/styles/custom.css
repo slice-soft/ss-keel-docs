@@ -1,0 +1,122 @@
+/* ─────────────────────────────────────────────
+   SliceSoft × Keel — Starlight theme overrides
+   ───────────────────────────────────────────── */
+
+/* Dark theme (default) */
+:root[data-theme='dark'] {
+  --sl-color-accent-low:    rgba(59, 130, 246, 0.12);
+  --sl-color-accent:        #3b82f6;
+  --sl-color-accent-high:   #93c5fd;
+
+  --sl-color-white:         #e6edf3;
+  --sl-color-gray-1:        #cdd9e5;
+  --sl-color-gray-2:        #8b949e;
+  --sl-color-gray-3:        #6e7681;
+  --sl-color-gray-4:        #30363d;
+  --sl-color-gray-5:        #21262d;
+  --sl-color-gray-6:        #161b22;
+  --sl-color-black:         #010409;
+
+  --sl-color-bg:            #0d1117;
+  --sl-color-bg-nav:        #010409;
+  --sl-color-bg-sidebar:    #010409;
+  --sl-color-bg-inline-code: rgba(99, 110, 123, 0.15);
+  --sl-color-hairline:      #30363d;
+  --sl-color-hairline-light: #21262d;
+}
+
+/* Light theme */
+:root[data-theme='light'] {
+  --sl-color-accent-low:    rgba(59, 130, 246, 0.08);
+  --sl-color-accent:        #2563eb;
+  --sl-color-accent-high:   #1d4ed8;
+
+  --sl-color-white:         #24292f;
+  --sl-color-gray-1:        #24292f;
+  --sl-color-gray-2:        #57606a;
+  --sl-color-gray-3:        #6e7781;
+  --sl-color-gray-4:        #d0d7de;
+  --sl-color-gray-5:        #eaeef2;
+  --sl-color-gray-6:        #f6f8fa;
+  --sl-color-black:         #f6f8fa;
+
+  --sl-color-bg:            #ffffff;
+  --sl-color-bg-nav:        #f6f8fa;
+  --sl-color-bg-sidebar:    #f6f8fa;
+  --sl-color-bg-inline-code: rgba(175, 184, 193, 0.2);
+  --sl-color-hairline:      #d0d7de;
+  --sl-color-hairline-light: #eaeef2;
+}
+
+/* ── Typography ── */
+:root {
+  --sl-font: 'Inter', system-ui, -apple-system, sans-serif;
+  --sl-font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  --sl-text-base: 15px;
+}
+
+/* ── Nav logo sizing ── */
+.site-title img {
+  height: 22px;
+  width: auto;
+}
+
+/* ── Sidebar ── */
+:root[data-theme='dark'] .sidebar-pane {
+  border-right-color: #21262d;
+}
+
+:root[data-theme='light'] .sidebar-pane {
+  border-right-color: #d0d7de;
+}
+
+/* ── Code blocks ── */
+:root[data-theme='dark'] .expressive-code .frame {
+  --ec-frm-edBrdCol: #30363d;
+  --ec-brdCol: #30363d;
+}
+
+/* ── Inline code ── */
+:root[data-theme='dark'] code:not([class]) {
+  color: #e6edf3;
+  background: rgba(99, 110, 123, 0.15);
+  border: 1px solid #30363d;
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+
+:root[data-theme='light'] code:not([class]) {
+  color: #24292f;
+  background: rgba(175, 184, 193, 0.2);
+  border: 1px solid #d0d7de;
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+
+/* ── Table ── */
+table th {
+  background: var(--sl-color-bg-sidebar);
+  border-bottom: 2px solid var(--sl-color-accent);
+}
+
+/* ── Aside / callout accent ── */
+.starlight-aside--note {
+  --sl-color-asides-text-accent: #3b82f6;
+  --sl-color-asides-border: rgba(59, 130, 246, 0.4);
+  background: rgba(59, 130, 246, 0.06);
+}
+
+/* ── "Made by SliceSoft" footer brand ── */
+.sl-footer-brand {
+  font-size: 12px;
+  color: var(--sl-color-gray-3);
+}
+
+.sl-footer-brand a {
+  color: var(--sl-color-accent);
+  text-decoration: none;
+}
+
+.sl-footer-brand a:hover {
+  text-decoration: underline;
+}
