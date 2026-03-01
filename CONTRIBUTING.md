@@ -1,7 +1,7 @@
 
 # Contributing to ss-keel-docs
 
-The base contributing guide — workflow, commit conventions, and community standards — lives in [ss-keel-community](https://github.com/slice-soft/ss-keel-community/blob/main/CONTRIBUTING.md). Read it first.
+The base contributing guide — workflow, commit conventions, and community standards — lives in [ss-community](https://github.com/slice-soft/ss-community/blob/main/CONTRIBUTING.md). Read it first.
 
 This document covers only what is specific to this repository.
 

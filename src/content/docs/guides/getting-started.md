@@ -8,11 +8,13 @@ description: Install ss-keel-core and build your first API in minutes.
 ## Requirements
 
 - Go 1.21 or later
+- GoPATH set up correctly
 
 ## Installation
 
 ```bash
-go get github.com/slice-soft/ss-keel-core
+go install github.com/slice-soft/keel@latest
+keel new github.com/your-username/myapp
 ```
 
 ## Project Structure

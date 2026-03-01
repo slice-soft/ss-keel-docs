@@ -13,7 +13,7 @@ The `keel` CLI accelerates development by providing scaffolding, code generation
 
 ```bash
 # Coming soon
-go install github.com/slice-soft/ss-keel-cli@latest
+go install github.com/slice-soft/keel@latest
 ```
 
 ## Commands
