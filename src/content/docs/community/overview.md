@@ -12,7 +12,6 @@ Keel is an open-source project maintained by [SliceSoft](https://github.com/slic
 | [ss-keel-core](https://github.com/slice-soft/ss-keel-core) | Core framework library |
 | [keel](https://github.com/slice-soft/keel) | CLI scaffolding tool |
 | [ss-keel-docs](https://github.com/slice-soft/ss-keel-docs) | This documentation site |
-| [ss-community](https://github.com/slice-soft/ss-community) | Governance and community standards |
 | `ss-keel-addon-*` addons | Official addon modules (each in its own repo) |
 
 ## Community documents
