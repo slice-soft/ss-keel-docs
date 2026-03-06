@@ -70,6 +70,12 @@
   border-right-color: #d0d7de;
 }
 
+/* Active sidebar link — ensure text is visible over accent background */
+.sidebar a[aria-current='page'],
+.sidebar a[data-current-page] {
+  color: #ffffff !important;
+}
+
 /* ── Code blocks ── */
 :root[data-theme='dark'] .expressive-code .frame {
   --ec-frm-edBrdCol: #30363d;
