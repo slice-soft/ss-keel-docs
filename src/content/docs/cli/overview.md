@@ -1,84 +1,57 @@
 ---
 title: CLI Overview
-description: The ss-keel CLI for scaffolding, code generation, and project management.
+description: Guía general del CLI de Keel para crear y mantener proyectos basados en ss-keel-core.
 ---
 
-:::caution[Work in Progress]
-The **keel CLI** is currently under development. Commands and flags described here are planned and subject to change. This page will be updated as features ship.
-:::
+`keel` es el CLI oficial para acelerar el desarrollo con **ss-keel-core**.
 
-The `keel` CLI accelerates development by providing scaffolding, code generation, and project management for ss-keel-core applications.
+Esta documentación está basada en el código real de:
+- `ss-keel-cli` (comandos, flags, templates y tests)
+- `ss-keel-core` (estructura y runtime de la app generada)
 
-## Installation
+## Qué hace el CLI
 
-```bash
-# Coming soon
-go install github.com/slice-soft/keel@latest
-```
+- Crea proyectos listos para trabajar (`keel new`)
+- Inicializa `keel.toml` en proyectos existentes (`keel init`)
+- Genera componentes y wiring automático (`keel generate`)
+- Ejecuta scripts definidos en `keel.toml` (`keel run`)
+- Configura autocompletado para shell (`keel completion`)
 
-## Commands
+## Comandos disponibles hoy
 
-### `keel new`
-
-Scaffold a new project interactively:
-
-```bash
-keel new my-api
-```
-
-Planned prompts:
-- Module path (e.g. `github.com/myorg/my-api`)
-- Port and environment defaults
-- Select addons to include (database, cache, auth, etc.)
-- Docker / docker-compose setup
-- GitHub Actions CI template
-
-### `keel generate`
-
-Generate boilerplate for common components:
-
-```bash
-keel generate controller users
-keel generate module orders
-keel generate dto CreateUserDTO
-```
-
-| Subcommand | Generates |
+| Comando | Propósito |
 |---|---|
-| `controller <name>` | Controller struct with CRUD routes skeleton |
-| `module <name>` | Module with Register() and wired controller |
-| `dto <name>` | DTO struct with common validation tags |
+| `keel new [project-name]` | Crea un proyecto Keel desde cero |
+| `keel init` | Crea `keel.toml` en el directorio actual |
+| `keel generate [type] [name]` | Genera módulos/componentes y actualiza wiring |
+| `keel run [script]` | Ejecuta scripts de `[scripts]` en `keel.toml` |
+| `keel completion ...` | Genera o instala completions de shell |
+| `keel --version` | Muestra versión, commit, build date y plataforma |
 
-### `keel dev`
-
-Start the development server with hot-reload:
-
-```bash
-keel dev
-# or
-keel dev --port 8080
-```
-
-### `keel build`
-
-Build the application binary:
+## Flujo recomendado
 
 ```bash
-keel build
-keel build --output ./bin/server
+# 1) Instala el CLI
+go install github.com/slice-soft/keel@latest
+
+# 2) Crea proyecto
+keel new my-api
+
+# 3) Ejecuta entorno dev
+cd my-api
+keel run dev
+
+# 4) Genera tu primer módulo
+keel generate module users --with-repository
 ```
 
-## Project Generator
+## Siguiente paso
 
-A web-based project generator is also planned, inspired by [create.astro.build](https://astro.new/). Configure your stack through a UI and download a ready-to-run project.
+- [Instalación detallada](/cli/installation/)
+- [Inicio rápido](/cli/quickstart/)
+- [Comando `generate`](/cli/generate/)
+- [Troubleshooting](/cli/troubleshooting/)
 
-Planned features:
-- Pick your database addon (`ss-keel-gorm`, `ss-keel-mongo`)
-- Pick your cache addon (`ss-keel-redis`)
-- Pick your auth strategy (`ss-keel-jwt`, `ss-keel-oauth`)
-- Docker and CI/CD templates included
-- Download as a `.zip` or push directly to a new GitHub repo
-
-:::note[Stay Updated]
-Follow the [repository](https://github.com/slice-soft/ss-keel-core) for CLI release announcements.
+:::note[Repositorio]
+Código fuente del CLI: [github.com/slice-soft/keel](https://github.com/slice-soft/keel)
 :::
