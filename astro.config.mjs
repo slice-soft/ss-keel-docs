@@ -14,6 +14,11 @@ export default defineConfig({
             },
             favicon: '/favicon.svg',
             customCss: ['./src/styles/custom.css'],
+            defaultLocale: 'en',
+            locales: {
+                en: { label: 'English'},
+                es: { label: 'Español', lang: 'es'},
+            },
             head: [
                 {
                     tag: 'link',
@@ -54,17 +59,17 @@ export default defineConfig({
             lastUpdated: true,
             sidebar: [
                 {
-                    label: 'Guides',
+                    label: 'Guías',
                     items: [
-                        { label: 'Getting Started',   slug: 'guides/getting-started' },
-                        { label: 'Configuration',     slug: 'guides/configuration' },
-                        { label: 'Controllers',       slug: 'guides/controllers' },
-                        { label: 'Modules',           slug: 'guides/modules' },
-                        { label: 'Error Handling',    slug: 'guides/error-handling' },
-                        { label: 'Authentication',    slug: 'guides/authentication' },
-                        { label: 'OpenAPI & Swagger', slug: 'guides/openapi' },
-                        { label: 'Logger',            slug: 'guides/logger' },
-                        { label: 'Testing',           slug: 'guides/testing' },
+                        { label: 'Primeros Pasos',    slug: 'guides/getting-started' },
+                        { label: 'Configuración',     slug: 'guides/configuration' },
+                        { label: 'Controladores',     slug: 'guides/controllers' },
+                        { label: 'Módulos',           slug: 'guides/modules' },
+                        { label: 'Manejo de Errores', slug: 'guides/error-handling' },
+                        { label: 'Autenticación',     slug: 'guides/authentication' },
+                        { label: 'OpenAPI y Swagger', slug: 'guides/openapi' },
+                        { label: 'Registro (Logger)', slug: 'guides/logger' },
+                        { label: 'Pruebas',           slug: 'guides/testing' },
                     ],
                 },
                 {
@@ -82,37 +87,37 @@ export default defineConfig({
                     ],
                 },
                 {
-                    label: 'Addons',
+                    label: 'Complementos',
                     collapsed: true,
                     items: [
-                        { label: 'Overview', slug: 'addons/overview' },
-                        { label: 'Databases',      items: [
+                        { label: 'Resumen', slug: 'addons/overview' },
+                        { label: 'Bases de datos', items: [
                             { label: 'ss-keel-gorm',  slug: 'addons/ss-keel-gorm' },
                             { label: 'ss-keel-mongo', slug: 'addons/ss-keel-mongo' },
                         ]},
-                        { label: 'Cache',          items: [
+                        { label: 'Cache',           items: [
                             { label: 'ss-keel-redis', slug: 'addons/ss-keel-redis' },
                         ]},
-                        { label: 'Authentication', items: [
+                        { label: 'Autenticación',   items: [
                             { label: 'ss-keel-jwt',   slug: 'addons/ss-keel-jwt' },
                             { label: 'ss-keel-oauth', slug: 'addons/ss-keel-oauth' },
                         ]},
-                        { label: 'Messaging',      items: [
+                        { label: 'Mensajería',      items: [
                             { label: 'ss-keel-amqp',  slug: 'addons/ss-keel-amqp' },
                             { label: 'ss-keel-kafka', slug: 'addons/ss-keel-kafka' },
                         ]},
-                        { label: 'Communication',  items: [
+                        { label: 'Comunicación',    items: [
                             { label: 'ss-keel-mail', slug: 'addons/ss-keel-mail' },
                             { label: 'ss-keel-ws',   slug: 'addons/ss-keel-ws' },
                         ]},
-                        { label: 'Storage',        items: [
+                        { label: 'Almacenamiento',  items: [
                             { label: 'ss-keel-storage', slug: 'addons/ss-keel-storage' },
                         ]},
-                        { label: 'Observability',  items: [
+                        { label: 'Observabilidad',  items: [
                             { label: 'ss-keel-metrics', slug: 'addons/ss-keel-metrics' },
                             { label: 'ss-keel-tracing', slug: 'addons/ss-keel-tracing' },
                         ]},
-                        { label: 'Jobs',           items: [
+                        { label: 'Jobs',            items: [
                             { label: 'ss-keel-cron', slug: 'addons/ss-keel-cron' },
                         ]},
                         { label: 'i18n',           items: [
@@ -121,13 +126,13 @@ export default defineConfig({
                     ],
                 },
                 {
-                    label: 'Reference',
+                    label: 'Referencia',
                     autogenerate: { directory: 'reference' },
                 },
                 {
-                    label: 'Community',
+                    label: 'Comunidad',
                     items: [
-                        { label: 'Overview', slug: 'community/overview' },
+                        { label: 'Resumen', slug: 'community/overview' },
                     ],
                 },
             ],
