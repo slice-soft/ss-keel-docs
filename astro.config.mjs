@@ -68,9 +68,17 @@ export default defineConfig({
                     ],
                 },
                 {
-                    label: 'CLI 🚧',
+                    label: 'CLI',
                     items: [
                         { label: 'Overview', slug: 'cli/overview' },
+                        { label: 'Instalación', slug: 'cli/installation' },
+                        { label: 'Inicio Rápido', slug: 'cli/quickstart' },
+                        { label: 'Comando new', slug: 'cli/new' },
+                        { label: 'Comando init', slug: 'cli/init' },
+                        { label: 'Comando generate', slug: 'cli/generate' },
+                        { label: 'Comando run', slug: 'cli/run' },
+                        { label: 'Completions', slug: 'cli/completion' },
+                        { label: 'Troubleshooting', slug: 'cli/troubleshooting' },
                     ],
                 },
                 {
