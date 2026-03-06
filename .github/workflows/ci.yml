@@ -1,8 +1,0 @@
-name: CI
-on:
-  pull_request:
-    branches: [main]
-jobs:
-  validate:
-    uses: slice-soft/ss-pipeline/.github/workflows/validate-pr.yml@v0
-    secrets: inherit

@@ -1,77 +1,156 @@
 ---
 title: ss-keel-gorm
-description: Soporte PostgreSQL, MySQL y SQLite vía GORM con implementación genérica de Repository.
+description: Soporte para PostgreSQL, MySQL, MariaDB, SQLite y SQL Server vía GORM con una implementación genérica de Repository.
 ---
 
-:::caution[Próximamente]
-Este addon está en desarrollo. La interfaz que implementa ya es estable. Ver [Repository](/reference/interfaces#repository).
-:::
+`ss-keel-gorm` ofrece un `GormRepository[T, ID]` genérico que implementa [`core.Repository[T, ID]`](/reference/interfaces#repository) usando [GORM](https://gorm.io/). Soporta Postgres, MySQL, MariaDB, SQLite y SQL Server con cero boilerplate para CRUD estándar.
 
-`ss-keel-gorm` provee una implementación genérica de `Repository[T, ID]` basada en [GORM](https://gorm.io/). Soporta PostgreSQL, MySQL y SQLite con cero boilerplate para CRUD estándar.
+## Instalación
 
-**Implementa:** [`Repository[T, ID]`](/reference/interfaces#repository)
+```bash
+keel add gorm
+```
 
-## Instalación (planificada)
+O manualmente:
 
 ```bash
 go get github.com/slice-soft/ss-keel-gorm
 ```
 
-## Uso (planificado)
+## Conexión
 
 ```go
-import "github.com/slice-soft/ss-keel-gorm"
+import "github.com/slice-soft/ss-keel-gorm/database"
 
-// Conectar
-db, err := ssgorm.Connect(ssgorm.Config{
-    Driver: "postgres",
+db, err := database.New(database.Config{
+    Engine: database.EnginePostgres,
     DSN:    os.Getenv("DATABASE_URL"),
 })
+if err != nil {
+    log.Fatal(err)
+}
+defer db.Close()
+```
 
-// Repositorio genérico sin boilerplate
-userRepo := ssgorm.NewRepository[User, string](db)
+Motores soportados:
 
-// userRepo implementa core.Repository[User, string]
-userRepo.FindByID(ctx, "abc-123")
-userRepo.FindAll(ctx, core.PageQuery{Page: 1, Limit: 20})
-userRepo.Create(ctx, &user)
-userRepo.Update(ctx, "abc-123", &user)
-userRepo.Delete(ctx, "abc-123")
+| Constante | Driver |
+|---|---|
+| `database.EnginePostgres` | PostgreSQL |
+| `database.EngineMySQL` | MySQL |
+| `database.EngineMariaDB` | MariaDB |
+| `database.EngineSQLite` | SQLite |
+| `database.EngineSQLServer` | SQL Server |
+
+También puedes pasar un DSN completo directamente:
+
+```go
+db, err := database.New(database.Config{
+    Engine: database.EnginePostgres,
+    DSN:    "postgres://user:pass@localhost:5432/mydb?sslmode=disable",
+})
 ```
 
 ## Definición de modelo
 
-Los modelos siguen convenciones estándar de GORM:
+Los modelos siguen las convenciones estándar de GORM:
 
 ```go
 type User struct {
-    ID        string    `gorm:"primaryKey"`
-    Name      string
-    Email     string    `gorm:"uniqueIndex"`
-    CreatedAt time.Time
-    UpdatedAt time.Time
+    ID        string    `gorm:"primaryKey"  json:"id"`
+    Name      string                        `json:"name"`
+    Email     string    `gorm:"uniqueIndex" json:"email"`
+    CreatedAt time.Time                     `json:"created_at"`
+    UpdatedAt time.Time                     `json:"updated_at"`
 }
+```
+
+## Repositorio genérico
+
+`GormRepository[T, ID]` cubre el CRUD estándar sin escribir código adicional:
+
+```go
+type UserRepository = database.GormRepository[User, string]
+
+func NewUserRepository(db *database.DBinstance) *UserRepository {
+    return database.NewGormRepository[User, string](db)
+}
+```
+
+Métodos disponibles (implementa `core.Repository[T, ID]`):
+
+```go
+repo.FindByID(ctx, "abc-123")                           // *User, error
+repo.FindAll(ctx, core.PageQuery{Page: 1, Limit: 20})   // core.Page[User], error
+repo.Create(ctx, &user)                                  // error
+repo.Update(ctx, "abc-123", &user)                       // error  (reemplazo completo vía Save)
+repo.Delete(ctx, "abc-123")                              // error  (respeta soft-delete)
 ```
 
 ## Verificación de salud
 
 ```go
-app.RegisterHealthChecker(ssgorm.NewHealthChecker(db))
-// → "database": "UP" en GET /health
+app.RegisterHealthChecker(database.NewHealthChecker(db))
+// GET /health -> "database": "UP"
 ```
 
-## Extender el repositorio genérico
+## Extender con consultas personalizadas
 
-El repositorio genérico cubre CRUD estándar. Para consultas personalizadas, embébelo:
+Embebe `GormRepository` y agrega métodos usando `r.DB()` para acceso directo de GORM:
 
 ```go
 type UserRepository struct {
-    *ssgorm.Repository[User, string]
-    db *gorm.DB
+    *database.GormRepository[User, string]
+}
+
+func NewUserRepository(db *database.DBinstance) *UserRepository {
+    return &UserRepository{
+        GormRepository: database.NewGormRepository[User, string](db),
+    }
 }
 
 func (r *UserRepository) FindByEmail(ctx context.Context, email string) (*User, error) {
     var user User
-    return &user, r.db.WithContext(ctx).Where("email = ?", email).First(&user).Error
+    err := r.DB().WithContext(ctx).Where("email = ?", email).First(&user).Error
+    if errors.Is(err, gorm.ErrRecordNotFound) {
+        return nil, nil
+    }
+    return &user, err
 }
+```
+
+## Pool de conexiones
+
+Se configura automáticamente con valores por defecto razonables. Puedes sobrescribirlos mediante `Config.Pool`:
+
+```go
+database.New(database.Config{
+    Engine: database.EnginePostgres,
+    DSN:    os.Getenv("DATABASE_URL"),
+    Pool: database.PoolConfig{
+        MaxOpenConns:    25,
+        MaxIdleConns:    5,
+        ConnMaxLifetime: 30 * time.Minute,
+        ConnMaxIdleTime: 15 * time.Minute,
+    },
+})
+```
+
+## Motor personalizado
+
+Registra cualquier dialector compatible con GORM:
+
+```go
+database.RegisterDialector("oracle", func(cfg database.Config) (gorm.Dialector, error) {
+    return oracle.Open(cfg.DSN), nil
+})
+```
+
+## Integración CLI
+
+Cuando `ss-keel-gorm` está presente en `go.mod`, `keel generate repository` genera automáticamente un repositorio respaldado por GORM en lugar del stub por defecto:
+
+```bash
+keel generate repository users/product
+# -> internal/modules/users/product_repository.go  (respaldado por GORM)
 ```
