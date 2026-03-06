@@ -1,6 +1,6 @@
 ---
 title: Comando run
-description: Ejecuta scripts declarados en keel.toml para desarrollo y automatización.
+description: Ejecuta scripts definidos en keel.toml de forma consistente en desarrollo y automatización.
 ---
 
 ## Uso
@@ -9,9 +9,9 @@ description: Ejecuta scripts declarados en keel.toml para desarrollo y automatiz
 keel run [script]
 ```
 
-`run` toma scripts desde la sección `[scripts]` de `keel.toml`.
+`run` toma el comando desde `[scripts]` en `keel.toml`.
 
-## Ejemplo de `keel.toml`
+## Ejemplo de configuración
 
 ```toml
 [scripts]
@@ -29,31 +29,41 @@ keel run test
 keel run build
 ```
 
-También puedes agregar scripts propios:
+También puedes definir scripts propios:
 
 ```toml
 [scripts]
 migrate = "go run ./cmd/migrate/main.go up"
 ```
 
-Y ejecutarlos:
-
 ```bash
 keel run migrate
 ```
 
-## Cómo se ejecuta internamente
+## Cómo ejecuta internamente el script
 
-- En Unix/macOS: `sh -c "<script>"`
-- En Windows: `cmd /C "<script>"`
+- Unix/macOS: `sh -c "<script>"`
+- Windows: `cmd /C "<script>"`
 
-Esto significa que puedes usar comandos compuestos tal como lo harías en shell.
+Eso permite comandos compuestos como `&&`, pipes y redirecciones.
 
-## Errores comunes
+## Comportamiento de errores
+
+El comando falla cuando:
+
+- no existe `keel.toml`
+- no existe sección `[scripts]`
+- el script solicitado no existe o está vacío
+- el comando shell retorna error
+
+Errores típicos:
 
 - `keel.toml not found in current directory`
-  - Debes estar en el root del proyecto.
 - `no scripts defined in keel.toml`
-  - Falta sección `[scripts]`.
 - `script '<name>' does not exist in keel.toml`
-  - El nombre solicitado no está definido o está vacío.
+
+## Buenas prácticas
+
+1. Mantén scripts reproducibles (`build`, `test`, `lint`, `dev`).
+2. Evita comandos destructivos sin confirmación.
+3. Deja `keel.toml` versionado junto al código para estandarizar el flujo del equipo.

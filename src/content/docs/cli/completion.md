@@ -1,9 +1,9 @@
 ---
-title: Completions
-description: Configura autocompletado de shell para Keel CLI (zsh, bash, fish y powershell).
+title: Autocompletado
+description: Configura autocompletado de shell para Keel CLI en zsh, bash, fish y powershell.
 ---
 
-## Subcomandos
+## Subcomandos disponibles
 
 ```bash
 keel completion bash
@@ -13,19 +13,27 @@ keel completion powershell
 keel completion install
 ```
 
-## Instalación automática (zsh, bash, fish)
+## Instalación automática
 
 ```bash
 keel completion install
 ```
 
-Qué hace:
+### Qué hace `install`
 
-1. Detecta shell (`zsh`, `bash` o `fish`)
-2. Genera script
-3. Escribe el script en:
+1. Resuelve tu shell (`zsh`, `bash`, `fish`; en algunos flujos elige por `$SHELL` y archivos de config encontrados).
+2. Genera el script de completion.
+3. Lo guarda en:
    - `~/.config/keel/completion/keel.<shell>`
-4. Agrega línea `source "..."` en archivo de configuración del shell (`.zshrc`, `.bashrc`, etc.)
+4. Agrega línea `source "..."` en el archivo de config del shell.
+
+### Archivos de config candidatos
+
+- `zsh`: `~/.zshrc`, `~/.zprofile`
+- `bash`: `~/.bashrc`, `~/.bash_profile`, `~/.profile`
+- `fish`: `~/.config/fish/config.fish`
+
+Si encuentra múltiples candidatos y hay terminal interactiva, el CLI pregunta cuál actualizar.
 
 ## Instalación manual
 
@@ -56,8 +64,8 @@ echo 'source "$HOME/.config/keel/completion/keel.fish"' >> ~/.config/fish/config
 ### PowerShell
 
 ```powershell
-keel completion powershell > $HOME\\keel.ps1
-. $HOME\\keel.ps1
+keel completion powershell > $HOME\keel.ps1
+. $HOME\keel.ps1
 ```
 
 ## Verificar
@@ -69,8 +77,12 @@ keel <TAB>
 keel generate <TAB>
 ```
 
-## Troubleshooting
+## Comportamiento idempotente
 
-- Si no funciona tras instalar, abre una sesión nueva del shell.
-- Si hay múltiples archivos de config (`.zshrc`, `.zprofile`, etc.), valida dónde quedó el `source`.
-- Si quieres regenerar desde cero, borra el script en `~/.config/keel/completion/` y ejecuta `keel completion install` de nuevo.
+`keel completion install` evita duplicar la misma línea `source` cuando ya existe.
+
+## Troubleshooting rápido
+
+- Abre una nueva sesión del shell tras instalar.
+- Verifica en qué archivo se escribió el `source`.
+- Si cambiaste de shell por defecto, vuelve a ejecutar `keel completion install`.

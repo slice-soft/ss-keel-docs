@@ -1,6 +1,6 @@
 ---
 title: Inicio Rápido
-description: Crea, ejecuta y expande tu primer proyecto con Keel CLI en pocos pasos.
+description: Crea, ejecuta y expande tu primer proyecto con Keel CLI usando el flujo recomendado.
 ---
 
 ## 1) Instala el CLI
@@ -10,7 +10,7 @@ go install github.com/slice-soft/keel@latest
 keel --version
 ```
 
-## 2) Crea un proyecto
+## 2) Crea un proyecto nuevo
 
 Modo interactivo (recomendado):
 
@@ -18,25 +18,32 @@ Modo interactivo (recomendado):
 keel new my-api
 ```
 
-Modo automático:
+Modo automático (sin prompts):
 
 ```bash
 keel new my-api --yes
 ```
 
-:::caution[Importante sobre `--yes`]
-En modo automático el CLI usa un módulo placeholder (`github.com/my-github-user/<app>`).  
-Revisa y corrige `go.mod` antes de continuar.
+:::caution[Si usas `--yes`]
+El módulo se genera con placeholder (`github.com/my-github-user/<app>`). Revisa y corrige `go.mod` antes de publicar el repositorio.
 :::
 
-## 3) Entra al proyecto y levántalo
+## 3) Entra al proyecto y ejecuta desarrollo
 
 ```bash
 cd my-api
 keel run dev
 ```
 
-Por defecto, `keel run dev` ejecuta el script `dev` definido en `keel.toml` (normalmente con Air).
+En proyectos nuevos, `keel.toml` suele incluir:
+
+```toml
+[scripts]
+dev   = "air -c .air.toml"
+build = "go build -o bin/my-api ./cmd/main.go"
+test  = "go test ./..."
+lint  = "golangci-lint run"
+```
 
 ## 4) Genera tu primer módulo
 
@@ -44,31 +51,47 @@ Por defecto, `keel run dev` ejecuta el script `dev` definido en `keel.toml` (nor
 keel generate module users --with-repository
 ```
 
-Esto crea y cablea automáticamente:
+Salida esperada (paths principales):
+
 - `internal/modules/users/users_module.go`
 - `internal/modules/users/users_service.go`
 - `internal/modules/users/users_controller.go`
 - `internal/modules/users/users_repository.go`
-- registro de módulo en `cmd/main.go`
+- actualización de `cmd/main.go` con `app.Use(users.NewModule(appLogger))`
 
-## 5) Ejecuta scripts de proyecto
+## 5) Verifica endpoints base
+
+Con la app corriendo en desarrollo:
+
+- `GET /health`
+- `GET /docs`
+- `GET /docs/openapi.json`
+- `GET /hello` (si mantuviste `starter`)
+
+> `ss-keel-core` no monta docs cuando `Env == "production"`.
+
+## 6) Ejecuta más scripts del proyecto
 
 ```bash
 keel run test
 keel run build
 ```
 
-## 6) Endpoints base disponibles
+## Flujo alterno: proyecto existente
 
-Con la app corriendo en desarrollo:
-- `GET /health`
-- `GET /docs`
-- `GET /docs/openapi.json`
+Si ya tienes un proyecto Go y quieres adoptar `keel run`:
 
-> `/docs` se desactiva en `production` según la configuración de `ss-keel-core`.
+```bash
+cd proyecto-existente
+keel init
+keel run test
+```
 
-## Próximo paso
+`keel init` crea `keel.toml` y, según respuesta, también `.air.toml`.
 
+## Siguientes pasos
+
+- [Comando `new`](/cli/new/)
+- [Comando `init`](/cli/init/)
 - [Comando `generate`](/cli/generate/)
 - [Comando `run`](/cli/run/)
-- [Guía de módulos en core](/guides/modules/)

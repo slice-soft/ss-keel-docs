@@ -1,6 +1,6 @@
 ---
 title: Comando new
-description: Crea un proyecto Keel nuevo con estructura, scripts y wiring base.
+description: Crea un proyecto Keel nuevo con estructura base, scripts, wiring y setup inicial opcional.
 ---
 
 ## Uso
@@ -15,31 +15,21 @@ Alias:
 keel n [project-name]
 ```
 
-## Qué genera
+## Reglas del argumento `project-name`
 
-Base del proyecto:
+- No puede estar vacío.
+- No puede contener espacios.
+- No puede contener `/` ni `\`.
+- Con `--yes` (`-y`) es obligatorio pasar el nombre por argumento.
 
-- `cmd/main.go`
-- `go.mod`
-- `keel.toml`
-- `README.md`
-- `.gitignore`
+## Flujo interactivo (sin `--yes`)
 
-Opcionales según respuestas:
+El comando solicita, en este orden:
 
-- `.env` y `.env.example`
-- `.air.toml`
-- módulo `internal/modules/starter/*`
-- estructura adicional: `internal/middleware`, `internal/guards`, `internal/scheduler`, `internal/checkers`, `internal/events`, `internal/hooks`
-
-## Flujo interactivo
-
-Si no usas `--yes`, el comando solicita:
-
-1. Nombre de proyecto (si no lo pasaste por argumento)
-2. Host del módulo (`GitHub`, `GitLab`, `custom`, `local`)
-3. Owner/grupo o dominio
-4. Confirmación/edición del módulo final
+1. Nombre del proyecto (si no viene por argumento)
+2. Host del módulo: `GitHub`, `GitLab`, `Custom domain` o `Local module`
+3. Owner/grupo/dominio según host
+4. Confirmación o edición manual de `module path`
 5. Uso de Air y creación de `.air.toml`
 6. Soporte `.env`
 7. Inicializar repositorio Git
@@ -50,8 +40,50 @@ Si no usas `--yes`, el comando solicita:
 | Flag | Descripción |
 |---|---|
 | `--yes`, `-y` | Salta prompts y aplica defaults |
-| `--without-starter-module` | No crea el módulo `starter` |
-| `--with-folder-structure` | Crea estructura opinada de carpetas internas |
+| `--without-starter-module` | No crea `internal/modules/starter` |
+| `--with-folder-structure` | Crea estructura opinada (`middleware`, `guards`, `scheduler`, etc.) |
+
+## Archivos generados
+
+Base:
+
+- `cmd/main.go`
+- `go.mod`
+- `keel.toml`
+- `README.md`
+- `.gitignore`
+
+Opcionales:
+
+- `.env`, `.env.example`
+- `.air.toml`
+- `internal/modules/starter/*`
+- carpetas: `internal/middleware`, `internal/guards`, `internal/scheduler`, `internal/checkers`, `internal/events`, `internal/hooks`
+
+## Post-setup que puede ejecutar
+
+Dependiendo de tus respuestas:
+
+- `git init <appName>`
+- `go mod tidy`
+- commit inicial con mensaje: `feat: initial commit keel framework`
+
+Si algo falla, el comando continúa y muestra advertencias (`⚠`) en consola.
+
+## Modo automático (`--yes`)
+
+Defaults aplicados por el CLI:
+
+- `moduleName = github.com/my-github-user/<app>`
+- `useAir = true`
+- `includeAirConfig = true`
+- `useEnv = true`
+- `initGit = true`
+- `installDeps = true`
+
+:::caution[Revisión obligatoria]
+Con `--yes`, corrige el `module` de `go.mod` antes de subir el proyecto.
+:::
 
 ## Ejemplos
 
@@ -61,7 +93,7 @@ Proyecto interactivo:
 keel new payments-api
 ```
 
-Proyecto automático + estructura completa:
+Proyecto automático y estructura completa:
 
 ```bash
 keel new payments-api --yes --with-folder-structure
@@ -73,13 +105,14 @@ Proyecto sin módulo starter:
 keel new payments-api --without-starter-module
 ```
 
-## Notas importantes
+## Errores frecuentes
 
-- Si la carpeta destino ya existe, el comando falla.
-- Con `--yes`, el módulo por defecto es `github.com/my-github-user/<app>`.
-- En modo automático, también intenta:
-  - `git init`
-  - `go mod tidy`
-  - commit inicial (`feat: initial commit keel framework`)
+- `directory '<name>' already exists`
+- `project name cannot be empty`
+- `project name cannot contain spaces`
+- `project name must not contain '/' or '\\'`
+- `project name is required when using --yes/-y`
 
-Si estás en red restringida o sin acceso al proxy de Go, `go mod tidy` puede fallar y debes ejecutarlo luego en tu entorno de red.
+## Recomendación práctica
+
+Si usas `--without-starter-module` y no usas `--with-folder-structure`, crea `internal/` manualmente antes de usar `keel generate`, porque ese comando exige estructura de proyecto Keel válida.

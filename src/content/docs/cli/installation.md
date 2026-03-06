@@ -3,52 +3,66 @@ title: Instalación
 description: Instala Keel CLI con go install, Homebrew tap o binarios de GitHub Releases.
 ---
 
+## Métodos soportados
+
+| Método | Cuándo usarlo |
+|---|---|
+| `go install` | Si tu entorno principal es Go y quieres actualización rápida |
+| Homebrew tap | Si gestionas tooling con Homebrew (macOS/Linux) |
+| GitHub Releases | Si prefieres instalar binario manual por plataforma |
+
 ## Requisitos
 
-- Go `1.25+` (recomendado)
-- Git (para flujos de proyecto)
+- Go `1.25+`
+- Git
+- Acceso de red al módulo o releases de GitHub
 
-## Opción 1: `go install` (recomendada si trabajas full Go)
+## Opción 1: `go install` (recomendada)
+
+Instalar última versión:
 
 ```bash
 go install github.com/slice-soft/keel@latest
 ```
 
-Si `keel` no aparece en tu shell, valida que tu binario de Go esté en `PATH`:
+Instalar versión específica:
 
 ```bash
-echo "GOBIN=$(go env GOBIN)"
-echo "GOPATH=$(go env GOPATH)"
+go install github.com/slice-soft/keel@v1.0.0
 ```
 
-En la mayoría de casos debes agregar `$(go env GOPATH)/bin` al `PATH`.
-
-Verifica instalación:
+Validar:
 
 ```bash
 keel --version
+keel --help
 ```
 
-Actualizar con este método:
+### Si `keel` no aparece en PATH
 
 ```bash
-go install github.com/slice-soft/keel@latest
+go env GOBIN
+go env GOPATH
 ```
+
+Si `GOBIN` está vacío, normalmente el binario queda en `$(go env GOPATH)/bin`.
 
 ## Opción 2: Homebrew tap (macOS/Linux)
 
-El release del CLI publica fórmula Homebrew en el tap:
-- Tap repo: `slice-soft/homebrew-tap`
+El pipeline de release del CLI publica fórmula `keel` en el tap:
+
+- Repo del tap: `slice-soft/homebrew-tap`
+- Tap name: `slice-soft/tap`
 - Fórmula: `keel`
 
-Instalación:
+Instalar:
 
 ```bash
 brew tap slice-soft/tap
 brew install slice-soft/tap/keel
 ```
 
-Verifica:
+Validar:
 
 ```bash
 keel --version
@@ -57,33 +71,71 @@ keel --version
 Actualizar:
 
 ```bash
+brew update
 brew upgrade slice-soft/tap/keel
 ```
 
 ## Opción 3: Binario desde GitHub Releases
 
 1. Abre [github.com/slice-soft/keel/releases](https://github.com/slice-soft/keel/releases).
-2. Descarga el artefacto de tu plataforma:
-   - Linux/macOS: `keel_<os>_<arch>.tar.gz`
-   - Windows: `keel_windows_<arch>.zip`
-3. Extrae el binario `keel` y ubícalo en un directorio dentro de `PATH`.
-4. Ejecuta `keel --version`.
+2. Descarga el artefacto de tu plataforma.
 
-## Verificación rápida
+Según la configuración de release, los nombres de archivo son:
+
+- Linux/macOS: `keel_<os>_<arch>.tar.gz`
+- Windows: `keel_windows_<arch>.zip`
+
+### Linux/macOS
 
 ```bash
-keel --help
-keel --version
+# ejemplo: reemplaza por el archivo descargado
+tar -xzf keel_darwin_arm64.tar.gz
+chmod +x keel
+sudo mv keel /usr/local/bin/keel
 ```
 
-Debes ver comandos como `new`, `init`, `generate`, `run` y `completion`.
+### Windows (PowerShell)
 
-## Evita instalaciones duplicadas
+```powershell
+# ejemplo: reemplaza por el archivo descargado
+Expand-Archive .\keel_windows_amd64.zip -DestinationPath .\keel-bin
+Move-Item .\keel-bin\keel.exe $HOME\bin\keel.exe
+```
 
-Si instalaste por más de un método y el binario no coincide con lo esperado:
+Asegúrate de tener el directorio de destino dentro de `PATH`.
+
+## Verificación completa
+
+```bash
+which -a keel
+keel --version
+keel --help
+```
+
+Debes ver, al menos, los comandos:
+
+- `new`
+- `init`
+- `generate`
+- `run`
+- `completion`
+
+## Actualización por método
+
+- Si instalaste con `go install`: vuelve a ejecutar `go install github.com/slice-soft/keel@latest`
+- Si instalaste con Homebrew: `brew upgrade slice-soft/tap/keel`
+- Si instalaste por release manual: descarga e instala el nuevo binario
+
+:::caution[Nota sobre mensajes de actualización]
+Si ves sugerencias del tipo `Update with: keel upgrade`, prioriza el método de instalación que usaste. El binario actual no expone `keel upgrade` como subcomando.
+:::
+
+## Evitar conflictos de múltiples instalaciones
+
+Si tienes más de un binario `keel` en tu máquina:
 
 ```bash
 which -a keel
 ```
 
-Deja una sola instalación activa para evitar confusión entre versiones.
+Deja solo una instalación activa para evitar inconsistencias de versión.

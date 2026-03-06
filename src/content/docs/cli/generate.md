@@ -1,6 +1,6 @@
 ---
 title: Comando generate
-description: Genera módulos y componentes en proyectos Keel con wiring automático.
+description: Genera módulos y componentes con naming consistente y wiring automático en cmd/main.go.
 ---
 
 ## Uso
@@ -15,15 +15,15 @@ Alias:
 keel g [type] [name]
 ```
 
-## Requisitos del proyecto
+## Requisitos de proyecto
 
-`generate` exige ejecutarse dentro de un proyecto Keel válido con:
+`generate` solo funciona dentro de un proyecto con:
 
 - `go.mod`
 - `cmd/main.go`
 - carpeta `internal/`
 
-Si falta alguno, verás:
+Si no se cumple, retorna:
 
 ```text
 keel generate must be executed inside a Keel project
@@ -31,31 +31,33 @@ keel generate must be executed inside a Keel project
 
 ## Formato de `name`
 
-Se aceptan dos formatos:
+Se soportan dos formatos:
 
-- `standalone`: `users`
-- `modulo/componente`: `users/create`
+- standalone: `users`
+- módulo/componente: `users/create`
 
-Reglas:
+Reglas validadas por el CLI:
 
-- Solo un `/` máximo
-- Letras, números, `-`, `_`
-- No vacío
+- solo letras, números, `-`, `_`
+- máximo un `/`
+- no vacío
+
+`module` solo acepta formato standalone (`users`), no `users/x`.
 
 ## Tipos soportados
 
-| Tipo | Standalone | `modulo/componente` | Salida principal |
+| Tipo | Standalone | `modulo/componente` | Ubicación principal |
 |---|---|---|---|
-| `module` | Sí | No | `internal/modules/<modulo>/*` |
-| `service` | Sí | Sí | `internal/services/*` o `internal/modules/<modulo>/*` |
-| `controller` | Sí | Sí | `internal/controllers/*` o `internal/modules/<modulo>/*` |
-| `repository` | No | Sí | `internal/modules/<modulo>/*` |
-| `middleware` | Sí | No | `internal/middleware/*` |
-| `guard` | Sí | No | `internal/guards/*` |
-| `scheduler` | Sí | No | `internal/scheduler/*` |
-| `event` | Sí | No | `internal/events/*` |
-| `checker` | Sí | No | `internal/checkers/*` |
-| `hook` | Sí | No | `internal/hooks/*` |
+| `module` | Sí | No | `internal/modules/<modulo>/` |
+| `service` | Sí | Sí | `internal/services/` o `internal/modules/<modulo>/` |
+| `controller` | Sí | Sí | `internal/controllers/` o `internal/modules/<modulo>/` |
+| `repository` | No | Sí | `internal/modules/<modulo>/` |
+| `middleware` | Sí | No | `internal/middleware/` |
+| `guard` | Sí | No | `internal/guards/` |
+| `scheduler` | Sí | No | `internal/scheduler/` |
+| `event` | Sí | No | `internal/events/` |
+| `checker` | Sí | No | `internal/checkers/` |
+| `hook` | Sí | No | `internal/hooks/` |
 
 ## Aliases de tipo
 
@@ -76,21 +78,41 @@ Reglas:
 
 | Flag | Aplica a | Efecto |
 |---|---|---|
-| `--transactional` | `module` | Crea módulo sin controller (uso background/transactional) |
-| `--with-repository` | `module` | Agrega repository al generar módulo |
-| `--in-main` | `controller` standalone | Inserta rutas inline en `cmd/main.go` sin crear archivo de controller |
+| `--transactional` | `module` | Genera módulo sin controller |
+| `--with-repository` | `module` | Agrega repository al módulo |
+| `--in-main` | `controller` standalone | Inserta ruta inline en `cmd/main.go` sin archivo de controller |
 
-Si usas una combinación inválida, el comando falla con error explícito.
+Combinaciones inválidas retornan error explícito, por ejemplo:
+
+- `--transactional` fuera de `module`
+- `--with-repository` fuera de `module`
+- `--in-main` fuera de `controller` standalone
+
+## Wiring automático en `cmd/main.go`
+
+Dependiendo del tipo generado, el CLI puede:
+
+- agregar imports faltantes
+- inicializar `appLogger` si no existe
+- registrar módulos: `app.Use(...)`
+- registrar controllers: `app.RegisterController(...)`
+- registrar scheduler/checker/hook
+- crear controlador inline con `core.ControllerFunc` (`--in-main`)
+
+## Comportamiento con archivos existentes
+
+- Para `module`: si un archivo ya existe, no lo sobrescribe; continúa con el resto.
+- Para la mayoría de tipos no-module: si el archivo destino existe, falla con `file already exists: ...`.
 
 ## Ejemplos
 
-Generar módulo completo:
+Módulo completo:
 
 ```bash
 keel g module users
 ```
 
-Módulo sin controller + con repository:
+Módulo transaccional con repositorio:
 
 ```bash
 keel g module payments --transactional --with-repository
@@ -105,7 +127,7 @@ keel g service users/validate-email
 Controller standalone inline en `main`:
 
 ```bash
-keel g controller health --in-main
+keel g controller ops-ping --in-main
 ```
 
 Scheduler/checker/hook:
@@ -116,28 +138,16 @@ keel g checker redis
 keel g hook shutdown
 ```
 
-## Wiring automático
-
-Según el tipo generado, `generate` puede modificar `cmd/main.go` automáticamente para:
-
-- agregar imports
-- registrar módulos (`app.Use(...)`)
-- registrar controllers (`app.RegisterController(...)`)
-- registrar scheduler (`app.RegisterScheduler(...)`)
-- registrar health checkers (`app.RegisterHealthChecker(...)`)
-- registrar hooks de apagado (`app.OnShutdown(...)`)
-
-También regenera el archivo de módulo (`*_module.go`) con los componentes existentes.
-
-## Errores comunes
+## Errores frecuentes
 
 - `unsupported generator type: ...`
 - `invalid name: ...`
+- `module name must not contain '/'`
 - `file already exists: ...`
-- `module package mismatch: ...`
+- `module package mismatch: expected 'x', found 'y' in <file>`
 
-## Buenas prácticas
+## Recomendaciones
 
-- Usa `module` para features de dominio (`users`, `orders`, `payments`).
-- Usa standalone solo para piezas transversales (`middleware`, `scheduler`, `hooks`).
-- Revisa el diff de `cmd/main.go` después de cada generación para mantener control del wiring.
+1. Usa `module` para dominios de negocio (`users`, `orders`, `payments`).
+2. Usa standalone para piezas transversales (`middleware`, `scheduler`, `hooks`).
+3. Revisa siempre el diff de `cmd/main.go` después de cada generación.
