@@ -8,7 +8,7 @@ description: Crea tu primera API con Keel CLI y ss-keel-core.
 - **`ss-keel-core`**: framework HTTP en Go sobre Fiber, con OpenAPI, logging, validación y lifecycle.
 - **`keel` CLI**: scaffolding, generación de componentes y automatización de scripts.
 
-## Requirements
+## Requisitos
 
 - Go `1.25+`
 - Git
@@ -55,7 +55,7 @@ myapp/
 
 Con el servidor activo:
 
-| Endpoint | Description |
+| Endpoint | Descripción |
 |---|---|
 | `GET /hello` | Ruta starter (si incluiste starter module) |
 | `GET /health` | Health check |
@@ -110,10 +110,10 @@ Ejecuta:
 go run ./cmd/main.go
 ```
 
-## What's Next
+## Qué sigue
 
-- [CLI Installation](/cli/installation) — métodos de instalación (`go install`, `brew`, releases)
-- [CLI Generate](/cli/generate) — generación de módulos y wiring automático
+- [Instalación de CLI](/cli/installation) — métodos de instalación (`go install`, `brew`, releases)
+- [Comando generate](/cli/generate) — generación de módulos y wiring automático
 - [Configuration](/guides/configuration) — env vars y configuración de runtime
 - [Controllers](/guides/controllers) — diseño de rutas y handlers
 - [Modules](/guides/modules) — organización por dominio
