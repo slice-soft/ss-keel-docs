@@ -14,6 +14,11 @@ export default defineConfig({
             },
             favicon: '/favicon.svg',
             customCss: ['./src/styles/custom.css'],
+            defaultLocale: 'en',
+            locales: {
+                en: { label: 'English'},
+                es: { label: 'Español', lang: 'es'},
+            },
             head: [
                 {
                     tag: 'link',
@@ -55,60 +60,61 @@ export default defineConfig({
             sidebar: [
                 {
                     label: 'Guides',
+                    translations: { es: 'Guías' },
                     items: [
-                        { label: 'Getting Started',   slug: 'guides/getting-started' },
-                        { label: 'Configuration',     slug: 'guides/configuration' },
-                        { label: 'Controllers',       slug: 'guides/controllers' },
-                        { label: 'Modules',           slug: 'guides/modules' },
-                        { label: 'Error Handling',    slug: 'guides/error-handling' },
-                        { label: 'Authentication',    slug: 'guides/authentication' },
-                        { label: 'OpenAPI & Swagger', slug: 'guides/openapi' },
-                        { label: 'Logger',            slug: 'guides/logger' },
-                        { label: 'Testing',           slug: 'guides/testing' },
+                        { label: 'Getting Started',   translations: { es: 'Primeros Pasos' },           slug: 'guides/getting-started' },
+                        { label: 'Configuration',     translations: { es: 'Configuración' },            slug: 'guides/configuration' },
+                        { label: 'Controllers',       translations: { es: 'Controladores' },            slug: 'guides/controllers' },
+                        { label: 'Modules',           translations: { es: 'Módulos' },                  slug: 'guides/modules' },
+                        { label: 'Error Handling',    translations: { es: 'Manejo de Errores' },        slug: 'guides/error-handling' },
+                        { label: 'Authentication',    translations: { es: 'Autenticación' },            slug: 'guides/authentication' },
+                        { label: 'OpenAPI & Swagger', translations: { es: 'OpenAPI y Swagger' },        slug: 'guides/openapi' },
+                        { label: 'Logger',            translations: { es: 'Registro (Logger)' },        slug: 'guides/logger' },
+                        { label: 'Testing',           translations: { es: 'Pruebas' },                  slug: 'guides/testing' },
                     ],
                 },
                 {
                     label: 'CLI',
                     items: [
-                        { label: 'Visión general', slug: 'cli/overview' },
-                        { label: 'Instalación', slug: 'cli/installation' },
-                        { label: 'Inicio Rápido', slug: 'cli/quickstart' },
-                        { label: 'Comando new', slug: 'cli/new' },
-                        { label: 'Comando init', slug: 'cli/init' },
-                        { label: 'Comando generate', slug: 'cli/generate' },
-                        { label: 'Comando run', slug: 'cli/run' },
-                        { label: 'Autocompletado', slug: 'cli/completion' },
-                        { label: 'Resolución de problemas', slug: 'cli/troubleshooting' },
+                        { label: 'Overview',          translations: { es: 'Visión general' },           slug: 'cli/overview' },
+                        { label: 'Installation',      translations: { es: 'Instalación' },              slug: 'cli/installation' },
+                        { label: 'Quick Start',       translations: { es: 'Inicio Rápido' },            slug: 'cli/quickstart' },
+                        { label: 'new command',       translations: { es: 'Comando new' },              slug: 'cli/new' },
+                        { label: 'init command',      translations: { es: 'Comando init' },             slug: 'cli/init' },
+                        { label: 'generate command',  translations: { es: 'Comando generate' },         slug: 'cli/generate' },
+                        { label: 'run command',       translations: { es: 'Comando run' },              slug: 'cli/run' },
+                        { label: 'Shell Completion',  translations: { es: 'Autocompletado' },           slug: 'cli/completion' },
+                        { label: 'Troubleshooting',   translations: { es: 'Resolución de problemas' },  slug: 'cli/troubleshooting' },
                     ],
                 },
                 {
                     label: 'Addons',
                     collapsed: true,
                     items: [
-                        { label: 'Overview', slug: 'addons/overview' },
-                        { label: 'Databases',      items: [
+                        { label: 'Overview',       translations: { es: 'Resumen' },        slug: 'addons/overview' },
+                        { label: 'Databases',      translations: { es: 'Bases de datos' }, items: [
                             { label: 'ss-keel-gorm',  slug: 'addons/ss-keel-gorm' },
                             { label: 'ss-keel-mongo', slug: 'addons/ss-keel-mongo' },
                         ]},
                         { label: 'Cache',          items: [
                             { label: 'ss-keel-redis', slug: 'addons/ss-keel-redis' },
                         ]},
-                        { label: 'Authentication', items: [
+                        { label: 'Authentication', translations: { es: 'Autenticación' },  items: [
                             { label: 'ss-keel-jwt',   slug: 'addons/ss-keel-jwt' },
                             { label: 'ss-keel-oauth', slug: 'addons/ss-keel-oauth' },
                         ]},
-                        { label: 'Messaging',      items: [
+                        { label: 'Messaging',      translations: { es: 'Mensajería' },     items: [
                             { label: 'ss-keel-amqp',  slug: 'addons/ss-keel-amqp' },
                             { label: 'ss-keel-kafka', slug: 'addons/ss-keel-kafka' },
                         ]},
-                        { label: 'Communication',  items: [
+                        { label: 'Communication',  translations: { es: 'Comunicación' },   items: [
                             { label: 'ss-keel-mail', slug: 'addons/ss-keel-mail' },
                             { label: 'ss-keel-ws',   slug: 'addons/ss-keel-ws' },
                         ]},
-                        { label: 'Storage',        items: [
+                        { label: 'Storage',        translations: { es: 'Almacenamiento' }, items: [
                             { label: 'ss-keel-storage', slug: 'addons/ss-keel-storage' },
                         ]},
-                        { label: 'Observability',  items: [
+                        { label: 'Observability',  translations: { es: 'Observabilidad' }, items: [
                             { label: 'ss-keel-metrics', slug: 'addons/ss-keel-metrics' },
                             { label: 'ss-keel-tracing', slug: 'addons/ss-keel-tracing' },
                         ]},
@@ -122,12 +128,14 @@ export default defineConfig({
                 },
                 {
                     label: 'Reference',
+                    translations: { es: 'Referencia' },
                     autogenerate: { directory: 'reference' },
                 },
                 {
                     label: 'Community',
+                    translations: { es: 'Comunidad' },
                     items: [
-                        { label: 'Overview', slug: 'community/overview' },
+                        { label: 'Overview', translations: { es: 'Resumen' }, slug: 'community/overview' },
                     ],
                 },
             ],

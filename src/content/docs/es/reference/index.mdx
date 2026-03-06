@@ -1,0 +1,20 @@
+---
+title: Referencia de API
+description: Referencia completa de API para ss-keel-core.
+---
+
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+Documentación de referencia completa para todas las APIs públicas de **ss-keel-core**.
+
+<CardGrid>
+  <LinkCard title="App" href="/reference/app" description="Estructura App, New(), Listen() y opciones de configuración." />
+  <LinkCard title="Enrutamiento" href="/reference/routing" description="Route builder, constructores HTTP y encadenamiento de middleware." />
+  <LinkCard title="Contexto" href="/reference/context" description="Wrapper Ctx: parsing de request, helpers de respuesta y acceso a usuario." />
+  <LinkCard title="Errores" href="/reference/errors" description="Tipo KError y constructores de error incluidos." />
+  <LinkCard title="Paginación" href="/reference/pagination" description="PageQuery, Page[T] y ParsePagination." />
+  <LinkCard title="Health Checks" href="/reference/health" description="Interfaz HealthChecker y endpoint /health autogenerado." />
+  <LinkCard title="Interfaces" href="/reference/interfaces" description="Repository, Cache, Guard, Mailer, Storage, Scheduler y más." />
+  <LinkCard title="Logger" href="/reference/logger" description="Logger estructurado con salida texto y JSON." />
+  <LinkCard title="Validación" href="/reference/validation" description="Validación de structs usando tags de go-playground/validator." />
+</CardGrid>
