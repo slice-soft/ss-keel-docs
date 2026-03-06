@@ -1,11 +1,11 @@
 ---
 title: ss-keel-gorm
-description: Soporte para PostgreSQL, MySQL, MariaDB, SQLite y SQL Server via GORM con una implementacion generica de Repository.
+description: Soporte para PostgreSQL, MySQL, MariaDB, SQLite y SQL Server vía GORM con una implementación genérica de Repository.
 ---
 
-`ss-keel-gorm` ofrece un `GormRepository[T, ID]` generico que implementa [`core.Repository[T, ID]`](/reference/interfaces#repository) usando [GORM](https://gorm.io/). Soporta Postgres, MySQL, MariaDB, SQLite y SQL Server con cero boilerplate para CRUD estandar.
+`ss-keel-gorm` ofrece un `GormRepository[T, ID]` genérico que implementa [`core.Repository[T, ID]`](/reference/interfaces#repository) usando [GORM](https://gorm.io/). Soporta Postgres, MySQL, MariaDB, SQLite y SQL Server con cero boilerplate para CRUD estándar.
 
-## Instalacion
+## Instalación
 
 ```bash
 keel add gorm
@@ -17,7 +17,7 @@ O manualmente:
 go get github.com/slice-soft/ss-keel-gorm
 ```
 
-## Conexion
+## Conexión
 
 ```go
 import "github.com/slice-soft/ss-keel-gorm/database"
@@ -42,7 +42,7 @@ Motores soportados:
 | `database.EngineSQLite` | SQLite |
 | `database.EngineSQLServer` | SQL Server |
 
-Tambien puedes pasar un DSN completo directamente:
+También puedes pasar un DSN completo directamente:
 
 ```go
 db, err := database.New(database.Config{
@@ -51,9 +51,9 @@ db, err := database.New(database.Config{
 })
 ```
 
-## Definicion de modelo
+## Definición de modelo
 
-Los modelos siguen las convenciones estandar de GORM:
+Los modelos siguen las convenciones estándar de GORM:
 
 ```go
 type User struct {
@@ -65,9 +65,9 @@ type User struct {
 }
 ```
 
-## Repositorio generico
+## Repositorio genérico
 
-`GormRepository[T, ID]` cubre el CRUD estandar sin escribir codigo adicional:
+`GormRepository[T, ID]` cubre el CRUD estándar sin escribir código adicional:
 
 ```go
 type UserRepository = database.GormRepository[User, string]
@@ -77,17 +77,17 @@ func NewUserRepository(db *database.DBinstance) *UserRepository {
 }
 ```
 
-Metodos disponibles (implementa `core.Repository[T, ID]`):
+Métodos disponibles (implementa `core.Repository[T, ID]`):
 
 ```go
 repo.FindByID(ctx, "abc-123")                           // *User, error
 repo.FindAll(ctx, core.PageQuery{Page: 1, Limit: 20})   // core.Page[User], error
 repo.Create(ctx, &user)                                  // error
-repo.Update(ctx, "abc-123", &user)                       // error  (reemplazo completo via Save)
+repo.Update(ctx, "abc-123", &user)                       // error  (reemplazo completo vía Save)
 repo.Delete(ctx, "abc-123")                              // error  (respeta soft-delete)
 ```
 
-## Verificacion de salud
+## Verificación de salud
 
 ```go
 app.RegisterHealthChecker(database.NewHealthChecker(db))
@@ -96,7 +96,7 @@ app.RegisterHealthChecker(database.NewHealthChecker(db))
 
 ## Extender con consultas personalizadas
 
-Embebe `GormRepository` y agrega metodos usando `r.DB()` para acceso GORM directo:
+Embebe `GormRepository` y agrega métodos usando `r.DB()` para acceso directo de GORM:
 
 ```go
 type UserRepository struct {
@@ -121,7 +121,7 @@ func (r *UserRepository) FindByEmail(ctx context.Context, email string) (*User, 
 
 ## Pool de conexiones
 
-Se configura automaticamente con valores por defecto razonables. Puedes sobrescribirlos mediante `Config.Pool`:
+Se configura automáticamente con valores por defecto razonables. Puedes sobrescribirlos mediante `Config.Pool`:
 
 ```go
 database.New(database.Config{
@@ -146,9 +146,9 @@ database.RegisterDialector("oracle", func(cfg database.Config) (gorm.Dialector, 
 })
 ```
 
-## Integracion CLI
+## Integración CLI
 
-Cuando `ss-keel-gorm` esta presente en `go.mod`, `keel generate repository` genera automaticamente un repositorio respaldado por GORM en lugar del stub por defecto:
+Cuando `ss-keel-gorm` está presente en `go.mod`, `keel generate repository` genera automáticamente un repositorio respaldado por GORM en lugar del stub por defecto:
 
 ```bash
 keel generate repository users/product
