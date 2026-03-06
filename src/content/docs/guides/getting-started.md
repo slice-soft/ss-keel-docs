@@ -1,161 +1,120 @@
 ---
 title: Getting Started
-description: Install ss-keel-core and build your first API in minutes.
+description: Crea tu primera API con Keel CLI y ss-keel-core.
 ---
 
-**ss-keel-core** is a Go web framework built on top of [Fiber v2](https://gofiber.io/). It provides a structured, opinionated foundation for building production-ready REST APIs with built-in OpenAPI docs, structured logging, validation, health checks, and graceful shutdown.
+**Keel** combina:
+
+- **`ss-keel-core`**: framework HTTP en Go sobre Fiber, con OpenAPI, logging, validación y lifecycle.
+- **`keel` CLI**: scaffolding, generación de componentes y automatización de scripts.
 
 ## Requirements
 
-- Go 1.21 or later
-- GoPATH set up correctly
+- Go `1.25+`
+- Git
+- (Opcional) Air para hot reload
 
-## Installation
+## Camino recomendado: con CLI
 
 ```bash
 go install github.com/slice-soft/keel@latest
-keel new github.com/your-username/myapp
+keel new myapp
+cd myapp
 ```
 
-## Project Structure
-
-A typical ss-keel-core project looks like this:
-
-```
-myapp/
-├── main.go
-├── config/
-│   └── config.go   ← environment variables loaded here
-├── users/
-│   ├── module.go
-│   ├── controller.go
-│   └── service.go
-└── auth/
-    ├── module.go
-    └── guard.go
-```
-
-## Your First App
-
-### 1. Load configuration
-
-Create `config/config.go` to centralise all environment variables:
-
-```go
-// config/config.go
-package config
-
-import (
-    "os"
-    "strconv"
-)
-
-type Config struct {
-    ServiceName string
-    Port        int
-    Env         string
-}
-
-func Load() Config {
-    port, _ := strconv.Atoi(getEnv("PORT", "3000"))
-
-    return Config{
-        ServiceName: getEnv("SERVICE_NAME", "my-api"),
-        Port:        port,
-        Env:         getEnv("ENV", "development"),
-    }
-}
-
-func getEnv(key, fallback string) string {
-    if v := os.Getenv(key); v != "" {
-        return v
-    }
-    return fallback
-}
-```
-
-### 2. Create the app
-
-```go
-// main.go
-package main
-
-import (
-    "myapp/config"
-    "github.com/slice-soft/ss-keel-core/core"
-)
-
-func main() {
-    cfg := config.Load()
-
-    app := core.New(core.KConfig{
-        ServiceName: cfg.ServiceName,
-        Port:        cfg.Port,
-        Env:         cfg.Env,
-        Docs: core.DocsConfig{
-            Title:       "My API",
-            Version:     "1.0.0",
-            Description: "A simple REST API",
-        },
-    })
-
-    app.Listen()
-}
-```
-
-### 3. Add a route
-
-Routes are registered through **Controllers**. A controller is any struct that implements `Routes() []Route`.
-
-```go
-type HelloController struct{}
-
-func (c *HelloController) Routes() []core.Route {
-    return []core.Route{
-        core.GET("/hello", c.hello).
-            Tag("hello").
-            Describe("Say hello", "Returns a greeting message"),
-    }
-}
-
-func (c *HelloController) hello(ctx *core.Ctx) error {
-    return ctx.OK(map[string]string{"message": "Hello, World!"})
-}
-```
-
-Register it in `main.go`:
-
-```go
-app.RegisterController(&HelloController{})
-app.Listen()
-```
-
-### 4. Run it
+Ejecuta en desarrollo:
 
 ```bash
-go run main.go
-# or with env vars
-PORT=8080 ENV=development go run main.go
+keel run dev
 ```
 
-Your API is now running on `http://localhost:3000`.
+Genera tu primer módulo:
 
-Built-in endpoints available out of the box:
+```bash
+keel generate module users --with-repository
+```
+
+### Estructura base generada
+
+Un proyecto típico generado por CLI queda así:
+
+```text
+myapp/
+├── cmd/
+│   └── main.go
+├── internal/
+│   └── modules/
+│       └── starter/           # opcional
+├── go.mod
+├── keel.toml
+├── .env                       # opcional
+└── .air.toml                  # opcional
+```
+
+### Endpoints iniciales
+
+Con el servidor activo:
 
 | Endpoint | Description |
 |---|---|
-| `GET /hello` | Your route |
+| `GET /hello` | Ruta starter (si incluiste starter module) |
 | `GET /health` | Health check |
 | `GET /docs` | Swagger UI |
 | `GET /docs/openapi.json` | OpenAPI 3.0 spec |
 
-> The `/docs` endpoint is only available when `Env` is not `"production"`.
+> `/docs` y `/docs/openapi.json` se montan cuando `Env != "production"`.
+
+## Camino manual: solo `ss-keel-core`
+
+Si prefieres no usar CLI, puedes arrancar manualmente:
+
+```bash
+mkdir myapp && cd myapp
+go mod init github.com/your-org/myapp
+go get github.com/slice-soft/ss-keel-core@latest
+```
+
+`cmd/main.go` mínimo:
+
+```go
+package main
+
+import (
+	"github.com/slice-soft/ss-keel-core/config"
+	"github.com/slice-soft/ss-keel-core/core"
+	"github.com/slice-soft/ss-keel-core/logger"
+)
+
+func main() {
+	appLogger := logger.NewLogger(config.GetEnvOrDefault("APP_ENV", "development") == "production")
+
+	app := core.New(core.KConfig{
+		Port:        config.GetEnvIntOrDefault("PORT", 7331),
+		ServiceName: config.GetEnvOrDefault("SERVICE_NAME", "myapp"),
+		Env:         config.GetEnvOrDefault("APP_ENV", "development"),
+		Docs: core.DocsConfig{
+			Title:   "myapp API",
+			Version: "1.0.0",
+		},
+	})
+
+	if err := app.Listen(); err != nil {
+		appLogger.Error("failed to start app: %v", err)
+	}
+}
+```
+
+Ejecuta:
+
+```bash
+go run ./cmd/main.go
+```
 
 ## What's Next
 
-- [Configuration](/guides/configuration) — env vars, `.env` files, Docker setup
-- [Controllers](/guides/controllers) — structure routes and handlers
-- [Modules](/guides/modules) — organize the app into reusable modules
-- [Logger](/guides/logger) — structured logging across your application
-- [Error Handling](/guides/error-handling) — return structured errors
-- [Testing](/guides/testing) — write unit tests for your controllers
+- [CLI Installation](/cli/installation) — métodos de instalación (`go install`, `brew`, releases)
+- [CLI Generate](/cli/generate) — generación de módulos y wiring automático
+- [Configuration](/guides/configuration) — env vars y configuración de runtime
+- [Controllers](/guides/controllers) — diseño de rutas y handlers
+- [Modules](/guides/modules) — organización por dominio
+- [Testing](/guides/testing) — pruebas unitarias e integración
