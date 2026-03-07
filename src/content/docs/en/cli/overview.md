@@ -5,7 +5,7 @@ description: Overview of the Keel CLI, available commands and their relationship
 
 `keel` is the official CLI for the Keel ecosystem to create, initialize, and maintain structured Go projects.
 
-This section is validated against the real code of `ss-keel-cli` and `ss-keel-core` (including tests and templates) as of **March 5, 2026**.
+This section is validated against the real code of `ss-keel-cli` and `ss-keel-core` (including tests and templates) as of **March 6, 2026**.
 
 ## Sources of truth
 
@@ -19,6 +19,7 @@ This section is validated against the real code of `ss-keel-cli` and `ss-keel-co
 - Creating projects ready to work with (`keel new`)
 - Adopting Keel in existing projects (`keel init`)
 - Generating components with automatic wiring (`keel generate`)
+- Installing addons with automatic project wiring (`keel add`)
 - Running project scripts (`keel run`)
 - Shell autocompletion (`keel completion`)
 
@@ -29,6 +30,7 @@ This section is validated against the real code of `ss-keel-cli` and `ss-keel-co
 | `keel new [project-name]` | `keel n` | Creates a new project from official templates |
 | `keel init` | — | Generates `keel.toml` in an existing project |
 | `keel generate [type] [name]` | `keel g` | Generates modules/components and updates `cmd/main.go` |
+| `keel add [alias\|repo]` | — | Installs an addon from the official registry or a direct GitHub repo |
 | `keel run [script]` | — | Runs scripts from `[scripts]` in `keel.toml` |
 | `keel completion ...` | — | Generates/installs autocompletion (`zsh`, `bash`, `fish`, `powershell`) |
 | `keel --version` | `keel -v` | Shows version, commit, build date and platform |
@@ -53,7 +55,10 @@ keel run dev
 # 4) Generate first module
 keel generate module users --with-repository
 
-# 5) Check commands and version
+# 5) Install an addon
+keel add gorm
+
+# 6) Check commands and version
 keel --help
 keel --version
 ```
@@ -79,6 +84,7 @@ When you run a generated project, you inherit the core's behavior:
 - [Quick Start](/cli/quickstart/)
 - [`new` command](/cli/new/)
 - [`generate` command](/cli/generate/)
+- [`add` command](/cli/add/)
 - [Troubleshooting](/cli/troubleshooting/)
 
 :::note[Repository]

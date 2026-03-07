@@ -82,6 +82,7 @@ export default defineConfig({
                         { label: 'new command',       translations: { es: 'Comando new' },              slug: 'cli/new' },
                         { label: 'init command',      translations: { es: 'Comando init' },             slug: 'cli/init' },
                         { label: 'generate command',  translations: { es: 'Comando generate' },         slug: 'cli/generate' },
+                        { label: 'add command',       translations: { es: 'Comando add' },              slug: 'cli/add' },
                         { label: 'run command',       translations: { es: 'Comando run' },              slug: 'cli/run' },
                         { label: 'Shell Completion',  translations: { es: 'Autocompletado' },           slug: 'cli/completion' },
                         { label: 'Troubleshooting',   translations: { es: 'Resolución de problemas' },  slug: 'cli/troubleshooting' },
@@ -92,6 +93,7 @@ export default defineConfig({
                     collapsed: true,
                     items: [
                         { label: 'Overview',       translations: { es: 'Resumen' },        slug: 'addons/overview' },
+                        { label: 'Ecosystem',      translations: { es: 'Ecosistema' },     slug: 'addons/ecosystem' },
                         { label: 'Databases',      translations: { es: 'Bases de datos' }, items: [
                             { label: 'ss-keel-gorm',  slug: 'addons/ss-keel-gorm' },
                             { label: 'ss-keel-mongo', slug: 'addons/ss-keel-mongo' },
