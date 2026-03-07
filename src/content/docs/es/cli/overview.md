@@ -5,7 +5,7 @@ description: Panorama del CLI de Keel, comandos disponibles y su relación con s
 
 `keel` es el CLI oficial del ecosistema Keel para crear, inicializar y mantener proyectos Go estructurados.
 
-Esta sección está validada contra el código real de `ss-keel-cli` y `ss-keel-core` (incluyendo tests y plantillas) con corte al **5 de marzo de 2026**.
+Esta sección está validada contra el código real de `ss-keel-cli` y `ss-keel-core` (incluyendo tests y plantillas) con corte al **6 de marzo de 2026**.
 
 ## Fuentes de verdad
 
@@ -19,6 +19,7 @@ Esta sección está validada contra el código real de `ss-keel-cli` y `ss-keel-
 - Creación de proyectos listos para trabajar (`keel new`)
 - Adopción de Keel en proyectos existentes (`keel init`)
 - Generación de componentes con wiring automático (`keel generate`)
+- Instalación de addons con wiring automático (`keel add`)
 - Ejecución de scripts del proyecto (`keel run`)
 - Autocompletado para shell (`keel completion`)
 
@@ -29,6 +30,7 @@ Esta sección está validada contra el código real de `ss-keel-cli` y `ss-keel-
 | `keel new [project-name]` | `keel n` | Crea un proyecto nuevo desde plantillas oficiales |
 | `keel init` | — | Genera `keel.toml` en un proyecto existente |
 | `keel generate [type] [name]` | `keel g` | Genera módulos/componentes y ajusta `cmd/main.go` |
+| `keel add [alias\|repo]` | — | Instala un addon del registry oficial o de un repo GitHub directo |
 | `keel run [script]` | — | Ejecuta scripts de `[scripts]` en `keel.toml` |
 | `keel completion ...` | — | Genera/instala autocompletado (`zsh`, `bash`, `fish`, `powershell`) |
 | `keel --version` | `keel -v` | Muestra versión, commit, build date y plataforma |
@@ -53,7 +55,10 @@ keel run dev
 # 4) Generar primer módulo
 keel generate module users --with-repository
 
-# 5) Verificar comandos y versión
+# 5) Instalar un addon
+keel add gorm
+
+# 6) Verificar comandos y versión
 keel --help
 keel --version
 ```
@@ -79,6 +84,7 @@ Cuando ejecutas un proyecto generado, heredas el comportamiento del core:
 - [Inicio Rápido](/cli/quickstart/)
 - [Comando `new`](/cli/new/)
 - [Comando `generate`](/cli/generate/)
+- [Comando `add`](/cli/add/)
 - [Resolución de problemas](/cli/troubleshooting/)
 
 :::note[Repositorio]

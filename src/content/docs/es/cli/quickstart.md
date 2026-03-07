@@ -94,4 +94,5 @@ keel run test
 - [Comando `new`](/cli/new/)
 - [Comando `init`](/cli/init/)
 - [Comando `generate`](/cli/generate/)
+- [Comando `add`](/cli/add/)
 - [Comando `run`](/cli/run/)

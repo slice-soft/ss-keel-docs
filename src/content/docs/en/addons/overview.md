@@ -9,6 +9,19 @@ All official addons are under active development. The interfaces they implement 
 
 Addons are separate Go modules that implement the [core interfaces](/reference/interfaces). Install only what you need.
 
+## Addon ecosystem
+
+The addon ecosystem is organized into three repositories:
+
+- `ss-keel-cli`: provides `keel add` and executes addon installation steps.
+- `ss-keel-addon-template`: GitHub template to bootstrap new addon repositories.
+- `ss-keel-addons`: official alias registry consumed by `keel add`.
+
+Recommended entry points:
+
+- Install addons: [`add` command](/cli/add/)
+- Create/publish addons: [Addon Ecosystem](/addons/ecosystem/)
+
 ## Databases
 
 | Package | Description | Interface |

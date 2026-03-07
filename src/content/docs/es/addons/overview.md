@@ -9,6 +9,19 @@ Todos los addons oficiales están en desarrollo activo. Las interfaces que imple
 
 Los addons son módulos Go separados que implementan las [interfaces del core](/reference/interfaces). Instala solo lo que necesitas.
 
+## Ecosistema de addons
+
+El ecosistema de addons se organiza en tres repositorios:
+
+- `ss-keel-cli`: expone `keel add` y ejecuta los pasos de instalación del addon.
+- `ss-keel-addon-template`: template de GitHub para crear repositorios de addons.
+- `ss-keel-addons`: registry oficial de aliases consumido por `keel add`.
+
+Puntos de entrada recomendados:
+
+- Instalar addons: [Comando `add`](/cli/add/)
+- Crear/publicar addons: [Ecosistema de Addons](/addons/ecosystem/)
+
 ## Bases de datos
 
 | Paquete | Descripción | Interfaz |
