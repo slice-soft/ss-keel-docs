@@ -1,23 +1,47 @@
 ---
 title: Installation
-description: Install Keel CLI with go install, Homebrew tap, or GitHub Releases binaries.
+description: Install Keel CLI with Homebrew tap, go install, or GitHub Releases binaries.
 ---
 
 ## Supported methods
 
 | Method | When to use |
 |---|---|
+| Homebrew tap | **Recommended** · macOS/Linux, manages updates automatically |
 | `go install` | If your primary environment is Go and you want quick updates |
-| Homebrew tap | If you manage tooling with Homebrew (macOS/Linux) |
-| GitHub Releases | If you prefer installing a manual binary per platform |
+| GitHub Releases | If you prefer a manual binary per platform |
 
-## Requirements
+## Option 1: Homebrew tap — recommended (macOS/Linux)
 
-- Go `1.25+`
-- Git
-- Network access to the module or GitHub releases
+The CLI release pipeline publishes the `keel` formula in the tap:
 
-## Option 1: `go install` (recommended)
+- Tap repo: `slice-soft/homebrew-tap`
+- Tap name: `slice-soft/tap`
+- Formula: `keel`
+
+Install:
+
+```bash
+brew tap slice-soft/tap
+brew install slice-soft/tap/keel
+```
+
+Validate:
+
+```bash
+keel --version
+```
+
+Update:
+
+```bash
+brew update
+brew upgrade slice-soft/tap/keel
+```
+
+## Option 2: `go install`
+
+Requires Go `1.25+` and Git.
 
 Install the latest version:
 
@@ -46,34 +70,6 @@ go env GOPATH
 ```
 
 If `GOBIN` is empty, the binary is usually at `$(go env GOPATH)/bin`.
-
-## Option 2: Homebrew tap (macOS/Linux)
-
-The CLI release pipeline publishes the `keel` formula in the tap:
-
-- Tap repo: `slice-soft/homebrew-tap`
-- Tap name: `slice-soft/tap`
-- Formula: `keel`
-
-Install:
-
-```bash
-brew tap slice-soft/tap
-brew install slice-soft/tap/keel
-```
-
-Validate:
-
-```bash
-keel --version
-```
-
-Update:
-
-```bash
-brew update
-brew upgrade slice-soft/tap/keel
-```
 
 ## Option 3: Binary from GitHub Releases
 
@@ -104,6 +100,18 @@ Move-Item .\keel-bin\keel.exe $HOME\bin\keel.exe
 
 Make sure the destination directory is in your `PATH`.
 
+:::caution[macOS security prompt]
+The Keel binary is not yet code-signed — obtaining an Apple Developer certificate is a cost we're keeping off the table for now while the project is in early stages. Because of this, macOS Gatekeeper will block the first launch with a security warning.
+
+To allow it, open **System Settings → Privacy & Security**, scroll down to the blocked app entry, and click **Allow Anyway**. Alternatively, remove the quarantine attribute before moving the binary:
+
+```bash
+xattr -d com.apple.quarantine ./keel
+```
+
+This is a one-time step per installation. If you'd rather skip it entirely, use the Homebrew tap (Option 1), which handles this transparently.
+:::
+
 ## Full verification
 
 ```bash
@@ -122,8 +130,8 @@ You should see at least these commands:
 
 ## Updating by method
 
-- If installed with `go install`: run `go install github.com/slice-soft/keel@latest` again
 - If installed with Homebrew: `brew upgrade slice-soft/tap/keel`
+- If installed with `go install`: run `go install github.com/slice-soft/keel@latest` again
 - If installed via manual release: download and install the new binary
 
 :::caution[Note on update messages]
