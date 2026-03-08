@@ -16,8 +16,21 @@ description: Create your first API with Keel CLI and ss-keel-core.
 
 ## Recommended path: with CLI
 
+Install the CLI with Homebrew:
+
+```bash
+brew install slice-soft/tap/keel
+```
+
+Or with Go:
+
 ```bash
 go install github.com/slice-soft/keel@latest
+```
+
+Then scaffold your project:
+
+```bash
 keel new myapp
 cd myapp
 ```
