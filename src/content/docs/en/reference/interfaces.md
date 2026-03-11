@@ -1,53 +1,82 @@
 ---
-title: Interfaces
-description: "All extension interfaces: Repository, Cache, Guard, Mailer, Storage, Scheduler, Metrics, Tracer and Translator."
+title: Contracts
+description: The shared contracts in ss-keel-core/contracts used by the runtime, addons, and application modules.
 ---
 
-ss-keel-core is built around interfaces. The core package defines contracts; you provide implementations (or use official addons when available).
+`ss-keel-core/contracts` is the stable boundary between the Keel runtime and infrastructure integrations.
 
----
+The runtime depends on contracts, official addons implement contracts, and applications can build their own adapters on top of the same interfaces. This is the layer that keeps Keel modular without leaking infrastructure details into `ss-keel-core`.
+
+## Why the contracts layer exists
+
+The contracts package exists to:
+
+- keep `core.App` independent from database, cache, auth, and broker implementations
+- let addons depend on stable abstractions instead of application packages
+- give generated and hand-written modules a shared abstraction surface
+- keep clear boundaries between the core runtime, contracts, and addons
+
+The official persistence addons prove compatibility against the shared repository contract at compile time:
+
+```go
+var _ contracts.Repository[any, any, httpx.PageQuery, httpx.Page[any]] =
+    (*database.GormRepository[any, any])(nil)
+
+var _ contracts.Repository[any, any, httpx.PageQuery, httpx.Page[any]] =
+    (*mongo.MongoRepository[any, any])(nil)
+```
+
+## Module
+
+Basic application registration unit.
+
+```go
+type Module[A any] interface {
+    Register(app A)
+}
+```
+
+`core.App.Use(...)` and `core.Group.Use(...)` both accept `contracts.Module[*core.App]`.
+
+## Controller
+
+Route provider used by the runtime.
+
+```go
+type Controller[R any] interface {
+    Routes() []R
+}
+```
+
+Helper:
+
+```go
+type ControllerFunc[R any] func() []R
+```
+
+Keel uses `contracts.Controller[httpx.Route]`.
 
 ## Repository
 
-Generic CRUD contract for data access. `T` is the entity type and `ID` is the identifier type.
+Generic persistence contract.
 
 ```go
-type Repository[T any, ID any] interface {
+type Repository[T any, ID any, Q any, P any] interface {
     FindByID(ctx context.Context, id ID) (*T, error)
-    FindAll(ctx context.Context, q PageQuery) (Page[T], error)
+    FindAll(ctx context.Context, q Q) (P, error)
     Create(ctx context.Context, entity *T) error
     Update(ctx context.Context, id ID, entity *T) error
     Delete(ctx context.Context, id ID) error
 }
 ```
 
-### Example
+The official persistence addons both implement:
 
 ```go
-type UserRepository interface {
-    core.Repository[User, string]
-}
-
-// Implementation
-type PostgresUserRepository struct{ db *sql.DB }
-
-func (r *PostgresUserRepository) FindByID(ctx context.Context, id string) (*User, error) {
-    // SELECT * FROM users WHERE id = $1
-}
-
-func (r *PostgresUserRepository) FindAll(ctx context.Context, q core.PageQuery) (core.Page[User], error) {
-    offset := (q.Page - 1) * q.Limit
-    // SELECT * FROM users LIMIT $1 OFFSET $2
-}
-
-// ... Create, Update, Delete
+contracts.Repository[T, ID, httpx.PageQuery, httpx.Page[T]]
 ```
 
----
-
 ## Cache
-
-Key-value cache interface.
 
 ```go
 type Cache interface {
@@ -58,38 +87,9 @@ type Cache interface {
 }
 ```
 
-### Example
-
-```go
-type UserService struct {
-    cache core.Cache
-    repo  UserRepository
-}
-
-func (s *UserService) GetByID(ctx context.Context, id string) (*User, error) {
-    data, err := s.cache.Get(ctx, "user:"+id)
-    if err == nil {
-        var user User
-        json.Unmarshal(data, &user)
-        return &user, nil
-    }
-
-    user, err := s.repo.FindByID(ctx, id)
-    if err != nil {
-        return nil, err
-    }
-
-    b, _ := json.Marshal(user)
-    s.cache.Set(ctx, "user:"+id, b, 5*time.Minute)
-    return user, nil
-}
-```
-
----
-
 ## Guard
 
-Authentication/authorization middleware.
+Authentication and authorization middleware contract.
 
 ```go
 type Guard interface {
@@ -97,32 +97,9 @@ type Guard interface {
 }
 ```
 
-### Example
-
-```go
-type JWTGuard struct{ secret string }
-
-func (g *JWTGuard) Middleware() fiber.Handler {
-    return func(c *fiber.Ctx) error {
-        token := c.Get("Authorization")
-        claims, err := verifyJWT(token, g.secret)
-        if err != nil {
-            return core.Unauthorized("invalid token")
-        }
-        ctx := &core.Ctx{Ctx: c}
-        ctx.SetUser(claims)
-        return c.Next()
-    }
-}
-```
-
-See [Authentication](/guides/authentication) for full usage.
-
----
-
 ## Publisher and Subscriber
 
-Interfaces for asynchronous messaging.
+Messaging contracts.
 
 ```go
 type Message struct {
@@ -145,36 +122,7 @@ type Subscriber interface {
 }
 ```
 
-### Example
-
-```go
-// Publish
-func (s *OrderService) Create(ctx context.Context, order *Order) error {
-    if err := s.repo.Create(ctx, order); err != nil {
-        return err
-    }
-
-    payload, _ := json.Marshal(order)
-    return s.publisher.Publish(ctx, core.Message{
-        Topic:   "orders.created",
-        Key:     []byte(order.ID),
-        Payload: payload,
-    })
-}
-
-// Subscribe
-s.subscriber.Subscribe(ctx, "orders.created", func(ctx context.Context, msg core.Message) error {
-    var order Order
-    json.Unmarshal(msg.Payload, &order)
-    return s.sendConfirmationEmail(ctx, &order)
-})
-```
-
----
-
 ## Mailer
-
-Email sending interface.
 
 ```go
 type MailAttachment struct {
@@ -199,25 +147,7 @@ type Mailer interface {
 }
 ```
 
-### Example
-
-```go
-func (s *AuthService) SendPasswordReset(ctx context.Context, user *User, token string) error {
-    return s.mailer.Send(ctx, core.Mail{
-        From:     "noreply@example.com",
-        To:       []string{user.Email},
-        Subject:  "Reset your password",
-        HTMLBody: buildResetEmailHTML(user.Name, token),
-        TextBody: buildResetEmailText(user.Name, token),
-    })
-}
-```
-
----
-
 ## Storage
-
-Object storage interface (S3, GCS, local disk, etc.).
 
 ```go
 type StorageObject struct {
@@ -236,35 +166,12 @@ type Storage interface {
 }
 ```
 
-### Example
-
-```go
-func (s *AvatarService) Upload(ctx context.Context, userID string, file io.Reader, size int64) (string, error) {
-    key := fmt.Sprintf("avatars/%s.jpg", userID)
-
-    if err := s.storage.Put(ctx, key, file, size, "image/jpeg"); err != nil {
-        return "", core.Internal("avatar upload failed", err)
-    }
-
-    url, err := s.storage.URL(ctx, key, 24*time.Hour)
-    if err != nil {
-        return "", err
-    }
-
-    return url, nil
-}
-```
-
----
-
 ## Scheduler
-
-Interface for a cron-style job scheduler.
 
 ```go
 type Job struct {
     Name     string
-    Schedule string // cron expression, e.g. "*/5 * * * *"
+    Schedule string
     Handler  func(ctx context.Context) error
 }
 
@@ -275,42 +182,20 @@ type Scheduler interface {
 }
 ```
 
-### Registering a Scheduler
+## HealthChecker
+
+Contract used by `/health`.
 
 ```go
-app.RegisterScheduler(scheduler)
+type HealthChecker interface {
+    Name() string
+    Check(ctx context.Context) error
+}
 ```
 
-`RegisterScheduler` automatically connects `scheduler.Stop(ctx)` as a shutdown hook.
+`database.NewHealthChecker(...)` and `mongo.NewHealthChecker(...)` are the current official persistence implementations.
 
-### Example
-
-```go
-scheduler.Add(core.Job{
-    Name:     "cleanup-expired-sessions",
-    Schedule: "0 * * * *", // every hour
-    Handler: func(ctx context.Context) error {
-        return sessionRepo.DeleteExpired(ctx)
-    },
-})
-
-scheduler.Add(core.Job{
-    Name:     "send-weekly-digest",
-    Schedule: "0 9 * * 1", // every Monday at 9am
-    Handler: func(ctx context.Context) error {
-        return mailer.SendWeeklyDigest(ctx)
-    },
-})
-
-scheduler.Start()
-app.RegisterScheduler(scheduler)
-```
-
----
-
-## MetricsCollector
-
-Hook for recording metrics during the request lifecycle.
+## MetricsCollector and Tracer
 
 ```go
 type RequestMetrics struct {
@@ -323,37 +208,7 @@ type RequestMetrics struct {
 type MetricsCollector interface {
     RecordRequest(m RequestMetrics)
 }
-```
 
-### Register
-
-```go
-app.SetMetricsCollector(prometheusCollector)
-```
-
-### Example
-
-```go
-type PrometheusCollector struct {
-    histogram *prometheus.HistogramVec
-}
-
-func (c *PrometheusCollector) RecordRequest(m core.RequestMetrics) {
-    c.histogram.WithLabelValues(
-        m.Method,
-        m.Path,
-        strconv.Itoa(m.StatusCode),
-    ).Observe(m.Duration.Seconds())
-}
-```
-
----
-
-## Tracer
-
-Distributed tracing interface compatible with OpenTelemetry patterns.
-
-```go
 type Span interface {
     SetAttribute(key string, value any)
     RecordError(err error)
@@ -365,39 +220,7 @@ type Tracer interface {
 }
 ```
 
-A no-op tracer is used by default, with zero overhead if you don't configure one.
-
-### Register
-
-```go
-app.SetTracer(otelTracer)
-```
-
-### Access
-
-```go
-tracer := app.Tracer()
-
-func (s *UserService) GetByID(ctx context.Context, id string) (*User, error) {
-    ctx, span := tracer.Start(ctx, "UserService.GetByID")
-    defer span.End()
-
-    user, err := s.repo.FindByID(ctx, id)
-    if err != nil {
-        span.RecordError(err)
-        return nil, err
-    }
-
-    span.SetAttribute("user.id", id)
-    return user, nil
-}
-```
-
----
-
 ## Translator
-
-Internationalization interface for translating strings.
 
 ```go
 type Translator interface {
@@ -406,21 +229,19 @@ type Translator interface {
 }
 ```
 
-### Register
+## Logger
+
+Addon-facing logging contract.
 
 ```go
-app.SetTranslator(i18nTranslator)
-```
-
-### Use in handlers
-
-```go
-func (c *UserController) create(ctx *core.Ctx) error {
-    msg := ctx.T("users.created_successfully")
-    return ctx.Created(map[string]string{"message": msg})
+type Logger interface {
+    Info(format string, args ...interface{})
+    Warn(format string, args ...interface{})
+    Error(format string, args ...interface{})
+    Debug(format string, args ...interface{})
 }
 ```
 
-`ctx.T(key, args...)` detects locale from `Accept-Language` automatically.
+The built-in `logger.Logger` in `ss-keel-core/logger` satisfies this contract and can be passed into addon configs such as `database.Config.Logger` and `mongo.Config.Logger`.
 
-See [`Ctx.T`](/reference/context/) and [`Ctx.Lang`](/reference/context/) for more details.
+See [Architecture](/guides/architecture) for the ecosystem layout and [Persistence](/guides/persistence) for the official persistence integrations.

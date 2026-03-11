@@ -1,94 +1,115 @@
 ---
 title: Addons
-description: Paquetes addon oficiales que extienden ss-keel-core con base de datos, cache, auth, mensajería y más.
+description: Paquetes addon oficiales que extienden Keel a través de la capa de contratos, incluyendo las integraciones oficiales de persistencia.
 ---
 
-:::caution[Próximamente]
-Todos los addons oficiales están en desarrollo activo. Las interfaces que implementan ya son **estables hoy**, así que puedes construir tus propios adapters mientras salen los paquetes oficiales.
-:::
+Los addons son módulos Go separados que implementan `ss-keel-core/contracts`.
 
-Los addons son módulos Go separados que implementan las [interfaces del core](/reference/interfaces). Instala solo lo que necesitas.
+Este es el modelo de extensión usado en todo el ecosistema Keel:
+
+- `ss-keel-core` es dueño del runtime y del paquete `contracts`
+- los repositorios addon implementan esos contratos
+- las aplicaciones deciden qué addons componer en `main.go`
+
+Consulta [Arquitectura](/guides/architecture) para los límites entre capas.
+
+## Integraciones oficiales de persistencia
+
+La capa de persistencia no está integrada en `core`. Vive en addons oficiales.
+
+| Paquete | Descripción | Contrato |
+|---|---|---|
+| [`ss-keel-gorm`](/addons/ss-keel-gorm) | Addon oficial de persistencia relacional para PostgreSQL, MySQL, MariaDB, SQLite y SQL Server | `contracts.Repository[T, ID, httpx.PageQuery, httpx.Page[T]]` |
+| [`ss-keel-mongo`](/addons/ss-keel-mongo) | Addon oficial de persistencia para MongoDB usando el driver oficial de Go | `contracts.Repository[T, ID, httpx.PageQuery, httpx.Page[T]]` |
+
+Cobertura oficial de ejemplos hoy:
+
+- `ss-keel-examples/examples/08-gorm-postgres` para `ss-keel-gorm`
+- `ss-keel-examples/examples/10-addon-example` para patrones de consumo de addons
+
+Los snippets de Mongo en la documentación usan ejemplos neutrales respaldados por la API oficial de `ss-keel-mongo` y los templates del CLI hasta que exista un ejemplo oficial de Mongo.
+
+Consulta [Persistencia](/guides/persistence) para la visión oficial de persistencia.
 
 ## Ecosistema de addons
 
 El ecosistema de addons se organiza en tres repositorios:
 
-- `ss-keel-cli`: expone `keel add` y ejecuta los pasos de instalación del addon.
-- `ss-keel-addon-template`: template de GitHub para crear repositorios de addons.
-- `ss-keel-addons`: registry oficial de aliases consumido por `keel add`.
+- `ss-keel-cli`: expone `keel add` y ejecuta los pasos de instalación del addon
+- `ss-keel-addon-template`: template de GitHub para bootstrap de nuevos repositorios addon
+- `ss-keel-addons`: registry oficial de aliases consumido por `keel add`
 
 Puntos de entrada recomendados:
 
 - Instalar addons: [Comando `add`](/cli/add/)
-- Crear/publicar addons: [Ecosistema de Addons](/addons/ecosystem/)
+- Crear y publicar addons: [Ecosistema de Addons](/addons/ecosystem/)
 
-## Bases de datos
+## Categorías de addons disponibles
 
-| Paquete | Descripción | Interfaz |
+### Bases de datos
+
+| Paquete | Descripción | Contrato |
 |---|---|---|
-| [`ss-keel-gorm`](/addons/ss-keel-gorm) | PostgreSQL, MySQL, SQLite vía GORM | `Repository[T, ID]` |
-| [`ss-keel-mongo`](/addons/ss-keel-mongo) | MongoDB vía mongo-driver | `Repository[T, ID]` |
+| [`ss-keel-gorm`](/addons/ss-keel-gorm) | Persistencia relacional vía GORM | `Repository[T, ID, httpx.PageQuery, httpx.Page[T]]` |
+| [`ss-keel-mongo`](/addons/ss-keel-mongo) | Persistencia MongoDB vía mongo-driver | `Repository[T, ID, httpx.PageQuery, httpx.Page[T]]` |
 
-## Cache y sesiones
+### Cache y sesiones
 
-| Paquete | Descripción | Interfaz |
+| Paquete | Descripción | Contrato |
 |---|---|---|
 | [`ss-keel-redis`](/addons/ss-keel-redis) | Redis vía go-redis para cache y sesiones | `Cache` |
 
-## Autenticación
+### Autenticación
 
-| Paquete | Descripción | Interfaz |
+| Paquete | Descripción | Contrato |
 |---|---|---|
-| [`ss-keel-jwt`](/addons/ss-keel-jwt) | Generación/validación JWT y guards listos para usar | `Guard` |
-| [`ss-keel-oauth`](/addons/ss-keel-oauth) | OAuth2 con Google, GitHub y más | `Guard` |
+| [`ss-keel-jwt`](/addons/ss-keel-jwt) | Generación, validación y guards JWT | `Guard` |
+| [`ss-keel-oauth`](/addons/ss-keel-oauth) | Proveedores OAuth2 y guards | `Guard` |
 
-## Mensajería
+### Mensajería
 
-| Paquete | Descripción | Interfaz |
+| Paquete | Descripción | Contrato |
 |---|---|---|
 | [`ss-keel-amqp`](/addons/ss-keel-amqp) | RabbitMQ vía amqp091-go | `Publisher` / `Subscriber` |
 | [`ss-keel-kafka`](/addons/ss-keel-kafka) | Kafka vía franz-go | `Publisher` / `Subscriber` |
 
-## Comunicación
+### Comunicación
 
-| Paquete | Descripción | Interfaz |
+| Paquete | Descripción | Contrato |
 |---|---|---|
 | [`ss-keel-mail`](/addons/ss-keel-mail) | Correo vía SMTP, Resend o SendGrid | `Mailer` |
 | [`ss-keel-ws`](/addons/ss-keel-ws) | WebSockets sobre Fiber | — |
 
-## Almacenamiento
+### Almacenamiento
 
-| Paquete | Descripción | Interfaz |
+| Paquete | Descripción | Contrato |
 |---|---|---|
 | [`ss-keel-storage`](/addons/ss-keel-storage) | S3, GCS y disco local con API unificada | `Storage` |
 
-## Observabilidad
+### Observabilidad
 
-| Paquete | Descripción | Interfaz |
+| Paquete | Descripción | Contrato |
 |---|---|---|
 | [`ss-keel-metrics`](/addons/ss-keel-metrics) | Métricas Prometheus + endpoint `/metrics` | `MetricsCollector` |
 | [`ss-keel-tracing`](/addons/ss-keel-tracing) | Tracing distribuido con OpenTelemetry | `Tracer` |
 
-## Jobs
+### Jobs
 
-| Paquete | Descripción | Interfaz |
+| Paquete | Descripción | Contrato |
 |---|---|---|
 | [`ss-keel-cron`](/addons/ss-keel-cron) | Jobs programados con expresiones cron | `Scheduler` |
 
-## i18n
+### i18n
 
-| Paquete | Descripción | Interfaz |
+| Paquete | Descripción | Contrato |
 |---|---|---|
 | [`ss-keel-i18n`](/addons/ss-keel-i18n) | Internacionalización y traducciones | `Translator` |
 
----
+## Construye tu propio adapter
 
-## Crear tu propio adapter
-
-Cada addon es, en esencia, un struct que implementa una interfaz del core. Puedes construir uno hoy mismo:
+Cada addon es una implementación de contratos. Puedes construir uno sin cambiar el runtime:
 
 ```go
-// Implementa Cache con almacenamiento en memoria
 type InMemoryCache struct {
     mu    sync.RWMutex
     store map[string][]byte
@@ -103,8 +124,6 @@ func (c *InMemoryCache) Get(ctx context.Context, key string) ([]byte, error) {
     }
     return v, nil
 }
-
-// ... implementar Set, Delete, Exists
 ```
 
-Consulta [Referencia de Interfaces](/reference/interfaces) para todos los contratos.
+Consulta [Contratos](/reference/interfaces) para el catálogo completo de contratos.

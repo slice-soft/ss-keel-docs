@@ -63,9 +63,11 @@ export default defineConfig({
                     translations: { es: 'Guías' },
                     items: [
                         { label: 'Getting Started',   translations: { es: 'Primeros Pasos' },           slug: 'guides/getting-started' },
+                        { label: 'Architecture',      translations: { es: 'Arquitectura' },             slug: 'guides/architecture' },
                         { label: 'Configuration',     translations: { es: 'Configuración' },            slug: 'guides/configuration' },
                         { label: 'Controllers',       translations: { es: 'Controladores' },            slug: 'guides/controllers' },
                         { label: 'Modules',           translations: { es: 'Módulos' },                  slug: 'guides/modules' },
+                        { label: 'Persistence',       translations: { es: 'Persistencia' },             slug: 'guides/persistence' },
                         { label: 'Error Handling',    translations: { es: 'Manejo de Errores' },        slug: 'guides/error-handling' },
                         { label: 'Authentication',    translations: { es: 'Autenticación' },            slug: 'guides/authentication' },
                         { label: 'OpenAPI & Swagger', translations: { es: 'OpenAPI y Swagger' },        slug: 'guides/openapi' },

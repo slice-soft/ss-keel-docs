@@ -1,71 +1,162 @@
 ---
 title: ss-keel-mongo
-description: Soporte MongoDB vía mongo-driver oficial con implementación genérica de Repository.
+description: Addon oficial de persistencia MongoDB para Keel usando el contrato compartido de repositorio y flujos document-first.
 ---
 
-:::caution[Próximamente]
-Este addon está en desarrollo. La interfaz que implementa ya es estable. Ver [Repository](/reference/interfaces#repository).
-:::
+`ss-keel-mongo` es el addon oficial de persistencia MongoDB para Keel.
 
-`ss-keel-mongo` provee una implementación genérica de `Repository[T, ID]` basada en [mongo-driver](https://www.mongodb.com/docs/drivers/go/current/). Funciona con cualquier struct serializable a BSON.
+Implementa el mismo contrato de repositorio compartido usado por `ss-keel-gorm`:
 
-**Implementa:** [`Repository[T, ID]`](/reference/interfaces#repository)
+```go
+contracts.Repository[T, ID, httpx.PageQuery, httpx.Page[T]]
+```
 
-## Instalación (planificada)
+Encima de ese contrato, expone capacidades nativas de Mongo como consultas por filtro, acceso directo a colecciones y conversión de `ObjectID`.
+
+## Instalación
+
+```bash
+keel add mongo
+```
+
+O manualmente:
 
 ```bash
 go get github.com/slice-soft/ss-keel-mongo
 ```
 
-## Uso (planificado)
+## Bootstrap
 
 ```go
-import "github.com/slice-soft/ss-keel-mongo"
+import (
+    "github.com/slice-soft/ss-keel-core/config"
+    "github.com/slice-soft/ss-keel-mongo/mongo"
+)
 
-// Conectar
-client, err := ssmongo.Connect(ssmongo.Config{
-    URI:      os.Getenv("MONGO_URI"),
-    Database: "mydb",
+client, err := mongo.New(mongo.Config{
+    URI:      config.GetEnvOrDefault("MONGO_URI", "mongodb://localhost:27017"),
+    Database: config.GetEnvOrDefault("MONGO_DATABASE", "app"),
+    Logger:   appLogger,
 })
+if err != nil {
+    appLogger.Error("failed to start app: %v", err)
+    return
+}
+defer client.Close()
 
-// Repositorio genérico
-userRepo := ssmongo.NewRepository[User, string](client, "users")
-
-// userRepo implementa core.Repository[User, string]
-userRepo.FindByID(ctx, "abc-123")
-userRepo.FindAll(ctx, core.PageQuery{Page: 1, Limit: 20})
-userRepo.Create(ctx, &user)
-userRepo.Update(ctx, "abc-123", &user)
-userRepo.Delete(ctx, "abc-123")
+app.RegisterHealthChecker(mongo.NewHealthChecker(client))
 ```
 
-## Definición de documento
+Defaults útiles del addon:
+
+- `URI`: `mongodb://localhost:27017`
+- `ConnectTimeout`: `10s`
+- `PingTimeout`: `2s`
+- `DisconnectTimeout`: `5s`
+- `ServerSelectionTimeout`: `5s`
+- `MaxPoolSize`: `25`
+- `MaxConnIdleTime`: `15m`
+
+## Estado de cobertura oficial
+
+El repositorio oficial de ejemplos todavía no incluye un ejemplo específico de Mongo.
+
+El wrapper de repositorio de abajo viene del template oficial de repositorio Mongo en `ss-keel-cli`, y el bootstrap de runtime de esta página viene de la API real de `ss-keel-mongo`.
+
+## Wrapper de repositorio generado por el CLI
 
 ```go
-type User struct {
-    ID    string `bson:"_id"`
-    Name  string `bson:"name"`
-    Email string `bson:"email"`
+type ProductEntity struct {
+    ID string `bson:"_id,omitempty" json:"id"`
+}
+
+type ProductRepository struct {
+    *mongo.MongoRepository[ProductEntity, string]
+    log *logger.Logger
+}
+
+func NewProductRepository(log *logger.Logger, client *mongo.Client) *ProductRepository {
+    return &ProductRepository{
+        MongoRepository: mongo.NewRepository[ProductEntity, string](
+            client,
+            "product",
+            mongo.WithObjectIDHex[ProductEntity](),
+        ),
+        log: log,
+    }
 }
 ```
 
-## Verificación de salud
+Ese wrapper se genera con:
 
-```go
-app.RegisterHealthChecker(ssmongo.NewHealthChecker(client))
-// → "mongodb": "UP" en GET /health
+```bash
+keel generate repository product --repository-db mongo
 ```
 
-## Consultas personalizadas
+## Comportamiento CRUD
+
+`mongo.MongoRepository[T, ID]` implementa:
 
 ```go
-type UserRepository struct {
-    *ssmongo.Repository[User, string]
-    coll *mongo.Collection
-}
-
-func (r *UserRepository) FindByEmail(ctx context.Context, email string) (*User, error) {
-    var user User
-    return &user, r.coll.FindOne(ctx, bson.M{"email": email}).Decode(&user)
-}
+repo.FindByID(ctx, id)
+repo.FindAll(ctx, httpx.PageQuery{Page: 1, Limit: 20})
+repo.Create(ctx, &entity)
+repo.Update(ctx, id, &entity)
+repo.Delete(ctx, id)
 ```
+
+Comportamiento tomado de la implementación real:
+
+- `FindByID` devuelve `nil, nil` cuando no existe documento
+- `FindAll` pagina la colección y devuelve `httpx.Page[T]`
+- `Update` aplica `$set` a todos los campos que no son ID
+- `Delete` elimina un documento por el ID del repositorio
+
+## Helpers nativos de Mongo
+
+Cuando el contrato genérico de repositorio no alcanza, usa los helpers del addon:
+
+```go
+repo.FindOneByFilter(ctx, bson.M{"email": "ada@keel.dev"})
+repo.FindMany(ctx, bson.M{"profile.country": "CO"})
+
+coll := repo.Collection()
+cursor, err := coll.Find(ctx, bson.M{"profile.country": "CO"})
+```
+
+## Estrategias de ID
+
+Si tu API recibe hex strings pero Mongo almacena `_id` como `ObjectID`, usa:
+
+```go
+mongo.WithObjectIDHex[ProductEntity]()
+```
+
+También puedes personalizar el campo ID o la lógica de conversión:
+
+```go
+mongo.NewRepository[User, string](
+    client,
+    "users",
+    mongo.WithIDField[User, string]("slug"),
+    mongo.WithIDConverter[User, string](func(id string) (interface{}, error) {
+        return strings.ToLower(id), nil
+    }),
+)
+```
+
+## Integración con health
+
+`mongo.NewHealthChecker(client)` expone la dependencia en `GET /health` como:
+
+```json
+{ "mongodb": "UP" }
+```
+
+## Cuándo usarlo
+
+- Usa `ss-keel-mongo` para módulos document-first.
+- Úsalo cuando las consultas por filtro y los campos BSON anidados forman parte del modelo de dominio.
+- Úsalo junto con `ss-keel-gorm` cuando distintos módulos necesitan modelos de persistencia distintos.
+
+Consulta [Persistencia](/guides/persistence) para la visión oficial de persistencia.
