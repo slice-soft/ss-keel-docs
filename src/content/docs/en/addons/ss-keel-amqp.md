@@ -35,7 +35,7 @@ subscriber := conn.Subscriber()
 ```go
 payload, _ := json.Marshal(order)
 
-publisher.Publish(ctx, core.Message{
+publisher.Publish(ctx, contracts.Message{
     Topic:   "orders.created",
     Key:     []byte(order.ID),
     Payload: payload,
@@ -48,7 +48,7 @@ publisher.Publish(ctx, core.Message{
 ### Subscribe
 
 ```go
-subscriber.Subscribe(ctx, "orders.created", func(ctx context.Context, msg core.Message) error {
+subscriber.Subscribe(ctx, "orders.created", func(ctx context.Context, msg contracts.Message) error {
     var order Order
     if err := json.Unmarshal(msg.Payload, &order); err != nil {
         return err

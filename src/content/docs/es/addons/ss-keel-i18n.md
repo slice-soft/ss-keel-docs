@@ -66,7 +66,7 @@ locales/
 ### Uso en handlers
 
 ```go
-func (c *UserController) create(ctx *core.Ctx) error {
+func (c *UserController) create(ctx *httpx.Ctx) error {
     var dto CreateUserDTO
     if err := ctx.ParseBody(&dto); err != nil {
         return err

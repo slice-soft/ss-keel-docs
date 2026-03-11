@@ -34,7 +34,7 @@ core.Internal("database failed", err)    // 500 (cause is logged, not exposed)
 Return a `*KError` directly from your handler:
 
 ```go
-func (c *UserController) getByID(ctx *core.Ctx) error {
+func (c *UserController) getByID(ctx *httpx.Ctx) error {
     id := ctx.Params("id")
 
     user, err := c.service.GetByID(ctx.Context(), id)
@@ -72,7 +72,7 @@ The framework's error handler detects `*KError` using `errors.As` and responds:
 You don't need to handle this manually: just return the error from `ParseBody`.
 
 ```go
-func (c *UserController) create(ctx *core.Ctx) error {
+func (c *UserController) create(ctx *httpx.Ctx) error {
     var dto CreateUserDTO
     if err := ctx.ParseBody(&dto); err != nil {
         return err // automatic 400 or 422
@@ -113,7 +113,7 @@ func (s *UserService) GetByID(ctx context.Context, id string) (*User, error) {
 }
 
 // users/controller.go
-func (c *UserController) getByID(ctx *core.Ctx) error {
+func (c *UserController) getByID(ctx *httpx.Ctx) error {
     user, err := c.service.GetByID(ctx.Context(), ctx.Params("id"))
     if err != nil {
         return err // KError bubbles up to the error handler

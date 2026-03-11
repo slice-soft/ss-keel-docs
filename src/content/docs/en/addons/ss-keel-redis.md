@@ -59,7 +59,7 @@ func (m *UserModule) Register(app *core.App) {
 app.Fiber().Use(ssredis.SessionMiddleware(cache))
 
 // Read/write session in handlers
-func handler(c *core.Ctx) error {
+func handler(c *httpx.Ctx) error {
     session := ssredis.GetSession(c)
     session.Set("user_id", "abc-123")
     return c.OK("ok")

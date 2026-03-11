@@ -53,7 +53,7 @@ cd my-api
 keel run dev
 
 # 4) Generate first module
-keel generate module users --with-repository
+keel generate module users --gorm
 
 # 5) Install an addon
 keel add gorm

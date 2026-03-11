@@ -7,7 +7,7 @@ Controllers group related routes. Any struct that implements the `Controller` in
 
 ```go
 type Controller interface {
-    Routes() []core.Route
+    Routes() []httpx.Route
 }
 ```
 
@@ -18,13 +18,13 @@ type UserController struct {
     // inject dependencies here (e.g.: service, repository)
 }
 
-func (c *UserController) Routes() []core.Route {
-    return []core.Route{
-        core.GET("/users", c.list),
-        core.GET("/users/:id", c.getByID),
-        core.POST("/users", c.create),
-        core.PUT("/users/:id", c.update),
-        core.DELETE("/users/:id", c.delete),
+func (c *UserController) Routes() []httpx.Route {
+    return []httpx.Route{
+        httpx.GET("/users", c.list),
+        httpx.GET("/users/:id", c.getByID),
+        httpx.POST("/users", c.create),
+        httpx.PUT("/users/:id", c.update),
+        httpx.DELETE("/users/:id", c.delete),
     }
 }
 ```
@@ -42,20 +42,20 @@ The controller's routes are automatically mounted in the app.
 Each route is created with one of the HTTP constructors, which return a `Route` on which you can chain builder methods.
 
 ```go
-core.GET("/users", handler).
+httpx.GET("/users", handler).
     Tag("users").
     Describe("List users", "Returns a paginated list of users").
-    WithResponse(core.WithResponse[[]User](200))
+    WithResponse(httpx.WithResponse[[]User](200))
 ```
 
 ### HTTP method constructors
 
 ```go
-core.GET(path, handler)
-core.POST(path, handler)
-core.PUT(path, handler)
-core.PATCH(path, handler)
-core.DELETE(path, handler)
+httpx.GET(path, handler)
+httpx.POST(path, handler)
+httpx.PUT(path, handler)
+httpx.PATCH(path, handler)
+httpx.DELETE(path, handler)
 ```
 
 ### Builder methods
@@ -81,7 +81,7 @@ type CreateUserDTO struct {
     Email string `json:"email" validate:"required,email"`
 }
 
-core.POST("/users", func(c *core.Ctx) error {
+httpx.POST("/users", func(c *httpx.Ctx) error {
     var dto CreateUserDTO
     if err := c.ParseBody(&dto); err != nil {
         return err // returns 400 or 422 automatically
@@ -91,8 +91,8 @@ core.POST("/users", func(c *core.Ctx) error {
 }).
     Tag("users").
     Describe("Create user").
-    WithBody(core.WithBody[CreateUserDTO]()).
-    WithResponse(core.WithResponse[User](201))
+    WithBody(httpx.WithBody[CreateUserDTO]()).
+    WithResponse(httpx.WithResponse[User](201))
 ```
 
 `ParseBody` returns:
@@ -104,7 +104,7 @@ core.POST("/users", func(c *core.Ctx) error {
 The `Ctx` wrapper includes helpers for setting the correct status code and responding with JSON.
 
 ```go
-func (c *core.Ctx) error {
+func (c *httpx.Ctx) error {
     return c.OK(data)        // 200
     return c.Created(data)   // 201
     return c.NoContent()     // 204
@@ -117,7 +117,7 @@ func (c *core.Ctx) error {
 Document query params for OpenAPI and read them from the context:
 
 ```go
-core.GET("/users", func(c *core.Ctx) error {
+httpx.GET("/users", func(c *httpx.Ctx) error {
     search := c.Query("search")
     return c.OK(search)
 }).
@@ -129,7 +129,7 @@ core.GET("/users", func(c *core.Ctx) error {
 Access route parameters through the embedded Fiber context:
 
 ```go
-core.GET("/users/:id", func(c *core.Ctx) error {
+httpx.GET("/users/:id", func(c *httpx.Ctx) error {
     id := c.Params("id")
     return c.OK(map[string]string{"id": id})
 })
@@ -140,7 +140,7 @@ core.GET("/users/:id", func(c *core.Ctx) error {
 Attach middleware to specific routes with `.Use()`:
 
 ```go
-core.GET("/admin/dashboard", dashboardHandler).
+httpx.GET("/admin/dashboard", dashboardHandler).
     Use(authMiddleware, rateLimiter)
 ```
 
@@ -161,32 +161,32 @@ func NewUserController(s *UserService) *UserController {
     return &UserController{service: s}
 }
 
-func (c *UserController) Routes() []core.Route {
-    return []core.Route{
-        core.GET("/users", c.list).
+func (c *UserController) Routes() []httpx.Route {
+    return []httpx.Route{
+        httpx.GET("/users", c.list).
             Tag("users").
             Describe("List users", "Returns a paginated list of all users").
-            WithResponse(core.WithResponse[core.Page[User]](200)),
+            WithResponse(httpx.WithResponse[httpx.Page[User]](200)),
 
-        core.GET("/users/:id", c.getByID).
+        httpx.GET("/users/:id", c.getByID).
             Tag("users").
             Describe("Get user by ID").
-            WithResponse(core.WithResponse[User](200)),
+            WithResponse(httpx.WithResponse[User](200)),
 
-        core.POST("/users", c.create).
+        httpx.POST("/users", c.create).
             Tag("users").
             Describe("Create user").
-            WithBody(core.WithBody[CreateUserDTO]()).
-            WithResponse(core.WithResponse[User](201)),
+            WithBody(httpx.WithBody[CreateUserDTO]()).
+            WithResponse(httpx.WithResponse[User](201)),
 
-        core.DELETE("/users/:id", c.delete).
+        httpx.DELETE("/users/:id", c.delete).
             Tag("users").
             Describe("Delete user").
             WithSecured("bearerAuth"),
     }
 }
 
-func (c *UserController) list(ctx *core.Ctx) error {
+func (c *UserController) list(ctx *httpx.Ctx) error {
     q := ctx.ParsePagination()
     users, err := c.service.List(ctx.Context(), q)
     if err != nil {
@@ -195,7 +195,7 @@ func (c *UserController) list(ctx *core.Ctx) error {
     return ctx.OK(users)
 }
 
-func (c *UserController) getByID(ctx *core.Ctx) error {
+func (c *UserController) getByID(ctx *httpx.Ctx) error {
     id := ctx.Params("id")
     user, err := c.service.GetByID(ctx.Context(), id)
     if err != nil {
@@ -204,7 +204,7 @@ func (c *UserController) getByID(ctx *core.Ctx) error {
     return ctx.OK(user)
 }
 
-func (c *UserController) create(ctx *core.Ctx) error {
+func (c *UserController) create(ctx *httpx.Ctx) error {
     var dto CreateUserDTO
     if err := ctx.ParseBody(&dto); err != nil {
         return err
@@ -216,7 +216,7 @@ func (c *UserController) create(ctx *core.Ctx) error {
     return ctx.Created(user)
 }
 
-func (c *UserController) delete(ctx *core.Ctx) error {
+func (c *UserController) delete(ctx *httpx.Ctx) error {
     id := ctx.Params("id")
     if err := c.service.Delete(ctx.Context(), id); err != nil {
         return err

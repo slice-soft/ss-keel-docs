@@ -63,11 +63,11 @@ Docs: core.DocsConfig{
 Use route builder methods to enrich the spec:
 
 ```go
-core.POST("/users", createUser).
+httpx.POST("/users", createUser).
     Tag("users").
     Describe("Create user", "Creates a user account and returns the created resource").
-    WithBody(core.WithBody[CreateUserDTO]()).
-    WithResponse(core.WithResponse[User](201))
+    WithBody(httpx.WithBody[CreateUserDTO]()).
+    WithResponse(httpx.WithResponse[User](201))
 ```
 
 ### Tags
@@ -75,13 +75,13 @@ core.POST("/users", createUser).
 `.Tag(name)` groups the route under a tag in Swagger UI:
 
 ```go
-core.GET("/users", listUsers).Tag("users")
+httpx.GET("/users", listUsers).Tag("users")
 ```
 
 ### Summary and Description
 
 ```go
-core.GET("/users", listUsers).
+httpx.GET("/users", listUsers).
     Describe("List users")                          // summary only
     Describe("List users", "Full description")      // summary + description
 ```
@@ -89,7 +89,7 @@ core.GET("/users", listUsers).
 ### Request Body
 
 ```go
-core.WithBody[CreateUserDTO]()
+httpx.WithBody[CreateUserDTO]()
 ```
 
 The `CreateUserDTO` type is inspected at runtime to generate the body's JSON Schema.
@@ -97,14 +97,14 @@ The `CreateUserDTO` type is inspected at runtime to generate the body's JSON Sch
 ### Response
 
 ```go
-core.WithResponse[User](201)
-core.WithResponse[core.Page[User]](200)
+httpx.WithResponse[User](201)
+httpx.WithResponse[httpx.Page[User]](200)
 ```
 
 ### Query parameters
 
 ```go
-core.GET("/users", listUsers).
+httpx.GET("/users", listUsers).
     WithQueryParam("search",  "string",  false, "Filter by name").
     WithQueryParam("role",    "string",  false, "Filter by role").
     WithQueryParam("page",    "integer", false, "Page number").
@@ -114,14 +114,14 @@ core.GET("/users", listUsers).
 ### Security
 
 ```go
-core.DELETE("/users/:id", deleteUser).
+httpx.DELETE("/users/:id", deleteUser).
     WithSecured("bearerAuth")
 ```
 
 ### Deprecation
 
 ```go
-core.GET("/v1/users", listUsersV1).
+httpx.GET("/v1/users", listUsersV1).
     WithDeprecated()
 ```
 
@@ -131,7 +131,7 @@ core.GET("/v1/users", listUsersV1).
 
 ```go
 // These two forms are equivalent
-core.WithBody[CreateUserDTO]()
+httpx.WithBody[CreateUserDTO]()
 // is the same as
 &core.BodyMeta{Type: CreateUserDTO{}, Required: true}
 ```

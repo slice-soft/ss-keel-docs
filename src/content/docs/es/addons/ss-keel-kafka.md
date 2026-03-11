@@ -36,7 +36,7 @@ subscriber := client.Subscriber()
 ```go
 payload, _ := json.Marshal(event)
 
-publisher.Publish(ctx, core.Message{
+publisher.Publish(ctx, contracts.Message{
     Topic:   "user.registered",
     Key:     []byte(user.ID),
     Payload: payload,
@@ -46,7 +46,7 @@ publisher.Publish(ctx, core.Message{
 ### Suscribirse
 
 ```go
-subscriber.Subscribe(ctx, "user.registered", func(ctx context.Context, msg core.Message) error {
+subscriber.Subscribe(ctx, "user.registered", func(ctx context.Context, msg contracts.Message) error {
     var user User
     json.Unmarshal(msg.Payload, &user)
     return sendWelcomeEmail(ctx, &user)

@@ -70,7 +70,7 @@ El repositorio oficial de ejemplos incluye `ss-keel-examples/examples/08-gorm-po
 
 ## Wrapper de repositorio generado por el CLI
 
-Cuando ejecutas `keel generate repository product --repository-db gorm`, la forma del template oficial es:
+Cuando ejecutas `keel generate repository product --gorm`, la forma del template oficial es:
 
 ```go
 type ProductEntity struct {

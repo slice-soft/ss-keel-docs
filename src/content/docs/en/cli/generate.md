@@ -79,13 +79,15 @@ Rules validated by the CLI:
 | Flag | Applies to | Effect |
 |---|---|---|
 | `--transactional` | `module` | Generates module without controller |
-| `--with-repository` | `module` | Adds repository to the module |
+| `--gorm` | `module`, `repository` | Generates a GORM-backed repository; installs `ss-keel-gorm` if absent |
+| `--mongo` | `module`, `repository` | Generates a Mongo-backed repository; installs `ss-keel-mongo` if absent |
 | `--in-main` | standalone `controller` | Inserts inline route in `cmd/main.go` without a controller file |
 
 Invalid combinations return an explicit error, for example:
 
 - `--transactional` outside of `module`
-- `--with-repository` outside of `module`
+- `--gorm` or `--mongo` outside of `module` or `repository`
+- `--gorm` and `--mongo` used together
 - `--in-main` outside of standalone `controller`
 
 ## Automatic wiring in `cmd/main.go`
@@ -97,7 +99,7 @@ Depending on the generated type, the CLI may:
 - register modules: `app.Use(...)`
 - register controllers: `app.RegisterController(...)`
 - register scheduler/checker/hook
-- create inline controller with `core.ControllerFunc` (`--in-main`)
+- create inline controller with `contracts.ControllerFunc` (`--in-main`)
 
 ## Behavior with existing files
 
@@ -112,10 +114,16 @@ Full module:
 keel g module users
 ```
 
-Transactional module with repository:
+Transactional module (no controller):
 
 ```bash
-keel g module payments --transactional --with-repository
+keel g module payments --transactional
+```
+
+Module with GORM repository:
+
+```bash
+keel g module payments --gorm
 ```
 
 Service inside a module:
