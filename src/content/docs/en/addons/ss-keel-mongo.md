@@ -90,7 +90,7 @@ func NewProductRepository(log *logger.Logger, client *mongo.Client) *ProductRepo
 That wrapper is generated with:
 
 ```bash
-keel generate repository product --repository-db mongo
+keel generate repository product --mongo
 ```
 
 ## CRUD behavior

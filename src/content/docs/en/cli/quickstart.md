@@ -48,7 +48,7 @@ lint  = "golangci-lint run"
 ## 4) Generate your first module
 
 ```bash
-keel generate module users --with-repository
+keel generate module users
 ```
 
 Expected output (main paths):
@@ -56,8 +56,13 @@ Expected output (main paths):
 - `internal/modules/users/users_module.go`
 - `internal/modules/users/users_service.go`
 - `internal/modules/users/users_controller.go`
-- `internal/modules/users/users_repository.go`
 - update of `cmd/main.go` with `app.Use(users.NewModule(appLogger))`
+
+To also generate a repository, pass `--gorm` or `--mongo`:
+
+```bash
+keel generate module users --gorm
+```
 
 ## 5) Verify base endpoints
 

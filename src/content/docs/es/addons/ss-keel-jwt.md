@@ -49,7 +49,7 @@ token, err := jwtService.Sign(ssjwt.Claims{
 guard := jwtService.Guard()
 
 // Por ruta
-core.GET("/profile", profileHandler).
+httpx.GET("/profile", profileHandler).
     Use(guard.Middleware()).
     WithSecured("bearerAuth")
 
@@ -61,7 +61,7 @@ protected.Use(&users.Module{})
 ### Acceder al usuario autenticado
 
 ```go
-func profileHandler(c *core.Ctx) error {
+func profileHandler(c *httpx.Ctx) error {
     claims, ok := core.UserAs[*ssjwt.Claims](c)
     if !ok {
         return core.Unauthorized("no autenticado")

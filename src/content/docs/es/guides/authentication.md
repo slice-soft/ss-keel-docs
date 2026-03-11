@@ -46,7 +46,7 @@ func (g *JWTGuard) Middleware() fiber.Handler {
         }
 
         // Guarda el usuario en el contexto para handlers posteriores
-        ctx := &core.Ctx{Ctx: c}
+        ctx := &httpx.Ctx{Ctx: c}
         ctx.SetUser(user)
 
         return c.Next()
@@ -64,7 +64,7 @@ Adjunta un guard a rutas puntuales con `.Use()`. El secreto debe venir de `confi
 // cfg es config.Config cargado en main.go
 guard := auth.NewJWTGuard(cfg.JWTSecret)
 
-core.GET("/profile", profileHandler).
+httpx.GET("/profile", profileHandler).
     Use(guard.Middleware()).
     WithSecured("bearerAuth")
 ```
@@ -101,7 +101,7 @@ ctx.SetUser(user) // user puede ser cualquier tipo
 Usa el helper genérico `UserAs[T]` en tu handler:
 
 ```go
-func (c *UserController) profile(ctx *core.Ctx) error {
+func (c *UserController) profile(ctx *httpx.Ctx) error {
     user, ok := core.UserAs[*User](ctx)
     if !ok {
         return core.Unauthorized("no autenticado")
@@ -118,7 +118,7 @@ func (c *UserController) profile(ctx *core.Ctx) error {
 Marca una ruta como protegida y declara el esquema en la configuración de docs:
 
 ```go
-core.DELETE("/users/:id", deleteHandler).
+httpx.DELETE("/users/:id", deleteHandler).
     WithSecured("bearerAuth")
 ```
 
@@ -148,7 +148,7 @@ func (g *JWTGuard) Middleware() fiber.Handler {
             return core.Unauthorized("token inválido o expirado")
         }
 
-        ctx := &core.Ctx{Ctx: c}
+        ctx := &httpx.Ctx{Ctx: c}
         ctx.SetUser(&AuthUser{ID: claims.Subject, Role: claims.Role})
         return c.Next()
     }
@@ -198,7 +198,7 @@ Construye autorización encima de `UserAs`:
 ```go
 func RequireRole(role string) fiber.Handler {
     return func(c *fiber.Ctx) error {
-        ctx := &core.Ctx{Ctx: c}
+        ctx := &httpx.Ctx{Ctx: c}
         user, ok := core.UserAs[*AuthUser](ctx)
         if !ok || user.Role != role {
             return core.Forbidden("permisos insuficientes")
@@ -208,6 +208,6 @@ func RequireRole(role string) fiber.Handler {
 }
 
 // Uso
-core.DELETE("/users/:id", deleteHandler).
+httpx.DELETE("/users/:id", deleteHandler).
     Use(RequireRole("admin"))
 ```

@@ -80,7 +80,7 @@ obj, err := storage.Stat(ctx, "avatars/"+userID+".jpg")
 ### En un handler
 
 ```go
-func (c *AvatarController) upload(ctx *core.Ctx) error {
+func (c *AvatarController) upload(ctx *httpx.Ctx) error {
     file, err := ctx.FormFile("avatar")
     if err != nil {
         return core.BadRequest("no se recibió archivo")

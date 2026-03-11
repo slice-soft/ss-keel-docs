@@ -18,7 +18,7 @@ func DELETE(path string, handler func(*Ctx) error) Route
 ### Example
 
 ```go
-core.GET("/users", func(c *core.Ctx) error {
+httpx.GET("/users", func(c *httpx.Ctx) error {
     return c.OK("hello")
 })
 ```
@@ -32,7 +32,7 @@ All builder methods return a new `Route`; they are safe to chain.
 Groups the route under an OpenAPI tag.
 
 ```go
-core.GET("/users", handler).Tag("users")
+httpx.GET("/users", handler).Tag("users")
 ```
 
 ### `.Describe(summary string, description ...string) Route`
@@ -40,7 +40,7 @@ core.GET("/users", handler).Tag("users")
 Defines the OpenAPI summary and optional extended description.
 
 ```go
-core.GET("/users", handler).
+httpx.GET("/users", handler).
     Describe("List users", "Returns a paginated list of all users in the system")
 ```
 
@@ -49,8 +49,8 @@ core.GET("/users", handler).
 Documents the request body type. Use the generic helper `WithBody[T]()`.
 
 ```go
-core.POST("/users", handler).
-    WithBody(core.WithBody[CreateUserDTO]())
+httpx.POST("/users", handler).
+    WithBody(httpx.WithBody[CreateUserDTO]())
 ```
 
 ### `.WithResponse(res *ResponseMeta) Route`
@@ -58,8 +58,8 @@ core.POST("/users", handler).
 Documents response type and status code. Use the generic helper `WithResponse[T](statusCode)`.
 
 ```go
-core.POST("/users", handler).
-    WithResponse(core.WithResponse[User](201))
+httpx.POST("/users", handler).
+    WithResponse(httpx.WithResponse[User](201))
 ```
 
 ### `.WithQueryParam(name, typ string, required bool, desc ...string) Route`
@@ -67,7 +67,7 @@ core.POST("/users", handler).
 Adds a documented query param to the OpenAPI spec.
 
 ```go
-core.GET("/users", handler).
+httpx.GET("/users", handler).
     WithQueryParam("search", "string", false, "Filter by name").
     WithQueryParam("limit",  "integer", false, "Maximum results per page")
 ```
@@ -79,7 +79,7 @@ core.GET("/users", handler).
 Attaches one or more Fiber middlewares to the route.
 
 ```go
-core.GET("/admin", handler).
+httpx.GET("/admin", handler).
     Use(authMiddleware, adminOnly)
 ```
 
@@ -88,7 +88,7 @@ core.GET("/admin", handler).
 Marks the route as authenticated in OpenAPI.
 
 ```go
-core.DELETE("/users/:id", handler).
+httpx.DELETE("/users/:id", handler).
     WithSecured("bearerAuth")
 ```
 
@@ -97,7 +97,7 @@ core.DELETE("/users/:id", handler).
 Marks the route as deprecated in OpenAPI.
 
 ```go
-core.GET("/v1/users", handler).
+httpx.GET("/v1/users", handler).
     WithDeprecated()
 ```
 
@@ -108,7 +108,7 @@ core.GET("/v1/users", handler).
 Creates `BodyMeta` from a Go type. Used for OpenAPI schema generation.
 
 ```go
-core.WithBody[CreateUserDTO]()
+httpx.WithBody[CreateUserDTO]()
 ```
 
 ### `WithResponse[T any](statusCode int) *ResponseMeta`
@@ -116,9 +116,9 @@ core.WithBody[CreateUserDTO]()
 Creates `ResponseMeta` from Go type and status code.
 
 ```go
-core.WithResponse[User](201)
-core.WithResponse[core.Page[User]](200)
-core.WithResponse[[]string](200)
+httpx.WithResponse[User](201)
+httpx.WithResponse[httpx.Page[User]](200)
+httpx.WithResponse[[]string](200)
 ```
 
 ## Groups
@@ -162,7 +162,7 @@ r.Deprecated()
 Converts `func(*Ctx) error` into a pure `fiber.Handler`:
 
 ```go
-h := core.WrapHandler(func(c *core.Ctx) error {
+h := httpx.WrapHandler(func(c *httpx.Ctx) error {
     return c.OK("ok")
 })
 // h is a fiber.Handler

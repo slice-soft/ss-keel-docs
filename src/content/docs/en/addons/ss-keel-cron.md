@@ -24,7 +24,7 @@ import "github.com/slice-soft/ss-keel-cron"
 
 scheduler := sscron.New()
 
-scheduler.Add(core.Job{
+scheduler.Add(contracts.Job{
     Name:     "cleanup-expired-sessions",
     Schedule: "0 * * * *",       // every hour
     Handler: func(ctx context.Context) error {
@@ -32,7 +32,7 @@ scheduler.Add(core.Job{
     },
 })
 
-scheduler.Add(core.Job{
+scheduler.Add(contracts.Job{
     Name:     "send-weekly-digest",
     Schedule: "0 9 * * 1",       // every Monday at 9am
     Handler: func(ctx context.Context) error {
@@ -40,7 +40,7 @@ scheduler.Add(core.Job{
     },
 })
 
-scheduler.Add(core.Job{
+scheduler.Add(contracts.Job{
     Name:     "sync-analytics",
     Schedule: "*/15 * * * *",    // every 15 minutes
     Handler: func(ctx context.Context) error {
@@ -80,7 +80,7 @@ Failed jobs are logged automatically. Optionally you can define an error handler
 
 ```go
 scheduler := sscron.New(sscron.Config{
-    OnError: func(job core.Job, err error) {
+    OnError: func(job contracts.Job, err error) {
         log.Error("job %s failed: %v", job.Name, err)
         // notify, alert, etc.
     },

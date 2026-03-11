@@ -83,7 +83,7 @@ From the code in `ss-keel-cli`:
 
 - `keel new` scaffolds a project with `cmd/main.go`, `keel.toml`, and optionally `internal/modules/starter`
 - `keel generate` creates modules, controllers, services, repositories, middleware, guards, schedulers, and more
-- `keel generate repository ... --repository-db gorm|mongo` uses official repository templates for persistence addons
+- `keel generate repository ... --gorm` or `--mongo` uses official repository templates for persistence addons
 - `keel add <alias|repo>` resolves official aliases through `ss-keel-addons`, validates `keel-addon.json`, and wires addon steps into the project
 - `keel run <script>` executes scripts defined in `keel.toml`
 

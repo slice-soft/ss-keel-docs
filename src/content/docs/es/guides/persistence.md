@@ -98,8 +98,8 @@ func NewProductRepository(log *logger.Logger, client *mongo.Client) *ProductRepo
 Esos wrappers se generan con:
 
 ```bash
-keel generate repository product --repository-db gorm
-keel generate repository product --repository-db mongo
+keel generate repository product --gorm
+keel generate repository product --mongo
 ```
 
 ## Ejemplo neutral de composición con múltiples addons
@@ -164,8 +164,8 @@ A medida que la aplicación crece, los módulos con persistencia siguen la misma
 keel add gorm
 keel add mongo
 
-keel generate repository product --repository-db gorm
-keel generate repository audit-log --repository-db mongo
+keel generate repository product --gorm
+keel generate repository audit-log --mongo
 ```
 
 `keel add` instala e integra el addon. `keel generate repository` usa el template oficial de repositorio para el backend seleccionado.

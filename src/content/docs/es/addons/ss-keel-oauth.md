@@ -53,7 +53,7 @@ app.Use(oauth)
 ### Acceder al usuario OAuth
 
 ```go
-func callbackHandler(c *core.Ctx) error {
+func callbackHandler(c *httpx.Ctx) error {
     profile, ok := core.UserAs[*ssoauth.Profile](c)
     if !ok {
         return core.Unauthorized("oauth falló")

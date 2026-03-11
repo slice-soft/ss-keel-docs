@@ -66,7 +66,7 @@ For unrecognized tags, the raw validator message is used as a fallback.
 `Ctx.ParseBody` calls `Validate` internally. You don't need to invoke it manually if you use `ParseBody`:
 
 ```go
-func (c *UserController) create(ctx *core.Ctx) error {
+func (c *UserController) create(ctx *httpx.Ctx) error {
     var dto CreateUserDTO
     if err := ctx.ParseBody(&dto); err != nil {
         // 400 Bad Request: malformed JSON

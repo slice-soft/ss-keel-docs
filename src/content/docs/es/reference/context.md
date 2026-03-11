@@ -23,7 +23,7 @@ type CreateUserDTO struct {
     Email string `json:"email" validate:"required,email"`
 }
 
-func (c *UserController) create(ctx *core.Ctx) error {
+func (c *UserController) create(ctx *httpx.Ctx) error {
     var dto CreateUserDTO
     if err := ctx.ParseBody(&dto); err != nil {
         return err // 400 si JSON inválido, 422 si falla validación

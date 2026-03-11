@@ -19,7 +19,7 @@ Lee `?page` y `?limit` desde query string y devuelve un `PageQuery`.
 | `limit` | `20` | `100` |
 
 ```go
-func (c *UserController) list(ctx *core.Ctx) error {
+func (c *UserController) list(ctx *httpx.Ctx) error {
     q := ctx.ParsePagination()
     // q.Page  = 1 (o ?page=N)
     // q.Limit = 20 (o ?limit=N, max 100)
@@ -29,7 +29,7 @@ func (c *UserController) list(ctx *core.Ctx) error {
         return err
     }
 
-    return ctx.OK(core.NewPage(users, total, q.Page, q.Limit))
+    return ctx.OK(httpx.NewPage(users, total, q.Page, q.Limit))
 }
 ```
 
@@ -46,7 +46,7 @@ Pasa `PageQuery` a tu repositorio/servicio para ejecutar la consulta:
 
 ```go
 // En tu repositorio
-func (r *UserRepo) FindAll(ctx context.Context, q core.PageQuery) (core.Page[User], error) {
+func (r *UserRepo) FindAll(ctx context.Context, q httpx.PageQuery) (httpx.Page[User], error) {
     offset := (q.Page - 1) * q.Limit
 
     rows, err := r.db.QueryContext(ctx,
@@ -55,7 +55,7 @@ func (r *UserRepo) FindAll(ctx context.Context, q core.PageQuery) (core.Page[Use
     )
     // ...
     total := countUsers(ctx)
-    return core.NewPage(users, total, q.Page, q.Limit), nil
+    return httpx.NewPage(users, total, q.Page, q.Limit), nil
 }
 ```
 
@@ -80,7 +80,7 @@ func NewPage[T any](data []T, total, page, limit int) Page[T]
 `TotalPages` se calcula automáticamente con `ceil(total / limit)`.
 
 ```go
-page := core.NewPage(users, 142, 2, 20)
+page := httpx.NewPage(users, 142, 2, 20)
 // {
 //   "data": [...],
 //   "total": 142,

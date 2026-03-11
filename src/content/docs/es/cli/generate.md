@@ -79,13 +79,15 @@ Reglas validadas por el CLI:
 | Flag | Aplica a | Efecto |
 |---|---|---|
 | `--transactional` | `module` | Genera módulo sin controller |
-| `--with-repository` | `module` | Agrega repository al módulo |
+| `--gorm` | `module`, `repository` | Genera repository respaldado por GORM; instala `ss-keel-gorm` si no está presente |
+| `--mongo` | `module`, `repository` | Genera repository respaldado por Mongo; instala `ss-keel-mongo` si no está presente |
 | `--in-main` | `controller` standalone | Inserta ruta inline en `cmd/main.go` sin archivo de controller |
 
 Combinaciones inválidas retornan error explícito, por ejemplo:
 
 - `--transactional` fuera de `module`
-- `--with-repository` fuera de `module`
+- `--gorm` o `--mongo` fuera de `module` o `repository`
+- `--gorm` y `--mongo` usados juntos
 - `--in-main` fuera de `controller` standalone
 
 ## Wiring automático en `cmd/main.go`
@@ -97,7 +99,7 @@ Dependiendo del tipo generado, el CLI puede:
 - registrar módulos: `app.Use(...)`
 - registrar controllers: `app.RegisterController(...)`
 - registrar scheduler/checker/hook
-- crear controlador inline con `core.ControllerFunc` (`--in-main`)
+- crear controlador inline con `contracts.ControllerFunc` (`--in-main`)
 
 ## Comportamiento con archivos existentes
 
@@ -112,10 +114,16 @@ Módulo completo:
 keel g module users
 ```
 
-Módulo transaccional con repositorio:
+Módulo transaccional (sin controller):
 
 ```bash
-keel g module payments --transactional --with-repository
+keel g module payments --transactional
+```
+
+Módulo con repositorio GORM:
+
+```bash
+keel g module payments --gorm
 ```
 
 Service dentro de módulo:

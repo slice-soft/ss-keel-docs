@@ -46,7 +46,7 @@ func (g *JWTGuard) Middleware() fiber.Handler {
         }
 
         // Store the user in context for subsequent handlers
-        ctx := &core.Ctx{Ctx: c}
+        ctx := &httpx.Ctx{Ctx: c}
         ctx.SetUser(user)
 
         return c.Next()
@@ -64,7 +64,7 @@ Attach a guard to specific routes with `.Use()`. The secret should come from `co
 // cfg is config.Config loaded in main.go
 guard := auth.NewJWTGuard(cfg.JWTSecret)
 
-core.GET("/profile", profileHandler).
+httpx.GET("/profile", profileHandler).
     Use(guard.Middleware()).
     WithSecured("bearerAuth")
 ```
@@ -101,7 +101,7 @@ ctx.SetUser(user) // user can be any type
 Use the generic helper `UserAs[T]` in your handler:
 
 ```go
-func (c *UserController) profile(ctx *core.Ctx) error {
+func (c *UserController) profile(ctx *httpx.Ctx) error {
     user, ok := core.UserAs[*User](ctx)
     if !ok {
         return core.Unauthorized("not authenticated")
@@ -118,7 +118,7 @@ func (c *UserController) profile(ctx *core.Ctx) error {
 Mark a route as secured and declare the scheme in the docs configuration:
 
 ```go
-core.DELETE("/users/:id", deleteHandler).
+httpx.DELETE("/users/:id", deleteHandler).
     WithSecured("bearerAuth")
 ```
 
@@ -148,7 +148,7 @@ func (g *JWTGuard) Middleware() fiber.Handler {
             return core.Unauthorized("invalid or expired token")
         }
 
-        ctx := &core.Ctx{Ctx: c}
+        ctx := &httpx.Ctx{Ctx: c}
         ctx.SetUser(&AuthUser{ID: claims.Subject, Role: claims.Role})
         return c.Next()
     }
@@ -198,7 +198,7 @@ Build authorization on top of `UserAs`:
 ```go
 func RequireRole(role string) fiber.Handler {
     return func(c *fiber.Ctx) error {
-        ctx := &core.Ctx{Ctx: c}
+        ctx := &httpx.Ctx{Ctx: c}
         user, ok := core.UserAs[*AuthUser](ctx)
         if !ok || user.Role != role {
             return core.Forbidden("insufficient permissions")
@@ -208,6 +208,6 @@ func RequireRole(role string) fiber.Handler {
 }
 
 // Usage
-core.DELETE("/users/:id", deleteHandler).
+httpx.DELETE("/users/:id", deleteHandler).
     Use(RequireRole("admin"))
 ```

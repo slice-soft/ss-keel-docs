@@ -44,7 +44,7 @@ keel run dev
 Genera tu primer módulo:
 
 ```bash
-keel generate module users --with-repository
+keel generate module users
 ```
 
 ### Estructura base generada

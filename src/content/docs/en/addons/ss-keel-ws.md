@@ -24,8 +24,8 @@ import "github.com/slice-soft/ss-keel-ws"
 
 type ChatController struct{}
 
-func (c *ChatController) Routes() []core.Route {
-    return []core.Route{
+func (c *ChatController) Routes() []httpx.Route {
+    return []httpx.Route{
         ssws.GET("/ws/chat", c.handleChat).
             Tag("chat").
             Describe("Chat WebSocket connection"),
@@ -47,7 +47,7 @@ func (c *ChatController) handleChat(conn *ssws.Conn) error {
 ### With authentication
 
 ```go
-core.GET("/ws/chat", c.handleChat).
+httpx.GET("/ws/chat", c.handleChat).
     Use(jwtGuard.Middleware()) // validates token before upgrade
 ```
 

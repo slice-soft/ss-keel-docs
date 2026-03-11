@@ -66,7 +66,7 @@ Para tags no reconocidos, se usa el mensaje crudo de validator como fallback.
 `Ctx.ParseBody` llama a `Validate` internamente. No necesitas invocarlo manualmente si usas `ParseBody`:
 
 ```go
-func (c *UserController) create(ctx *core.Ctx) error {
+func (c *UserController) create(ctx *httpx.Ctx) error {
     var dto CreateUserDTO
     if err := ctx.ParseBody(&dto); err != nil {
         // 400 Bad Request: JSON mal formado
