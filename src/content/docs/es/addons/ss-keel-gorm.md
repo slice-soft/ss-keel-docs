@@ -1,9 +1,23 @@
 ---
 title: ss-keel-gorm
-description: Soporte para PostgreSQL, MySQL, MariaDB, SQLite y SQL Server vía GORM con una implementación genérica de Repository.
+description: Addon oficial de persistencia relacional para Keel usando GORM y el contrato compartido de repositorio.
 ---
 
-`ss-keel-gorm` ofrece un `GormRepository[T, ID]` genérico que implementa [`core.Repository[T, ID]`](/reference/interfaces#repository) usando [GORM](https://gorm.io/). Soporta Postgres, MySQL, MariaDB, SQLite y SQL Server con cero boilerplate para CRUD estándar.
+`ss-keel-gorm` es el addon oficial de persistencia relacional para Keel.
+
+Expone `database.GormRepository[T, ID]`, que implementa el contrato de repositorio compartido usado por el runtime y los módulos de aplicación:
+
+```go
+contracts.Repository[T, ID, httpx.PageQuery, httpx.Page[T]]
+```
+
+Los motores soportados vienen del código real del addon en `ss-keel-gorm/database`:
+
+- PostgreSQL
+- MySQL
+- MariaDB
+- SQLite
+- SQL Server
 
 ## Instalación
 
@@ -17,96 +31,93 @@ O manualmente:
 go get github.com/slice-soft/ss-keel-gorm
 ```
 
-## Conexión
+## Bootstrap
 
 ```go
 import "github.com/slice-soft/ss-keel-gorm/database"
 
 db, err := database.New(database.Config{
     Engine: database.EnginePostgres,
-    DSN:    os.Getenv("DATABASE_URL"),
+    DSN:    config.GetEnvOrDefault("DATABASE_URL", "postgres://user:pass@localhost:5432/db?sslmode=disable"),
+    Logger: appLogger,
 })
 if err != nil {
-    log.Fatal(err)
+    appLogger.Error("failed to start app: %v", err)
+    return
 }
 defer db.Close()
-```
 
-Motores soportados:
-
-| Constante | Driver |
-|---|---|
-| `database.EnginePostgres` | PostgreSQL |
-| `database.EngineMySQL` | MySQL |
-| `database.EngineMariaDB` | MariaDB |
-| `database.EngineSQLite` | SQLite |
-| `database.EngineSQLServer` | SQL Server |
-
-También puedes pasar un DSN completo directamente:
-
-```go
-db, err := database.New(database.Config{
-    Engine: database.EnginePostgres,
-    DSN:    "postgres://user:pass@localhost:5432/mydb?sslmode=disable",
-})
-```
-
-## Definición de modelo
-
-Los modelos siguen las convenciones estándar de GORM:
-
-```go
-type User struct {
-    ID        string    `gorm:"primaryKey"  json:"id"`
-    Name      string                        `json:"name"`
-    Email     string    `gorm:"uniqueIndex" json:"email"`
-    CreatedAt time.Time                     `json:"created_at"`
-    UpdatedAt time.Time                     `json:"updated_at"`
-}
-```
-
-## Repositorio genérico
-
-`GormRepository[T, ID]` cubre el CRUD estándar sin escribir código adicional:
-
-```go
-type UserRepository = database.GormRepository[User, string]
-
-func NewUserRepository(db *database.DBinstance) *UserRepository {
-    return database.NewGormRepository[User, string](db)
-}
-```
-
-Métodos disponibles (implementa `core.Repository[T, ID]`):
-
-```go
-repo.FindByID(ctx, "abc-123")                           // *User, error
-repo.FindAll(ctx, core.PageQuery{Page: 1, Limit: 20})   // core.Page[User], error
-repo.Create(ctx, &user)                                  // error
-repo.Update(ctx, "abc-123", &user)                       // error  (reemplazo completo vía Save)
-repo.Delete(ctx, "abc-123")                              // error  (respeta soft-delete)
-```
-
-## Verificación de salud
-
-```go
 app.RegisterHealthChecker(database.NewHealthChecker(db))
-// GET /health -> "database": "UP"
 ```
 
-## Extender con consultas personalizadas
+Defaults útiles del addon:
 
-Embebe `GormRepository` y agrega métodos usando `r.DB()` para acceso directo de GORM:
+- `MaxOpenConns`: `25`
+- `MaxIdleConns`: `5`
+- `ConnMaxLifetime`: `30m`
+- `ConnMaxIdleTime`: `15m`
+- `SSLMode`: `disable`
+- `TimeZone`: `UTC`
+
+## Ejemplo oficial
+
+El repositorio oficial de ejemplos incluye `ss-keel-examples/examples/08-gorm-postgres`, que demuestra:
+
+- `database.New(...)`
+- `db.AutoMigrate(...)`
+- `database.NewHealthChecker(...)`
+- rutas CRUD respaldadas por GORM
+
+## Wrapper de repositorio generado por el CLI
+
+Cuando ejecutas `keel generate repository product --repository-db gorm`, la forma del template oficial es:
+
+```go
+type ProductEntity struct {
+    ID string `gorm:"primaryKey" json:"id"`
+}
+
+type ProductRepository struct {
+    *database.GormRepository[ProductEntity, string]
+    log *logger.Logger
+}
+
+func NewProductRepository(log *logger.Logger, db *database.DBinstance) *ProductRepository {
+    return &ProductRepository{
+        GormRepository: database.NewGormRepository[ProductEntity, string](db),
+        log:            log,
+    }
+}
+```
+
+Esto mantiene el comportamiento específico de GORM dentro del paquete del módulo mientras sigue exponiendo los métodos genéricos del repositorio.
+
+## Comportamiento CRUD
+
+`database.GormRepository[T, ID]` implementa:
+
+```go
+repo.FindByID(ctx, id)
+repo.FindAll(ctx, httpx.PageQuery{Page: 1, Limit: 20})
+repo.Create(ctx, &entity)
+repo.Update(ctx, id, &entity)
+repo.Delete(ctx, id)
+```
+
+Comportamiento tomado de la implementación real:
+
+- `FindByID` devuelve `nil, nil` cuando el registro no existe
+- `FindAll` cuenta el total de filas y devuelve `httpx.Page[T]`
+- `Update` usa `Save`
+- `Delete` respeta el comportamiento soft-delete de GORM cuando el modelo lo soporta
+
+## Consultas personalizadas
+
+Usa `DB()` cuando el contrato genérico no sea suficiente:
 
 ```go
 type UserRepository struct {
     *database.GormRepository[User, string]
-}
-
-func NewUserRepository(db *database.DBinstance) *UserRepository {
-    return &UserRepository{
-        GormRepository: database.NewGormRepository[User, string](db),
-    }
 }
 
 func (r *UserRepository) FindByEmail(ctx context.Context, email string) (*User, error) {
@@ -119,38 +130,20 @@ func (r *UserRepository) FindByEmail(ctx context.Context, email string) (*User, 
 }
 ```
 
-## Pool de conexiones
+## Migraciones y extensiones de motores
 
-Se configura automáticamente con valores por defecto razonables. Puedes sobrescribirlos mediante `Config.Pool`:
+El addon también expone:
 
-```go
-database.New(database.Config{
-    Engine: database.EnginePostgres,
-    DSN:    os.Getenv("DATABASE_URL"),
-    Pool: database.PoolConfig{
-        MaxOpenConns:    25,
-        MaxIdleConns:    5,
-        ConnMaxLifetime: 30 * time.Minute,
-        ConnMaxIdleTime: 15 * time.Minute,
-    },
-})
+- `db.Migration(...)`
+- `db.MigrationWithError(...)`
+- `database.RegisterDialector(...)` para motores compatibles con GORM
+
+## Integración con health
+
+`database.NewHealthChecker(db)` implementa `contracts.HealthChecker` y expone la dependencia en `GET /health` como:
+
+```json
+{ "database": "UP" }
 ```
 
-## Motor personalizado
-
-Registra cualquier dialector compatible con GORM:
-
-```go
-database.RegisterDialector("oracle", func(cfg database.Config) (gorm.Dialector, error) {
-    return oracle.Open(cfg.DSN), nil
-})
-```
-
-## Integración CLI
-
-Cuando `ss-keel-gorm` está presente en `go.mod`, `keel generate repository` genera automáticamente un repositorio respaldado por GORM en lugar del stub por defecto:
-
-```bash
-keel generate repository users/product
-# -> internal/modules/users/product_repository.go  (respaldado por GORM)
-```
+Consulta [Persistencia](/guides/persistence) para la visión oficial de persistencia.
