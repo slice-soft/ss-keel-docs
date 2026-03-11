@@ -109,6 +109,12 @@ Install official addon by alias:
 keel add gorm
 ```
 
+Install MongoDB addon by alias:
+
+```bash
+keel add mongo
+```
+
 Install community addon by repo:
 
 ```bash

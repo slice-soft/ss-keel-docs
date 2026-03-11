@@ -9,7 +9,7 @@ Esta página se basa en:
 - estructura de repositorio y README de `ss-keel-addon-template`
 - registry y proceso de contribución de `ss-keel-addons`
 
-Validado con corte al **6 de marzo de 2026**.
+Validado con corte al **8 de marzo de 2026**.
 
 ## Repositorios del ecosistema
 
@@ -87,6 +87,7 @@ Alias oficial (resuelto por registry):
 
 ```bash
 keel add gorm
+keel add mongo
 ```
 
 Path directo de repositorio:
