@@ -137,7 +137,7 @@ msg := ctx.T("errors.user_not_found")
 msg := ctx.T("welcome.message", username)
 ```
 
-The translator is configured in the app with `app.SetTranslator(t)`. See [Interfaces — Translator](/reference/interfaces#translator).
+The translator is configured in the app with `app.SetTranslator(t)`. See [Contracts — Translator](/reference/interfaces#translator).
 
 ## Fiber methods
 

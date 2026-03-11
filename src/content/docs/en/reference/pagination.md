@@ -109,15 +109,17 @@ GET /users?page=2&limit=10
 }
 ```
 
-## Repository interface
+## Repository contract
 
-By convention, the `Repository[T, ID]` interface uses `PageQuery` and `Page[T]`:
+By convention, the official persistence addons use `PageQuery` and `Page[T]` through the generic repository contract:
 
 ```go
-type Repository[T any, ID any] interface {
-    FindAll(ctx context.Context, q PageQuery) (Page[T], error)
+type Repository[T any, ID any, Q any, P any] interface {
+    FindAll(ctx context.Context, q Q) (P, error)
     // ...
 }
 ```
 
-See [Interfaces — Repository](/reference/interfaces#repository) for the full interface.
+In `ss-keel-gorm` and `ss-keel-mongo`, that becomes `contracts.Repository[T, ID, httpx.PageQuery, httpx.Page[T]]`.
+
+See [Contracts — Repository](/reference/interfaces#repository) for the full interface.

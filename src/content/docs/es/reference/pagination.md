@@ -109,15 +109,17 @@ GET /users?page=2&limit=10
 }
 ```
 
-## Interfaz Repository
+## Contrato Repository
 
-Por convención, la interfaz `Repository[T, ID]` usa `PageQuery` y `Page[T]`:
+Por convención, los addons oficiales de persistencia usan `PageQuery` y `Page[T]` a través del contrato genérico de repositorio:
 
 ```go
-type Repository[T any, ID any] interface {
-    FindAll(ctx context.Context, q PageQuery) (Page[T], error)
+type Repository[T any, ID any, Q any, P any] interface {
+    FindAll(ctx context.Context, q Q) (P, error)
     // ...
 }
 ```
 
-Ver [Interfaces — Repository](/reference/interfaces#repository) para la interfaz completa.
+En `ss-keel-gorm` y `ss-keel-mongo`, eso se concreta como `contracts.Repository[T, ID, httpx.PageQuery, httpx.Page[T]]`.
+
+Ver [Contratos — Repository](/reference/interfaces#repository) para la interfaz completa.
