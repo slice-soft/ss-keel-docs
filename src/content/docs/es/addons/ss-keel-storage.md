@@ -4,12 +4,12 @@ description: Almacenamiento de objetos unificado para S3, Google Cloud Storage y
 ---
 
 :::caution[Próximamente]
-Este addon está en desarrollo. La interfaz que implementa ya es estable. Ver [Storage](/reference/interfaces#storage).
+Este addon está en desarrollo. La interfaz que implementa ya es estable. Ver [Storage](/es/reference/interfaces#storage).
 :::
 
 `ss-keel-storage` provee una implementación de `Storage` con API unificada para AWS S3, Google Cloud Storage (GCS) y disco local. Puedes cambiar proveedor con configuración sin cambiar código de aplicación.
 
-**Implementa:** [`Storage`](/reference/interfaces#storage)
+**Implementa:** [`Storage`](/es/reference/interfaces#storage)
 
 ## Instalación (planificada)
 

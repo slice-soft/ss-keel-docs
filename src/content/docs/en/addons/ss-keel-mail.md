@@ -4,12 +4,12 @@ description: Email sending via SMTP, Resend or SendGrid.
 ---
 
 :::caution[Coming Soon]
-This addon is under development. The interface it implements is already stable. See [Mailer](/reference/interfaces#mailer).
+This addon is under development. The interface it implements is already stable. See [Mailer](/en/reference/interfaces#mailer).
 :::
 
 `ss-keel-mail` provides a `Mailer` implementation with support for multiple transports: SMTP, [Resend](https://resend.com) and [SendGrid](https://sendgrid.com).
 
-**Implements:** [`Mailer`](/reference/interfaces#mailer)
+**Implements:** [`Mailer`](/en/reference/interfaces#mailer)
 
 ## Installation (planned)
 

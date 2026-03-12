@@ -47,7 +47,7 @@ q := ctx.ParsePagination()
 // q.Limit — default: 20, max: 100
 ```
 
-Revisa [Paginación](/reference/pagination) para la referencia completa.
+Revisa [Paginación](/es/reference/pagination) para la referencia completa.
 
 ## Helpers de respuesta
 
@@ -137,7 +137,7 @@ msg := ctx.T("errors.user_not_found")
 msg := ctx.T("welcome.message", username)
 ```
 
-El traductor se configura en la app con `app.SetTranslator(t)`. Ver [Contratos — Translator](/reference/interfaces#translator).
+El traductor se configura en la app con `app.SetTranslator(t)`. Ver [Contratos — Translator](/es/reference/interfaces#translator).
 
 ## Métodos Fiber
 

@@ -239,4 +239,4 @@ mongo.NewRepository[User, string](
 - Úsalo cuando las consultas por filtro y los campos BSON anidados forman parte del modelo de dominio.
 - Úsalo junto con `ss-keel-gorm` cuando distintos módulos necesitan modelos de persistencia distintos.
 
-Consulta [Persistencia](/guides/persistence) para la visión oficial de persistencia.
+Consulta [Persistencia](/es/guides/persistence) para la visión oficial de persistencia.

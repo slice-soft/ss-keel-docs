@@ -4,12 +4,12 @@ description: RabbitMQ messaging via amqp091-go, with Publisher and Subscriber im
 ---
 
 :::caution[Coming Soon]
-This addon is under development. The interfaces it implements are already stable. See [Publisher / Subscriber](/reference/interfaces#publisher-and-subscriber).
+This addon is under development. The interfaces it implements are already stable. See [Publisher / Subscriber](/en/reference/interfaces#publisher-and-subscriber).
 :::
 
 `ss-keel-amqp` provides `Publisher` and `Subscriber` implementations based on [amqp091-go](https://github.com/rabbitmq/amqp091-go), the official RabbitMQ client for Go.
 
-**Implements:** [`Publisher`](/reference/interfaces#publisher-and-subscriber) / [`Subscriber`](/reference/interfaces#publisher-and-subscriber)
+**Implements:** [`Publisher`](/en/reference/interfaces#publisher-and-subscriber) / [`Subscriber`](/en/reference/interfaces#publisher-and-subscriber)
 
 ## Installation (planned)
 

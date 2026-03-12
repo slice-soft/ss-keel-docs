@@ -125,9 +125,9 @@ go run ./cmd/main.go
 
 ## What's next
 
-- [CLI Installation](/cli/installation) — installation methods (`go install`, `brew`, releases)
-- [generate command](/cli/generate) — module generation and automatic wiring
-- [Configuration](/guides/configuration) — env vars and runtime configuration
-- [Controllers](/guides/controllers) — route and handler design
-- [Modules](/guides/modules) — domain-driven organization
-- [Testing](/guides/testing) — unit and integration tests
+- [CLI Installation](/en/cli/installation) — installation methods (`go install`, `brew`, releases)
+- [generate command](/en/cli/generate) — module generation and automatic wiring
+- [Configuration](/en/guides/configuration) — env vars and runtime configuration
+- [Controllers](/en/guides/controllers) — route and handler design
+- [Modules](/en/guides/modules) — domain-driven organization
+- [Testing](/en/guides/testing) — unit and integration tests

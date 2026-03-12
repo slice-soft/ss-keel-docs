@@ -11,7 +11,7 @@ This is the extension model used across the Keel ecosystem:
 - addon repositories implement those contracts
 - applications decide which addons to compose in `main.go`
 
-See [Architecture](/guides/architecture) for the layer boundaries.
+See [Architecture](/en/guides/architecture) for the layer boundaries.
 
 ## Official persistence integrations
 
@@ -19,8 +19,8 @@ The persistence layer is not built into `core`. It lives in official addons.
 
 | Package | Description | Contract |
 |---|---|---|
-| [`ss-keel-gorm`](/addons/ss-keel-gorm) | Official relational persistence addon for PostgreSQL, MySQL, MariaDB, SQLite, and SQL Server | `contracts.Repository[T, ID, httpx.PageQuery, httpx.Page[T]]` |
-| [`ss-keel-mongo`](/addons/ss-keel-mongo) | Official MongoDB persistence addon using the official Go driver | `contracts.Repository[T, ID, httpx.PageQuery, httpx.Page[T]]` |
+| [`ss-keel-gorm`](/en/addons/ss-keel-gorm) | Official relational persistence addon for PostgreSQL, MySQL, MariaDB, SQLite, and SQL Server | `contracts.Repository[T, ID, httpx.PageQuery, httpx.Page[T]]` |
+| [`ss-keel-mongo`](/en/addons/ss-keel-mongo) | Official MongoDB persistence addon using the official Go driver | `contracts.Repository[T, ID, httpx.PageQuery, httpx.Page[T]]` |
 
 Official example coverage today:
 
@@ -29,7 +29,7 @@ Official example coverage today:
 
 Mongo snippets in the docs use neutral examples backed by the official `ss-keel-mongo` API and CLI templates until an official Mongo example is added.
 
-See [Persistence](/guides/persistence) for the official persistence overview.
+See [Persistence](/en/guides/persistence) for the official persistence overview.
 
 ## Addon ecosystem
 
@@ -41,8 +41,8 @@ The addon ecosystem is organized into three repositories:
 
 Recommended entry points:
 
-- Install addons: [`add` command](/cli/add/)
-- Create and publish addons: [Addon Ecosystem](/addons/ecosystem/)
+- Install addons: [`add` command](/en/cli/add/)
+- Create and publish addons: [Addon Ecosystem](/en/addons/ecosystem/)
 
 ## Available addon categories
 
@@ -50,60 +50,60 @@ Recommended entry points:
 
 | Package | Description | Contract |
 |---|---|---|
-| [`ss-keel-gorm`](/addons/ss-keel-gorm) | Relational persistence via GORM | `Repository[T, ID, httpx.PageQuery, httpx.Page[T]]` |
-| [`ss-keel-mongo`](/addons/ss-keel-mongo) | MongoDB persistence via mongo-driver | `Repository[T, ID, httpx.PageQuery, httpx.Page[T]]` |
+| [`ss-keel-gorm`](/en/addons/ss-keel-gorm) | Relational persistence via GORM | `Repository[T, ID, httpx.PageQuery, httpx.Page[T]]` |
+| [`ss-keel-mongo`](/en/addons/ss-keel-mongo) | MongoDB persistence via mongo-driver | `Repository[T, ID, httpx.PageQuery, httpx.Page[T]]` |
 
 ### Cache and sessions
 
 | Package | Description | Contract |
 |---|---|---|
-| [`ss-keel-redis`](/addons/ss-keel-redis) | Redis via go-redis for cache and sessions | `Cache` |
+| [`ss-keel-redis`](/en/addons/ss-keel-redis) | Redis via go-redis for cache and sessions | `Cache` |
 
 ### Authentication
 
 | Package | Description | Contract |
 |---|---|---|
-| [`ss-keel-jwt`](/addons/ss-keel-jwt) | JWT generation, validation, and guards | `Guard` |
-| [`ss-keel-oauth`](/addons/ss-keel-oauth) | OAuth2 providers and guards | `Guard` |
+| [`ss-keel-jwt`](/en/addons/ss-keel-jwt) | JWT generation, validation, and guards | `Guard` |
+| [`ss-keel-oauth`](/en/addons/ss-keel-oauth) | OAuth2 providers and guards | `Guard` |
 
 ### Messaging
 
 | Package | Description | Contract |
 |---|---|---|
-| [`ss-keel-amqp`](/addons/ss-keel-amqp) | RabbitMQ via amqp091-go | `Publisher` / `Subscriber` |
-| [`ss-keel-kafka`](/addons/ss-keel-kafka) | Kafka via franz-go | `Publisher` / `Subscriber` |
+| [`ss-keel-amqp`](/en/addons/ss-keel-amqp) | RabbitMQ via amqp091-go | `Publisher` / `Subscriber` |
+| [`ss-keel-kafka`](/en/addons/ss-keel-kafka) | Kafka via franz-go | `Publisher` / `Subscriber` |
 
 ### Communication
 
 | Package | Description | Contract |
 |---|---|---|
-| [`ss-keel-mail`](/addons/ss-keel-mail) | Email via SMTP, Resend, or SendGrid | `Mailer` |
-| [`ss-keel-ws`](/addons/ss-keel-ws) | WebSockets on Fiber | — |
+| [`ss-keel-mail`](/en/addons/ss-keel-mail) | Email via SMTP, Resend, or SendGrid | `Mailer` |
+| [`ss-keel-ws`](/en/addons/ss-keel-ws) | WebSockets on Fiber | — |
 
 ### Storage
 
 | Package | Description | Contract |
 |---|---|---|
-| [`ss-keel-storage`](/addons/ss-keel-storage) | S3, GCS, and local disk with a unified API | `Storage` |
+| [`ss-keel-storage`](/en/addons/ss-keel-storage) | S3, GCS, and local disk with a unified API | `Storage` |
 
 ### Observability
 
 | Package | Description | Contract |
 |---|---|---|
-| [`ss-keel-metrics`](/addons/ss-keel-metrics) | Prometheus metrics + `/metrics` endpoint | `MetricsCollector` |
-| [`ss-keel-tracing`](/addons/ss-keel-tracing) | Distributed tracing with OpenTelemetry | `Tracer` |
+| [`ss-keel-metrics`](/en/addons/ss-keel-metrics) | Prometheus metrics + `/metrics` endpoint | `MetricsCollector` |
+| [`ss-keel-tracing`](/en/addons/ss-keel-tracing) | Distributed tracing with OpenTelemetry | `Tracer` |
 
 ### Jobs
 
 | Package | Description | Contract |
 |---|---|---|
-| [`ss-keel-cron`](/addons/ss-keel-cron) | Scheduled jobs with cron expressions | `Scheduler` |
+| [`ss-keel-cron`](/en/addons/ss-keel-cron) | Scheduled jobs with cron expressions | `Scheduler` |
 
 ### i18n
 
 | Package | Description | Contract |
 |---|---|---|
-| [`ss-keel-i18n`](/addons/ss-keel-i18n) | Internationalization and translations | `Translator` |
+| [`ss-keel-i18n`](/en/addons/ss-keel-i18n) | Internationalization and translations | `Translator` |
 
 ## Build your own adapter
 
@@ -126,4 +126,4 @@ func (c *InMemoryCache) Get(ctx context.Context, key string) ([]byte, error) {
 }
 ```
 
-See [Contracts](/reference/interfaces) for the full contract catalog.
+See [Contracts](/en/reference/interfaces) for the full contract catalog.

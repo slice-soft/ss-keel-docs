@@ -126,7 +126,7 @@ func (m *Module) Register(app *core.App) {
 }
 ```
 
-Consulta la [guía de Logger](/guides/logger) para ver cómo inyectar y usar `app.Logger()` en servicios.
+Consulta la [guía de Logger](/es/guides/logger) para ver cómo inyectar y usar `app.Logger()` en servicios.
 
 ## Agregar campos para nuevos addons
 

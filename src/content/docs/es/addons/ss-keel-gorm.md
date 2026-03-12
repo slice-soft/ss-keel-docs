@@ -175,4 +175,4 @@ El addon también expone:
 { "database": "UP" }
 ```
 
-Consulta [Persistencia](/guides/persistence) para la visión oficial de persistencia.
+Consulta [Persistencia](/es/guides/persistence) para la visión oficial de persistencia.

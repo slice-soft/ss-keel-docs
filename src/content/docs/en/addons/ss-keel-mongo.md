@@ -239,4 +239,4 @@ mongo.NewRepository[User, string](
 - Use it when filter-based queries and nested BSON fields are part of the domain model.
 - Use it alongside `ss-keel-gorm` when different modules need different persistence models.
 
-See [Persistence](/guides/persistence) for the official persistence overview.
+See [Persistence](/en/guides/persistence) for the official persistence overview.

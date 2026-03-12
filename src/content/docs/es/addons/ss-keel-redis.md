@@ -4,12 +4,12 @@ description: Cache Redis y almacenamiento de sesiones vía go-redis.
 ---
 
 :::caution[Próximamente]
-Este addon está en desarrollo. La interfaz que implementa ya es estable. Ver [Cache](/reference/interfaces#cache).
+Este addon está en desarrollo. La interfaz que implementa ya es estable. Ver [Cache](/es/reference/interfaces#cache).
 :::
 
 `ss-keel-redis` provee implementación de `Cache` sobre [go-redis](https://redis.uptrace.dev/). También incluye middleware opcional para sesiones.
 
-**Implementa:** [`Cache`](/reference/interfaces#cache)
+**Implementa:** [`Cache`](/es/reference/interfaces#cache)
 
 ## Instalación (planificada)
 

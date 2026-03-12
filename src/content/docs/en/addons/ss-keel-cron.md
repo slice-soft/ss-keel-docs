@@ -4,12 +4,12 @@ description: Scheduled background jobs with cron expressions.
 ---
 
 :::caution[Coming Soon]
-This addon is under development. The interface it implements is already stable. See [Scheduler](/reference/interfaces#scheduler).
+This addon is under development. The interface it implements is already stable. See [Scheduler](/en/reference/interfaces#scheduler).
 :::
 
 `ss-keel-cron` provides a `Scheduler` implementation for running background jobs on a schedule. Jobs are defined with standard cron expressions and run in their own goroutines.
 
-**Implements:** [`Scheduler`](/reference/interfaces#scheduler)
+**Implements:** [`Scheduler`](/en/reference/interfaces#scheduler)
 
 ## Installation (planned)
 

@@ -244,4 +244,4 @@ type Logger interface {
 
 El `logger.Logger` integrado en `ss-keel-core/logger` satisface este contrato y puede pasarse a configuraciones de addons como `database.Config.Logger` y `mongo.Config.Logger`.
 
-Consulta [Arquitectura](/guides/architecture) para la vista general del ecosistema y [Persistencia](/guides/persistence) para las integraciones oficiales de persistencia.
+Consulta [Arquitectura](/es/guides/architecture) para la vista general del ecosistema y [Persistencia](/es/guides/persistence) para las integraciones oficiales de persistencia.

@@ -4,12 +4,12 @@ description: Jobs en segundo plano programados con expresiones cron.
 ---
 
 :::caution[Próximamente]
-Este addon está en desarrollo. La interfaz que implementa ya es estable. Ver [Scheduler](/reference/interfaces#scheduler).
+Este addon está en desarrollo. La interfaz que implementa ya es estable. Ver [Scheduler](/es/reference/interfaces#scheduler).
 :::
 
 `ss-keel-cron` provee una implementación de `Scheduler` para ejecutar jobs en background según un calendario. Los jobs se definen con expresiones cron estándar y corren en sus propias goroutines.
 
-**Implementa:** [`Scheduler`](/reference/interfaces#scheduler)
+**Implementa:** [`Scheduler`](/es/reference/interfaces#scheduler)
 
 ## Instalación (planificada)
 

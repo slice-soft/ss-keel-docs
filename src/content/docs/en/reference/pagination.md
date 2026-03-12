@@ -122,4 +122,4 @@ type Repository[T any, ID any, Q any, P any] interface {
 
 In `ss-keel-gorm` and `ss-keel-mongo`, that becomes `contracts.Repository[T, ID, httpx.PageQuery, httpx.Page[T]]`.
 
-See [Contracts — Repository](/reference/interfaces#repository) for the full interface.
+See [Contracts — Repository](/en/reference/interfaces#repository) for the full interface.

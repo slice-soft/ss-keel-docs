@@ -4,12 +4,12 @@ description: Distributed tracing via OpenTelemetry.
 ---
 
 :::caution[Coming Soon]
-This addon is under development. The interface it implements is already stable. See [Tracer](/reference/interfaces#tracer).
+This addon is under development. The interface it implements is already stable. See [Tracer](/en/reference/interfaces#tracer).
 :::
 
 `ss-keel-tracing` provides a `Tracer` implementation based on [OpenTelemetry](https://opentelemetry.io/). It enables end-to-end request tracing across services and exports to Jaeger, Zipkin, OTLP, or other OTel-compatible backends.
 
-**Implements:** [`Tracer`](/reference/interfaces#tracer)
+**Implements:** [`Tracer`](/en/reference/interfaces#tracer)
 
 ## Installation (planned)
 
