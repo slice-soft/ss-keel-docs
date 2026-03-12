@@ -96,8 +96,8 @@ keel run test
 
 ## Next steps
 
-- [`new` command](/cli/new/)
-- [`init` command](/cli/init/)
-- [`generate` command](/cli/generate/)
-- [`add` command](/cli/add/)
-- [`run` command](/cli/run/)
+- [`new` command](/en/cli/new/)
+- [`init` command](/en/cli/init/)
+- [`generate` command](/en/cli/generate/)
+- [`add` command](/en/cli/add/)
+- [`run` command](/en/cli/run/)

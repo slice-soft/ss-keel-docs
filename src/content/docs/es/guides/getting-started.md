@@ -125,9 +125,9 @@ go run ./cmd/main.go
 
 ## Qué sigue
 
-- [Instalación de CLI](/cli/installation) — métodos de instalación (`go install`, `brew`, releases)
-- [Comando generate](/cli/generate) — generación de módulos y wiring automático
-- [Configuración](/guides/configuration) — env vars y configuración de runtime
-- [Controllers](/guides/controllers) — diseño de rutas y handlers
-- [Módulos](/guides/modules) — organización por dominio
-- [Pruebas](/guides/testing) — pruebas unitarias e integración
+- [Instalación de CLI](/es/cli/installation) — métodos de instalación (`go install`, `brew`, releases)
+- [Comando generate](/es/cli/generate) — generación de módulos y wiring automático
+- [Configuración](/es/guides/configuration) — env vars y configuración de runtime
+- [Controllers](/es/guides/controllers) — diseño de rutas y handlers
+- [Módulos](/es/guides/modules) — organización por dominio
+- [Pruebas](/es/guides/testing) — pruebas unitarias e integración

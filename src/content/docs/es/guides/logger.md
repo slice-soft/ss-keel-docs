@@ -3,7 +3,7 @@ title: Logger
 description: "Usa el logger estructurado en toda tu aplicación: módulos, servicios y handlers."
 ---
 
-ss-keel-core incluye un logger estructurado disponible desde que creas la app. Esta guía muestra cómo obtenerlo y usarlo en toda la aplicación. Para la API completa, revisa [Referencia → Logger](/reference/logger).
+ss-keel-core incluye un logger estructurado disponible desde que creas la app. Esta guía muestra cómo obtenerlo y usarlo en toda la aplicación. Para la API completa, revisa [Referencia → Logger](/es/reference/logger).
 
 ## Obtener el Logger
 

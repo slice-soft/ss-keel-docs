@@ -106,7 +106,7 @@ keel generate repository users/product --gorm
 keel generate repository users/product --mongo
 ```
 
-Both addons also ship an `EntityBase` struct you can embed in any entity to get `ID`, `CreatedAt`, and `UpdatedAt` with the correct tags already set. See [ss-keel-gorm](/addons/ss-keel-gorm#entitybase) and [ss-keel-mongo](/addons/ss-keel-mongo#entitybase) for details.
+Both addons also ship an `EntityBase` struct you can embed in any entity to get `ID`, `CreatedAt`, and `UpdatedAt` with the correct tags already set. See [ss-keel-gorm](/en/addons/ss-keel-gorm#entitybase) and [ss-keel-mongo](/en/addons/ss-keel-mongo#entitybase) for details.
 
 ## Neutral multi-addon composition example
 
@@ -182,4 +182,4 @@ keel generate repository billing/audit-log --mongo
 - Use `ss-keel-mongo` for document-first persistence and Mongo-native query patterns.
 - Use both in the same service when different modules have different storage models.
 
-See [Architecture](/guides/architecture) for the ecosystem layout and [ss-keel-gorm](/addons/ss-keel-gorm) / [ss-keel-mongo](/addons/ss-keel-mongo) for addon-specific details.
+See [Architecture](/en/guides/architecture) for the ecosystem layout and [ss-keel-gorm](/en/addons/ss-keel-gorm) / [ss-keel-mongo](/en/addons/ss-keel-mongo) for addon-specific details.

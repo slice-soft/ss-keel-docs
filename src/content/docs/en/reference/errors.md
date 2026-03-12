@@ -140,4 +140,4 @@ if err != nil {
 }
 ```
 
-See [Validation](/reference/validation) for more detail.
+See [Validation](/en/reference/validation) for more detail.

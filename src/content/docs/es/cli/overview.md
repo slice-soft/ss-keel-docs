@@ -80,12 +80,12 @@ Cuando ejecutas un proyecto generado, heredas el comportamiento del core:
 
 ## Siguientes pasos
 
-- [Instalación](/cli/installation/)
-- [Inicio Rápido](/cli/quickstart/)
-- [Comando `new`](/cli/new/)
-- [Comando `generate`](/cli/generate/)
-- [Comando `add`](/cli/add/)
-- [Resolución de problemas](/cli/troubleshooting/)
+- [Instalación](/es/cli/installation/)
+- [Inicio Rápido](/es/cli/quickstart/)
+- [Comando `new`](/es/cli/new/)
+- [Comando `generate`](/es/cli/generate/)
+- [Comando `add`](/es/cli/add/)
+- [Resolución de problemas](/es/cli/troubleshooting/)
 
 :::note[Repositorio]
 Código fuente del CLI: [github.com/slice-soft/keel](https://github.com/slice-soft/keel)

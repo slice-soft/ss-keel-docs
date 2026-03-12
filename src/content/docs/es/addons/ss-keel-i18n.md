@@ -4,12 +4,12 @@ description: Internacionalización y traducciones con detección de locale.
 ---
 
 :::caution[Próximamente]
-Este addon está en desarrollo. La interfaz que implementa ya es estable. Ver [Translator](/reference/interfaces#translator).
+Este addon está en desarrollo. La interfaz que implementa ya es estable. Ver [Translator](/es/reference/interfaces#translator).
 :::
 
 `ss-keel-i18n` provee una implementación de `Translator` que carga archivos de traducción y resuelve claves por locale. El locale se detecta automáticamente desde `Accept-Language`.
 
-**Implementa:** [`Translator`](/reference/interfaces#translator)
+**Implementa:** [`Translator`](/es/reference/interfaces#translator)
 
 ## Instalación (planificada)
 

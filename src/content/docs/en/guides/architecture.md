@@ -115,4 +115,4 @@ CLI
 - Keep scaffolding, code generation, addon installation, and script execution in the CLI.
 - Prefer module-local abstractions over cross-module implementation coupling.
 
-See [Contracts](/reference/interfaces) for the contract catalog and [Persistence](/guides/persistence) for the official persistence integrations.
+See [Contracts](/en/reference/interfaces) for the contract catalog and [Persistence](/en/guides/persistence) for the official persistence integrations.

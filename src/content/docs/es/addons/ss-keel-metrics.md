@@ -4,12 +4,12 @@ description: Recolección de métricas Prometheus y endpoint /metrics.
 ---
 
 :::caution[Próximamente]
-Este addon está en desarrollo. La interfaz que implementa ya es estable. Ver [MetricsCollector](/reference/interfaces#metricscollector).
+Este addon está en desarrollo. La interfaz que implementa ya es estable. Ver [MetricsCollector](/es/reference/interfaces#metricscollector).
 :::
 
 `ss-keel-metrics` provee una implementación de `MetricsCollector` que expone métricas [Prometheus](https://prometheus.io/) y monta automáticamente el endpoint `/metrics`.
 
-**Implementa:** [`MetricsCollector`](/reference/interfaces#metricscollector)
+**Implementa:** [`MetricsCollector`](/es/reference/interfaces#metricscollector)
 
 ## Instalación (planificada)
 

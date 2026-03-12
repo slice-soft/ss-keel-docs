@@ -4,12 +4,12 @@ description: JWT generation and validation with ready-to-use authentication guar
 ---
 
 :::caution[Coming Soon]
-This addon is under development. The interface it implements is already stable. See [Guard](/reference/interfaces#guard).
+This addon is under development. The interface it implements is already stable. See [Guard](/en/reference/interfaces#guard).
 :::
 
 `ss-keel-jwt` provides JWT generation and validation with a ready-to-use `Guard` implementation. Sign tokens at login, protect routes with the guard, and access the authenticated user at any point in the handler chain.
 
-**Implements:** [`Guard`](/reference/interfaces#guard)
+**Implements:** [`Guard`](/en/reference/interfaces#guard)
 
 ## Installation (planned)
 

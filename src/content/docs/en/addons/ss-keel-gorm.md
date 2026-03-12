@@ -175,4 +175,4 @@ The addon also exposes:
 { "database": "UP" }
 ```
 
-See [Persistence](/guides/persistence) for the official persistence overview.
+See [Persistence](/en/guides/persistence) for the official persistence overview.

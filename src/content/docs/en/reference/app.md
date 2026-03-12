@@ -127,7 +127,7 @@ Registers a scheduler and automatically connects a shutdown hook that calls `s.S
 func (a *App) RegisterHealthChecker(h HealthChecker)
 ```
 
-Adds a health checker. All checkers run in parallel when `GET /health` is called. If any fails, the endpoint responds `503`. See [Health Checks](/reference/health).
+Adds a health checker. All checkers run in parallel when `GET /health` is called. If any fails, the endpoint responds `503`. See [Health Checks](/en/reference/health).
 
 ## Full example
 

@@ -4,12 +4,12 @@ description: Mensajería Kafka vía franz-go con implementación de Publisher y 
 ---
 
 :::caution[Próximamente]
-Este addon está en desarrollo. Las interfaces que implementa ya son estables. Ver [Publisher / Subscriber](/reference/interfaces#publisher-y-subscriber).
+Este addon está en desarrollo. Las interfaces que implementa ya son estables. Ver [Publisher / Subscriber](/es/reference/interfaces#publisher-y-subscriber).
 :::
 
 `ss-keel-kafka` provee implementaciones de `Publisher` y `Subscriber` basadas en [franz-go](https://github.com/twmb/franz-go), un cliente Kafka de alto rendimiento para Go.
 
-**Implementa:** [`Publisher`](/reference/interfaces#publisher-y-subscriber) / [`Subscriber`](/reference/interfaces#publisher-y-subscriber)
+**Implementa:** [`Publisher`](/es/reference/interfaces#publisher-y-subscriber) / [`Subscriber`](/es/reference/interfaces#publisher-y-subscriber)
 
 ## Instalación (planificada)
 

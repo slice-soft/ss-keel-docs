@@ -115,4 +115,4 @@ CLI
 - Mantén scaffold, generación de código, instalación de addons y ejecución de scripts en el CLI.
 - Prefiere abstracciones locales del módulo antes que acoplamiento entre implementaciones de módulos.
 
-Consulta [Contratos](/reference/interfaces) para el catálogo de contratos y [Persistencia](/guides/persistence) para las integraciones oficiales de persistencia.
+Consulta [Contratos](/es/reference/interfaces) para el catálogo de contratos y [Persistencia](/es/guides/persistence) para las integraciones oficiales de persistencia.

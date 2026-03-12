@@ -4,12 +4,12 @@ description: OAuth2 authentication with Google, GitHub and other providers.
 ---
 
 :::caution[Coming Soon]
-This addon is under development. The interface it implements is already stable. See [Guard](/reference/interfaces#guard).
+This addon is under development. The interface it implements is already stable. See [Guard](/en/reference/interfaces#guard).
 :::
 
 `ss-keel-oauth` provides OAuth2 authentication middleware with support for popular providers. After a successful OAuth flow, the authenticated profile is stored in the request context with `SetUser`, compatible with `UserAs[T]`.
 
-**Implements:** [`Guard`](/reference/interfaces#guard)
+**Implements:** [`Guard`](/en/reference/interfaces#guard)
 
 ## Installation (planned)
 
