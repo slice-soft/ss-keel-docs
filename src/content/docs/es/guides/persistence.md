@@ -9,7 +9,7 @@ Hoy las integraciones oficiales de persistencia son:
 
 | Addon | Backend | Implementa | Capacidades extra |
 |---|---|---|---|
-| `ss-keel-gorm` | PostgreSQL, MySQL, MariaDB, SQLite, SQL Server | `contracts.Repository[T, ID, httpx.PageQuery, httpx.Page[T]]` | Acceso GORM, motores SQL, helpers de migración, DB health checker |
+| `ss-keel-gorm` | PostgreSQL, MySQL, MariaDB, SQLite, SQL Server, Oracle | `contracts.Repository[T, ID, httpx.PageQuery, httpx.Page[T]]` | Acceso GORM, motores SQL, helpers de migración, DB health checker |
 | `ss-keel-mongo` | MongoDB | `contracts.Repository[T, ID, httpx.PageQuery, httpx.Page[T]]` | Consultas por filtro, acceso directo a colecciones, conversión de ObjectID, Mongo health checker |
 
 ## Cobertura de ejemplos oficiales
@@ -55,7 +55,8 @@ Forma del template GORM en `ss-keel-cli`:
 
 ```go
 type ProductEntity struct {
-    ID string `gorm:"primaryKey" json:"id"`
+    database.EntityBase
+    Name string `json:"name"`
 }
 
 type ProductRepository struct {
@@ -73,22 +74,25 @@ func NewProductRepository(log *logger.Logger, db *database.DBinstance) *ProductR
 
 Forma del template Mongo en `ss-keel-cli`:
 
+El template Mongo genera un tipo de documento interno separado (`ProductMongoDocument`) que mapea `primitive.ObjectID` hacia y desde el `string` ID de la entidad. Los timestamps se sellan automáticamente mediante `entity.OnCreate()` / `entity.OnUpdate()` en cada método CRUD.
+
 ```go
-type ProductEntity struct {
-    ID string `bson:"_id,omitempty" json:"id"`
+type ProductMongoDocument struct {
+    ID        primitive.ObjectID `bson:"_id,omitempty"`
+    CreatedAt int64              `bson:"created_at"`
+    UpdatedAt int64              `bson:"updated_at"`
+    Name      string             `bson:"name"`
 }
 
 type ProductRepository struct {
-    *mongo.MongoRepository[ProductEntity, string]
-    log *logger.Logger
+    repo *mongo.MongoRepository[ProductMongoDocument, string]
+    log  *logger.Logger
 }
 
 func NewProductRepository(log *logger.Logger, client *mongo.Client) *ProductRepository {
     return &ProductRepository{
-        MongoRepository: mongo.NewRepository[ProductEntity, string](
-            client,
-            "product",
-            mongo.WithObjectIDHex[ProductEntity](),
+        repo: mongo.NewRepository[ProductMongoDocument, string](
+            client, "product", mongo.WithObjectIDHex[ProductMongoDocument](),
         ),
         log: log,
     }
@@ -98,9 +102,11 @@ func NewProductRepository(log *logger.Logger, client *mongo.Client) *ProductRepo
 Esos wrappers se generan con:
 
 ```bash
-keel generate repository product --gorm
-keel generate repository product --mongo
+keel generate repository users/product --gorm
+keel generate repository users/product --mongo
 ```
+
+Ambos addons incluyen también un struct `EntityBase` que puedes embeber en cualquier entidad para obtener `ID`, `CreatedAt` y `UpdatedAt` con las etiquetas correctas ya configuradas. Ver [ss-keel-gorm](/addons/ss-keel-gorm#entitybase) y [ss-keel-mongo](/addons/ss-keel-mongo#entitybase) para detalles.
 
 ## Ejemplo neutral de composición con múltiples addons
 
@@ -164,8 +170,8 @@ A medida que la aplicación crece, los módulos con persistencia siguen la misma
 keel add gorm
 keel add mongo
 
-keel generate repository product --gorm
-keel generate repository audit-log --mongo
+keel generate repository users/product --gorm
+keel generate repository billing/audit-log --mongo
 ```
 
 `keel add` instala e integra el addon. `keel generate repository` usa el template oficial de repositorio para el backend seleccionado.

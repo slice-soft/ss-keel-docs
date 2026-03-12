@@ -63,34 +63,102 @@ El repositorio oficial de ejemplos todavía no incluye un ejemplo específico de
 
 El wrapper de repositorio de abajo viene del template oficial de repositorio Mongo en `ss-keel-cli`, y el bootstrap de runtime de esta página viene de la API real de `ss-keel-mongo`.
 
-## Wrapper de repositorio generado por el CLI
+## EntityBase
+
+`ss-keel-mongo` incluye un struct `EntityBase` listo para usar que puedes embeber en cualquier entidad de documento para obtener `ID`, `CreatedAt` y `UpdatedAt` con las etiquetas BSON correctas ya configuradas:
 
 ```go
-type ProductEntity struct {
-    ID string `bson:"_id,omitempty" json:"id"`
-}
-
-type ProductRepository struct {
-    *mongo.MongoRepository[ProductEntity, string]
-    log *logger.Logger
-}
-
-func NewProductRepository(log *logger.Logger, client *mongo.Client) *ProductRepository {
-    return &ProductRepository{
-        MongoRepository: mongo.NewRepository[ProductEntity, string](
-            client,
-            "product",
-            mongo.WithObjectIDHex[ProductEntity](),
-        ),
-        log: log,
-    }
+// mongo.EntityBase
+type EntityBase struct {
+    ID        string `json:"id"         bson:"_id,omitempty"`
+    CreatedAt int64  `json:"created_at" bson:"created_at,omitempty"`
+    UpdatedAt int64  `json:"updated_at" bson:"updated_at,omitempty"`
 }
 ```
+
+Ejemplo de uso:
+
+```go
+import "github.com/slice-soft/ss-keel-mongo/mongo"
+
+type ProductEntity struct {
+    mongo.EntityBase
+    Name  string  `bson:"name"`
+    Price float64 `bson:"price"`
+}
+```
+
+A diferencia de GORM, Mongo no puebla `CreatedAt`/`UpdatedAt` automáticamente. `EntityBase` incluye dos helpers para esto:
+
+```go
+entity.OnCreate() // asigna CreatedAt y UpdatedAt al timestamp Unix actual en milisegundos
+entity.OnUpdate() // asigna solo UpdatedAt; CreatedAt queda sin cambios
+```
+
+El repositorio generado los llama automáticamente — `OnCreate()` antes de insertar y `OnUpdate()` antes de actualizar.
+
+## Wrapper de repositorio generado por el CLI
+
+El template Mongo genera un tipo de documento interno separado (`ProductMongoDocument`) que mapea `primitive.ObjectID` hacia y desde el `string` ID usado en la entidad. La entidad y el documento Mongo se mantienen separados para que la capa de dominio nunca dependa de tipos de Mongo.
 
 Ese wrapper se genera con:
 
 ```bash
-keel generate repository product --mongo
+keel generate repository users/product --mongo
+```
+
+La forma generada es:
+
+```go
+// ProductMongoDocument es la representación interna de Mongo.
+// Nunca se expone fuera del repositorio.
+type ProductMongoDocument struct {
+    ID        primitive.ObjectID `bson:"_id,omitempty"`
+    CreatedAt int64              `bson:"created_at"`
+    UpdatedAt int64              `bson:"updated_at"`
+    Name      string             `bson:"name"`
+}
+
+type ProductRepository struct {
+    repo *mongo.MongoRepository[ProductMongoDocument, string]
+    log  *logger.Logger
+}
+
+func NewProductRepository(log *logger.Logger, client *mongo.Client) *ProductRepository {
+    return &ProductRepository{
+        repo: mongo.NewRepository[ProductMongoDocument, string](
+            client, "product", mongo.WithObjectIDHex[ProductMongoDocument](),
+        ),
+        log: log,
+    }
+}
+
+// Create sella los timestamps con OnCreate, convierte a ProductMongoDocument,
+// genera un nuevo ObjectID si no hay uno asignado, y refleja el hex ID de vuelta a la entidad.
+func (r *ProductRepository) Create(ctx context.Context, entity *ProductEntity) error {
+    entity.OnCreate()
+    document, err := toProductMongoDocument(entity)
+    if err != nil {
+        return err
+    }
+    if document.ID.IsZero() {
+        document.ID = primitive.NewObjectID()
+    }
+    if err := r.repo.Create(ctx, &document); err != nil {
+        return err
+    }
+    entity.ID = document.ID.Hex()
+    return nil
+}
+
+// Update sella el timestamp de actualización y delega al repositorio subyacente.
+func (r *ProductRepository) Update(ctx context.Context, id string, entity *ProductEntity) error {
+    entity.OnUpdate()
+    // normaliza ObjectID, convierte a documento, delega a r.repo.Update
+    ...
+}
+
+// FindByID, FindAll y Delete siguen el mismo patrón de conversión documento↔entidad.
 ```
 
 ## Comportamiento CRUD
@@ -114,13 +182,25 @@ Comportamiento tomado de la implementación real:
 
 ## Helpers nativos de Mongo
 
-Cuando el contrato genérico de repositorio no alcanza, usa los helpers del addon:
+`mongo.MongoRepository[T, ID]` expone métodos adicionales más allá del contrato compartido. Agrega métodos personalizados a tu wrapper de repositorio para llamarlos:
 
 ```go
-repo.FindOneByFilter(ctx, bson.M{"email": "ada@keel.dev"})
-repo.FindMany(ctx, bson.M{"profile.country": "CO"})
+func (r *ProductRepository) FindByEmail(ctx context.Context, email string) (*ProductEntity, error) {
+    doc, err := r.repo.FindOneByFilter(ctx, bson.M{"email": email})
+    if err != nil || doc == nil {
+        return nil, err
+    }
+    entity := toProductEntity(*doc)
+    return &entity, nil
+}
 
-coll := repo.Collection()
+func (r *ProductRepository) FindByCountry(ctx context.Context, country string) ([]ProductEntity, error) {
+    docs, err := r.repo.FindMany(ctx, bson.M{"profile.country": country})
+    // ...
+}
+
+// Para control total, accede directamente a la colección:
+coll := r.repo.Collection()
 cursor, err := coll.Find(ctx, bson.M{"profile.country": "CO"})
 ```
 
@@ -129,7 +209,7 @@ cursor, err := coll.Find(ctx, bson.M{"profile.country": "CO"})
 Si tu API recibe hex strings pero Mongo almacena `_id` como `ObjectID`, usa:
 
 ```go
-mongo.WithObjectIDHex[ProductEntity]()
+mongo.WithObjectIDHex[ProductMongoDocument]()
 ```
 
 También puedes personalizar el campo ID o la lógica de conversión:

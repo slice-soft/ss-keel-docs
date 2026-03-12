@@ -18,6 +18,7 @@ Los motores soportados vienen del código real del addon en `ss-keel-gorm/databa
 - MariaDB
 - SQLite
 - SQL Server
+- Oracle
 
 ## Instalación
 
@@ -68,13 +69,41 @@ El repositorio oficial de ejemplos incluye `ss-keel-examples/examples/08-gorm-po
 - `database.NewHealthChecker(...)`
 - rutas CRUD respaldadas por GORM
 
+## EntityBase
+
+`ss-keel-gorm` incluye un struct `EntityBase` listo para usar que puedes embeber en cualquier entidad GORM para obtener `ID`, `CreatedAt` y `UpdatedAt` con las etiquetas GORM correctas ya configuradas:
+
+```go
+// database.EntityBase
+type EntityBase struct {
+    ID        string `json:"id"         gorm:"primaryKey"`
+    CreatedAt int64  `json:"created_at" gorm:"autoCreateTime"`
+    UpdatedAt int64  `json:"updated_at" gorm:"autoUpdateTime"`
+}
+```
+
+Ejemplo de uso:
+
+```go
+import "github.com/slice-soft/ss-keel-gorm/database"
+
+type ProductEntity struct {
+    database.EntityBase
+    Name  string
+    Price float64
+}
+```
+
+`autoCreateTime` y `autoUpdateTime` son poblados automáticamente por GORM al insertar y actualizar, por lo que no necesitas asignarlos manualmente.
+
 ## Wrapper de repositorio generado por el CLI
 
-Cuando ejecutas `keel generate repository product --gorm`, la forma del template oficial es:
+Cuando ejecutas `keel generate repository users/product --gorm`, la forma del template oficial es:
 
 ```go
 type ProductEntity struct {
-    ID string `gorm:"primaryKey" json:"id"`
+    database.EntityBase
+    Name string `json:"name"`
 }
 
 type ProductRepository struct {
