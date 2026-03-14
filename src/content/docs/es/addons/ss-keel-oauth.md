@@ -1,77 +1,267 @@
 ---
 title: ss-keel-oauth
-description: Autenticación OAuth2 con Google, GitHub y otros proveedores.
+description: Addon de autenticación OAuth2 para Keel — proveedores Google, GitHub y GitLab con emisión de JWT en el callback.
 ---
 
-:::caution[Próximamente]
-Este addon está en desarrollo. La interfaz que implementa ya es estable. Ver [Guard](/es/reference/interfaces#guard).
-:::
+`ss-keel-oauth` agrega autenticación OAuth2 a cualquier aplicación Keel.
+Tras un flujo exitoso con el proveedor, el addon firma un JWT y lo devuelve al cliente —
+como JSON o como redirect con el token en el query string.
 
-`ss-keel-oauth` provee middleware de autenticación OAuth2 con soporte para proveedores populares. Tras un flujo OAuth exitoso, el perfil autenticado se guarda en contexto de request con `SetUser`, compatible con `UserAs[T]`.
+**Proveedores soportados:** Google · GitHub · GitLab
 
-**Implementa:** [`Guard`](/es/reference/interfaces#guard)
+## Instalación
 
-## Instalación (planificada)
+```bash
+keel add oauth
+```
+
+O de forma manual:
 
 ```bash
 go get github.com/slice-soft/ss-keel-oauth
 ```
 
-## Proveedores (planificados)
+## Bootstrap
 
-| Proveedor | Estado |
-|---|---|
-| Google | Planificado |
-| GitHub | Planificado |
-| Microsoft | Planificado |
-| Discord | Planificado |
-| Custom (cualquier OAuth2) | Planificado |
-
-## Uso (planificado)
+Inicializa el addon y registra todas las rutas de los proveedores con una sola llamada desde `cmd/main.go`:
 
 ```go
-import "github.com/slice-soft/ss-keel-oauth"
+import (
+    "github.com/slice-soft/ss-keel-oauth/oauth"
+    "github.com/slice-soft/ss-keel-core/config"
+)
 
-oauth := ssoauth.New(ssoauth.Config{
-    Google: &ssoauth.ProviderConfig{
-        ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
-        ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
-        RedirectURL:  "https://myapp.com/auth/google/callback",
-        Scopes:       []string{"email", "profile"},
+redirectBase := config.GetEnvOrDefault("OAUTH_REDIRECT_BASE_URL", "http://localhost:3000")
+
+oauthManager := oauth.New(oauth.Config{
+    Google: &oauth.ProviderConfig{
+        ClientID:     config.GetEnvOrDefault("OAUTH_GOOGLE_CLIENT_ID", ""),
+        ClientSecret: config.GetEnvOrDefault("OAUTH_GOOGLE_CLIENT_SECRET", ""),
+        RedirectURL:  redirectBase + "/auth/google/callback",
     },
-    GitHub: &ssoauth.ProviderConfig{
-        ClientID:     os.Getenv("GITHUB_CLIENT_ID"),
-        ClientSecret: os.Getenv("GITHUB_CLIENT_SECRET"),
-        RedirectURL:  "https://myapp.com/auth/github/callback",
-    },
+    Signer: jwtAddon, // cualquier TokenSigner, e.g. de ss-keel-jwt
+    Logger: appLogger,
 })
 
-// Registra rutas OAuth (redirect + callbacks)
-app.Use(oauth)
+// Registra GET /auth/google + GET /auth/google/callback (por cada proveedor configurado)
+app.RegisterController(oauth.NewController(oauthManager))
 ```
 
-### Acceder al usuario OAuth
+`NewController` acepta un prefijo opcional para sobreescribir el `/auth` por defecto:
 
 ```go
-func callbackHandler(c *httpx.Ctx) error {
-    profile, ok := core.UserAs[*ssoauth.Profile](c)
-    if !ok {
-        return core.Unauthorized("oauth falló")
-    }
+app.RegisterController(oauth.NewController(oauthManager, "/sign-in"))
+// → GET /sign-in/google, GET /sign-in/google/callback, ...
+```
 
-    // profile.Provider — "google", "github"
-    // profile.ID
-    // profile.Email
-    // profile.Name
-    // profile.AvatarURL
+Si necesitas rutas personalizadas para proveedores individuales, usa los handlers directamente:
+
+```go
+httpx.GET("/login/google",          oauthManager.LoginHandler(oauth.ProviderGoogle))
+httpx.GET("/login/google/callback", oauthManager.CallbackHandler(oauth.ProviderGoogle))
+```
+
+## Proveedores
+
+Configura solo los proveedores que necesitas — un proveedor se omite cuando su `ProviderConfig` es `nil`.
+
+### Google
+
+```go
+Google: &oauth.ProviderConfig{
+    ClientID:     os.Getenv("OAUTH_GOOGLE_CLIENT_ID"),
+    ClientSecret: os.Getenv("OAUTH_GOOGLE_CLIENT_SECRET"),
+    RedirectURL:  "https://miapp.com/auth/google/callback",
+    // Scopes por defecto: ["openid", "email", "profile"]
+},
+```
+
+Credenciales: [console.cloud.google.com → APIs y Servicios → Credenciales](https://console.cloud.google.com/apis/credentials)
+
+### GitHub
+
+```go
+GitHub: &oauth.ProviderConfig{
+    ClientID:     os.Getenv("OAUTH_GITHUB_CLIENT_ID"),
+    ClientSecret: os.Getenv("OAUTH_GITHUB_CLIENT_SECRET"),
+    RedirectURL:  "https://miapp.com/auth/github/callback",
+    // Scopes por defecto: ["read:user", "user:email"]
+},
+```
+
+Credenciales: [github.com/settings/developers → OAuth Apps](https://github.com/settings/developers)
+
+Cuando el email del usuario está configurado como privado en GitHub, el addon llama
+automáticamente a `/user/emails` para obtener la dirección primaria verificada.
+
+### GitLab
+
+```go
+GitLab: &oauth.ProviderConfig{
+    ClientID:     os.Getenv("OAUTH_GITLAB_CLIENT_ID"),
+    ClientSecret: os.Getenv("OAUTH_GITLAB_CLIENT_SECRET"),
+    RedirectURL:  "https://miapp.com/auth/gitlab/callback",
+    // Scopes por defecto: ["read_user"]
+},
+```
+
+Credenciales: [gitlab.com/-/user_settings/applications](https://gitlab.com/-/user_settings/applications)
+
+> Las instancias de GitLab auto-alojadas no están soportadas en el proveedor por defecto.
+
+## Variables de entorno
+
+| Variable | Descripción |
+|---|---|
+| `OAUTH_GOOGLE_CLIENT_ID` | Client ID de Google |
+| `OAUTH_GOOGLE_CLIENT_SECRET` | Client secret de Google |
+| `OAUTH_GITHUB_CLIENT_ID` | Client ID de GitHub |
+| `OAUTH_GITHUB_CLIENT_SECRET` | Client secret de GitHub |
+| `OAUTH_GITLAB_CLIENT_ID` | Application ID de GitLab |
+| `OAUTH_GITLAB_CLIENT_SECRET` | Client secret de GitLab |
+| `OAUTH_REDIRECT_BASE_URL` | URL base para construir las callback URLs |
+
+## Interfaz TokenSigner
+
+`ss-keel-oauth` **no** importa `ss-keel-jwt` directamente.
+Depende de la interfaz `TokenSigner`, que cualquier implementación puede satisfacer:
+
+```go
+type TokenSigner interface {
+    Sign(subject string, claims map[string]interface{}) (string, error)
 }
 ```
 
-## Rutas generadas
+El `subject` tiene el formato `"<proveedor>:<user-id>"` (p.ej. `"google:1234567890"`).
+El mapa `claims` incluye:
 
-El addon registra automáticamente:
+| Clave | Valor |
+|---|---|
+| `email` | Email primario verificado |
+| `name` | Nombre de visualización |
+| `avatar_url` | URL de la foto de perfil |
+| `provider` | Nombre del proveedor: `"google"`, `"github"` o `"gitlab"` |
+
+`ss-keel-jwt` implementará esta interfaz.
+Hasta entonces puedes usar cualquier signer personalizado:
+
+```go
+type miJwtSigner struct{}
+
+func (s *miJwtSigner) Sign(subject string, claims map[string]interface{}) (string, error) {
+    // tu lógica de firma JWT
+}
+```
+
+## Struct UserInfo
+
+Tras un callback exitoso el proveedor devuelve un `UserInfo` normalizado:
+
+```go
+type UserInfo struct {
+    Provider  oauth.ProviderName // "google", "github", "gitlab"
+    ID        string             // ID único del usuario en el proveedor
+    Email     string             // email primario verificado, o vacío
+    Name      string             // nombre de visualización
+    AvatarURL string             // URL de la foto de perfil, o vacío
+}
+```
+
+## Respuesta del callback
+
+El addon soporta dos modos de entrega. Elige según tu arquitectura.
+
+### Modo 1 — JSON (recomendado para APIs y móvil)
+
+`RedirectOnSuccess` está vacío (por defecto). El callback handler devuelve:
+
+```json
+{ "token": "<jwt-firmado>" }
+```
+
+El cliente (SPA, app móvil u otro backend) llama a `GET /auth/google/callback?code=...`
+y lee el token del cuerpo de la respuesta. El navegador nunca ve el token en la URL.
+
+```go
+oauth.New(oauth.Config{
+    Google:  &oauth.ProviderConfig{...},
+    Signer:  jwtSigner,
+})
+```
+
+### Modo 2 — Redirect backend → frontend (flujo OAuth en navegador)
+
+Configura `RedirectOnSuccess` con la URL de tu frontend. Tras firmar el JWT, el backend
+redirige el navegador a esa URL con el token como query parameter.
+
+```
+Navegador → GET /auth/google           (login)
+          → Google → GET /auth/google/callback?code=...  (proveedor redirige al backend)
+          → Backend firma el JWT
+          → 302 → https://miapp.com/auth/done?token=<jwt>  (backend redirige al frontend)
+Frontend lee el token de la URL, lo almacena y lo elimina del historial.
+```
+
+```go
+oauth.New(oauth.Config{
+    Google:             &oauth.ProviderConfig{...},
+    Signer:             jwtSigner,
+    RedirectOnSuccess:  "https://miapp.com/auth/done",
+    RedirectTokenParam: "token", // opcional, "token" es el valor por defecto
+})
+```
+
+Cambia el nombre del query parameter para que coincida con lo que espera tu frontend:
+
+```go
+RedirectOnSuccess:  "https://miapp.com/auth/done",
+RedirectTokenParam: "access_token",
+// → https://miapp.com/auth/done?access_token=<jwt-firmado>
+```
+
+:::caution[Nota de seguridad]
+Los tokens en query strings pueden aparecer en logs de acceso del servidor, historial
+del navegador y cabeceras `Referer`. Tras leer el token, el frontend debe eliminarlo
+de la URL con `history.replaceState(null, '', window.location.pathname)`.
+El Modo 1 (JSON) evita completamente esta exposición y es preferible cuando el cliente
+puede llamar al endpoint de callback directamente.
+:::
+
+## Rutas
+
+`NewController` registra automáticamente las siguientes rutas para cada proveedor configurado:
 
 | Ruta | Descripción |
 |---|---|
-| `GET /auth/{provider}` | Redirige al proveedor |
-| `GET /auth/{provider}/callback` | Procesa callback OAuth |
+| `GET /auth/google` | Redirige a la página de autorización de Google |
+| `GET /auth/google/callback` | Intercambia código, firma JWT, devuelve token |
+| `GET /auth/github` | Redirige a la página de autorización de GitHub |
+| `GET /auth/github/callback` | Intercambia código, firma JWT, devuelve token |
+| `GET /auth/gitlab` | Redirige a la página de autorización de GitLab |
+| `GET /auth/gitlab/callback` | Intercambia código, firma JWT, devuelve token |
+
+Los proveedores no configurados se omiten silenciosamente — solo se registran rutas para los que tienen `ProviderConfig` no nulo.
+
+## Ejemplo completo
+
+```go
+// cmd/main.go
+redirectBase := config.GetEnvOrDefault("OAUTH_REDIRECT_BASE_URL", "http://localhost:3000")
+
+oauthManager := oauth.New(oauth.Config{
+    Google: &oauth.ProviderConfig{
+        ClientID:     config.GetEnvOrDefault("OAUTH_GOOGLE_CLIENT_ID", ""),
+        ClientSecret: config.GetEnvOrDefault("OAUTH_GOOGLE_CLIENT_SECRET", ""),
+        RedirectURL:  redirectBase + "/auth/google/callback",
+    },
+    GitHub: &oauth.ProviderConfig{
+        ClientID:     config.GetEnvOrDefault("OAUTH_GITHUB_CLIENT_ID", ""),
+        ClientSecret: config.GetEnvOrDefault("OAUTH_GITHUB_CLIENT_SECRET", ""),
+        RedirectURL:  redirectBase + "/auth/github/callback",
+    },
+    Signer: jwtSigner,
+    Logger: appLogger,
+})
+
+app.RegisterController(oauth.NewController(oauthManager))
+```

@@ -11,6 +11,7 @@ architecture, automatic OpenAPI, and built-in validation.
 [![Go Reference](https://pkg.go.dev/badge/github.com/slice-soft/ss-keel-core.svg)](https://pkg.go.dev/github.com/slice-soft/ss-keel-core)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Made in Colombia](https://img.shields.io/badge/Made%20in-Colombia-FCD116?labelColor=003893)
+[![Sponsor](https://img.shields.io/badge/Sponsor-SS--Keel-003893?logo=github-sponsors&logoColor=green)](https://github.com/sponsors/slice-soft)
 
 **Live site:** [docs.keel-go.dev](https://docs.keel-go.dev)
 **Framework repo:** [slice-soft/ss-keel-core](https://github.com/slice-soft/ss-keel-core)
