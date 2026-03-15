@@ -1,87 +1,134 @@
 ---
 title: ss-keel-jwt
-description: JWT generation and validation with ready-to-use authentication guards.
+description: JWT generation, validation, and route protection guard for Keel.
 ---
 
-:::caution[Coming Soon]
-This addon is under development. The interface it implements is already stable. See [Guard](/en/reference/interfaces#guard).
-:::
+`ss-keel-jwt` is the official JWT authentication addon for Keel.
+It provides token generation, validation, token refresh, and a ready-to-use `Guard` that protects routes via the `Authorization` header.
 
-`ss-keel-jwt` provides JWT generation and validation with a ready-to-use `Guard` implementation. Sign tokens at login, protect routes with the guard, and access the authenticated user at any point in the handler chain.
+**Implements:** [`Guard`](/en/reference/interfaces#guard), [`TokenSigner`](/en/reference/interfaces#tokensigner)
 
-**Implements:** [`Guard`](/en/reference/interfaces#guard)
+## Installation
 
-## Installation (planned)
+```bash
+keel add jwt
+```
+
+Or manually:
 
 ```bash
 go get github.com/slice-soft/ss-keel-jwt
 ```
 
-## Usage (planned)
-
-### Initial setup
+## Bootstrap
 
 ```go
-import "github.com/slice-soft/ss-keel-jwt"
+import (
+    "github.com/slice-soft/ss-keel-jwt/jwt"
+    "github.com/slice-soft/ss-keel-core/config"
+)
 
-jwtService := ssjwt.New(ssjwt.Config{
-    Secret:     os.Getenv("JWT_SECRET"),
-    Expiration: 24 * time.Hour,
+jwtProvider, err := jwt.New(jwt.Config{
+    SecretKey:     config.GetEnvOrDefault("JWT_SECRET", "change-me-in-production"),
+    Issuer:        config.GetEnvOrDefault("JWT_ISSUER", "my-app"),
+    TokenTTLHours: 24,
+    Logger:        appLogger,
+})
+if err != nil {
+    appLogger.Error("failed to initialize JWT: %v", err)
+}
+```
+
+Defaults applied when fields are not set:
+
+| Field | Default |
+|---|---|
+| `Issuer` | `"keel"` |
+| `TokenTTLHours` | `24` |
+
+## Generate a token
+
+```go
+token, err := jwtProvider.GenerateToken(map[string]any{
+    "userID": user.ID,
+    "role":   user.Role,
 })
 ```
 
-### Generate a token
+The payload is stored in the `"data"` claim. Standard claims (`iss`, `iat`, `exp`) are set automatically.
+
+## Protect routes
+
+`jwt.JWT` implements `contracts.Guard`. Pass `Middleware()` to any route:
 
 ```go
-// At login
-token, err := jwtService.Sign(ssjwt.Claims{
-    Subject: user.ID,
-    Custom: map[string]any{
-        "role":  user.Role,
-        "email": user.Email,
-    },
-})
-```
-
-### Protect routes
-
-```go
-guard := jwtService.Guard()
-
-// Per route
 httpx.GET("/profile", profileHandler).
-    Use(guard.Middleware()).
+    Use(jwtProvider.Middleware()).
     WithSecured("bearerAuth")
-
-// Per group
-protected := app.Group("/api/v1", guard.Middleware())
-protected.Use(&users.Module{})
 ```
 
-### Access the authenticated user
+The middleware reads the `Authorization` header, validates the token (with or without the `Bearer ` prefix), and stores the parsed claims in the request context. It returns `401` on missing or invalid tokens.
+
+## Access the authenticated payload
 
 ```go
 func profileHandler(c *httpx.Ctx) error {
-    claims, ok := core.UserAs[*ssjwt.Claims](c)
+    claims, ok := jwt.ClaimsFromCtx(c.Ctx)
     if !ok {
-        return core.Unauthorized("not authenticated")
+        return c.Status(401).JSON(fiber.Map{"error": "not authenticated"})
     }
 
-    return c.OK(map[string]any{
-        "id":   claims.Subject,
-        "role": claims.Custom["role"],
+    data := claims["data"].(map[string]any)
+    return c.OK(fiber.Map{
+        "userID": data["userID"],
+        "role":   data["role"],
     })
 }
 ```
 
-### Refresh tokens
+`ClaimsFromCtx` returns `(nil, false)` when the route is not protected by the JWT guard.
+
+## Refresh tokens
 
 ```go
-// Generate refresh token with longer TTL
-refreshToken, _ := jwtService.SignRefresh(ssjwt.Claims{
-    Subject: user.ID,
-})
-
-// Validate and rotate
-newToken, err := jwtService.Refresh(refreshToken)
+newToken, err := jwtProvider.RefreshToken(oldToken)
 ```
+
+`RefreshToken` validates the given token, resets `iat` and `exp`, and returns a new signed token. The `"data"` payload is preserved unchanged.
+
+## Validate a token manually
+
+```go
+claims, err := jwtProvider.ValidateToken(tokenString)
+```
+
+Useful in non-HTTP contexts such as WebSocket handshakes or background jobs that receive a token as input.
+
+## Use with ss-keel-oauth
+
+`*jwt.JWT` implements `contracts.TokenSigner`, so it can be passed directly to the OAuth addon as the token signer:
+
+```go
+oauthProvider := oauth.New(oauth.Config{
+    Google: &oauth.ProviderConfig{...},
+    Signer: jwtProvider, // satisfies contracts.TokenSigner
+    Logger: appLogger,
+})
+```
+
+After a successful OAuth flow, the callback handler calls `jwtProvider.Sign(subject, claims)` internally, which produces a standard HS256 token with:
+- `sub` — provider-scoped user ID (e.g. `"google:1234567890"`)
+- `data` — user claims (`email`, `name`, `avatar_url`, `provider`)
+- `iss`, `iat`, `exp` — set automatically from the JWT config
+
+The resulting token can be validated with `jwtProvider.ValidateToken` and its payload accessed via `jwt.ClaimsFromCtx` in protected routes.
+
+## Environment variables
+
+| Variable | Example | Description |
+|---|---|---|
+| `JWT_SECRET` | `change-me-in-production` | HMAC secret used to sign and verify tokens |
+| `JWT_ISSUER` | `my-app` | Token issuer claim (`iss`) |
+| `JWT_TOKEN_TTL_HOURS` | `24` | Token time-to-live in hours |
+
+See [Authentication](/en/guides/authentication) for the authentication overview.

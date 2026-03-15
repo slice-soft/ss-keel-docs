@@ -97,6 +97,23 @@ type Guard interface {
 }
 ```
 
+**Implemented by:** `ss-keel-jwt`
+
+## TokenSigner
+
+Contract for signing a JWT after a successful authentication flow (e.g. OAuth callback).
+
+```go
+type TokenSigner interface {
+    Sign(subject string, data map[string]any) (string, error)
+}
+```
+
+`subject` is a unique identifier for the user, typically `"<provider>:<user-id>"` (e.g. `"google:1234567890"`).
+`data` is an arbitrary claims map embedded in the token payload under the `"data"` key.
+
+**Implemented by:** `ss-keel-jwt` · **Used by:** `ss-keel-oauth`
+
 ## Publisher and Subscriber
 
 Messaging contracts.
