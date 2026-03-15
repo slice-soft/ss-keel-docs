@@ -34,22 +34,44 @@ go get github.com/slice-soft/ss-keel-gorm
 
 ## Bootstrap
 
+When you run `keel add gorm`, the CLI creates `cmd/setup_database.go` and adds one line to `cmd/main.go`:
+
 ```go
-import "github.com/slice-soft/ss-keel-gorm/database"
+// cmd/setup_database.go — created by keel add gorm
+package main
 
-db, err := database.New(database.Config{
-    Engine: database.EnginePostgres,
-    DSN:    config.GetEnvOrDefault("DATABASE_URL", "postgres://user:pass@localhost:5432/db?sslmode=disable"),
-    Logger: appLogger,
-})
-if err != nil {
-    appLogger.Error("failed to start app: %v", err)
-    return
+import (
+    "github.com/slice-soft/ss-keel-core/config"
+    "github.com/slice-soft/ss-keel-core/core"
+    "github.com/slice-soft/ss-keel-core/logger"
+    "github.com/slice-soft/ss-keel-gorm/database"
+)
+
+// setupDatabase initialises the database connection and registers a health checker.
+// Change database.EnginePostgres to the engine that matches your DATABASE_URL.
+func setupDatabase(app *core.App, log *logger.Logger) *database.DBinstance {
+    databaseURL := config.GetEnvOrDefault("DATABASE_URL", "postgres://user:pass@localhost:5432/db?sslmode=disable")
+    db, err := database.New(database.Config{
+        Engine: database.EnginePostgres,
+        DSN:    databaseURL,
+        Logger: log,
+    })
+    if err != nil {
+        log.Error("failed to initialize database: %v", err)
+    }
+    app.RegisterHealthChecker(database.NewHealthChecker(db))
+    return db
 }
-defer db.Close()
-
-app.RegisterHealthChecker(database.NewHealthChecker(db))
 ```
+
+The following is injected into `cmd/main.go`:
+
+```go
+db := setupDatabase(app, appLogger)
+defer db.Close()
+```
+
+This keeps initialization isolated from `cmd/main.go`. Each addon gets its own setup file.
 
 Useful defaults from the addon:
 
@@ -130,6 +152,7 @@ repo.FindByID(ctx, id)
 repo.FindAll(ctx, httpx.PageQuery{Page: 1, Limit: 20})
 repo.Create(ctx, &entity)
 repo.Update(ctx, id, &entity)
+repo.Patch(ctx, id, &entity)
 repo.Delete(ctx, id)
 ```
 
@@ -137,7 +160,8 @@ Behavior from the real implementation:
 
 - `FindByID` returns `nil, nil` when the record does not exist
 - `FindAll` counts total rows and returns `httpx.Page[T]`
-- `Update` uses `Save`
+- `Update` uses `Save` — replaces all fields (HTTP PUT semantics)
+- `Patch` uses `Updates` — only writes non-zero fields (HTTP PATCH semantics)
 - `Delete` respects GORM soft-delete behavior when the model supports it
 
 ## Custom queries

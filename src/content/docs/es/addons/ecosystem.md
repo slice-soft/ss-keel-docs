@@ -63,11 +63,12 @@ Ejemplo práctico mínimo:
   "version": "0.1.0",
   "description": "Example addon",
   "repo": "github.com/your-org/your-addon",
+  "depends_on": ["jwt"],
   "steps": [
     { "type": "go_get", "package": "github.com/your-org/your-addon@v0.1.0" },
     { "type": "env", "key": "MY_ADDON_ENABLED", "example": "true" },
-    { "type": "main_import", "path": "github.com/your-org/your-addon" },
-    { "type": "main_code", "guard": "app.Use(myaddon.New())", "code": "app.Use(myaddon.New())" }
+    { "type": "create_provider_file", "filename": "cmd/setup_myaddon.go", "guard": "func setupMyAddon(", "content": "package main\n\n// ..." },
+    { "type": "main_code", "anchor": "before_listen", "guard": "setupMyAddon(", "code": "setupMyAddon(app, appLogger)" }
   ]
 }
 ```
@@ -78,8 +79,19 @@ Tipos de paso soportados hoy por el CLI:
 - `env`
 - `main_import`
 - `main_code`
+- `create_provider_file`
 
 Si usas un tipo de paso desconocido, la instalación falla.
+
+### `depends_on`
+
+Array opcional de aliases de addons que deben estar instalados antes que este addon funcione. El CLI verifica las dependencias faltantes y avisa al usuario. Ejemplo: `ss-keel-oauth` declara `"depends_on": ["jwt"]` porque necesita `ss-keel-jwt` para firmar tokens tras la autenticación.
+
+### `create_provider_file`
+
+Este paso crea un archivo Go dedicado (ej. `cmd/setup_database.go`) con la función de inicialización del addon, en lugar de insertar todo el código de setup directamente en `cmd/main.go`. Un paso `main_code` complementario llama esa función.
+
+Esto mantiene cada addon aislado y `cmd/main.go` legible sin importar cuántos addons estén instalados. El campo `guard` contiene una cadena que se verifica en el archivo destino antes de crearlo — si ya está presente, el archivo no se sobreescribe.
 
 ## 3) Instalar addons en un proyecto Keel
 

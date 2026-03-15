@@ -27,25 +27,42 @@ go get github.com/slice-soft/ss-keel-mongo
 
 ## Bootstrap
 
+When you run `keel add mongo`, the CLI creates `cmd/setup_mongo.go` and adds one line to `cmd/main.go`:
+
 ```go
+// cmd/setup_mongo.go — created by keel add mongo
+package main
+
 import (
     "github.com/slice-soft/ss-keel-core/config"
+    "github.com/slice-soft/ss-keel-core/core"
+    "github.com/slice-soft/ss-keel-core/logger"
     "github.com/slice-soft/ss-keel-mongo/mongo"
 )
 
-client, err := mongo.New(mongo.Config{
-    URI:      config.GetEnvOrDefault("MONGO_URI", "mongodb://localhost:27017"),
-    Database: config.GetEnvOrDefault("MONGO_DATABASE", "app"),
-    Logger:   appLogger,
-})
-if err != nil {
-    appLogger.Error("failed to start app: %v", err)
-    return
+// setupMongo initialises the MongoDB client and registers a health checker.
+func setupMongo(app *core.App, log *logger.Logger) *mongo.Client {
+    mongoClient, err := mongo.New(mongo.Config{
+        URI:      config.GetEnvOrDefault("MONGO_URI", "mongodb://localhost:27017"),
+        Database: config.GetEnvOrDefault("MONGO_DATABASE", "app"),
+        Logger:   log,
+    })
+    if err != nil {
+        log.Error("failed to initialize MongoDB: %v", err)
+    }
+    app.RegisterHealthChecker(mongo.NewHealthChecker(mongoClient))
+    return mongoClient
 }
-defer client.Close()
-
-app.RegisterHealthChecker(mongo.NewHealthChecker(client))
 ```
+
+The following is injected into `cmd/main.go`:
+
+```go
+mongoClient := setupMongo(app, appLogger)
+defer mongoClient.Close()
+```
+
+This keeps initialization isolated from `cmd/main.go`. Each addon gets its own setup file.
 
 Useful defaults from the addon:
 
@@ -151,11 +168,25 @@ func (r *ProductRepository) Create(ctx context.Context, entity *ProductEntity) e
     return nil
 }
 
-// Update stamps the updated timestamp and delegates to the underlying repository.
+// Update replaces all fields of the document (HTTP PUT semantics).
 func (r *ProductRepository) Update(ctx context.Context, id string, entity *ProductEntity) error {
     entity.OnUpdate()
     // normalizes ObjectID, converts to document, delegates to r.repo.Update
     ...
+}
+
+// Patch applies a partial update — only the fields set in entity are written (HTTP PATCH semantics).
+func (r *ProductRepository) Patch(ctx context.Context, id string, entity *ProductEntity) error {
+    entity.OnUpdate()
+    normalizedID, err := normalizeProductID(id)
+    if err != nil {
+        return err
+    }
+    document, err := toProductMongoDocument(entity)
+    if err != nil {
+        return err
+    }
+    return r.repo.Patch(ctx, normalizedID, document)
 }
 
 // FindByID, FindAll, and Delete follow the same document↔entity conversion pattern.
@@ -170,6 +201,7 @@ repo.FindByID(ctx, id)
 repo.FindAll(ctx, httpx.PageQuery{Page: 1, Limit: 20})
 repo.Create(ctx, &entity)
 repo.Update(ctx, id, &entity)
+repo.Patch(ctx, id, &entity)
 repo.Delete(ctx, id)
 ```
 
@@ -177,7 +209,8 @@ Behavior from the real implementation:
 
 - `FindByID` returns `nil, nil` when no document exists
 - `FindAll` paginates the collection and returns `httpx.Page[T]`
-- `Update` applies `$set` to all non-ID fields
+- `Update` applies `$set` to all non-ID fields — replaces the full document (HTTP PUT semantics)
+- `Patch` applies `$set` only to the fields explicitly provided in the patch document (HTTP PATCH semantics)
 - `Delete` removes one document by repository ID
 
 ## Mongo-native helpers
