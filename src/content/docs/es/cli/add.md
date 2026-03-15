@@ -75,14 +75,18 @@ El CLI parsea esta estructura:
   "version": "0.1.0",
   "description": "Description",
   "repo": "github.com/your-org/my-addon",
+  "depends_on": ["jwt"],
   "steps": [
     { "type": "go_get", "package": "github.com/your-org/my-addon@v0.1.0" },
     { "type": "env", "key": "MY_ADDON_KEY", "example": "value", "description": "Optional note" },
     { "type": "main_import", "path": "github.com/your-org/my-addon" },
-    { "type": "main_code", "guard": "app.Use(myaddon.New())", "code": "app.Use(myaddon.New())" }
+    { "type": "main_code", "anchor": "before_listen", "guard": "myaddon.Setup(", "code": "myaddon.Setup(app, appLogger)" },
+    { "type": "create_provider_file", "filename": "cmd/setup_myaddon.go", "guard": "func setupMyAddon(", "content": "package main\n\n// ..." }
   ]
 }
 ```
+
+`depends_on` es opcional. Cuando está presente, el CLI verifica si cada alias listado ya está instalado y avisa al usuario que instale las dependencias faltantes primero. Por ejemplo, `ss-keel-oauth` declara `"depends_on": ["jwt"]` porque necesita `ss-keel-jwt` para firmar tokens.
 
 ## Tipos de paso soportados
 
@@ -91,9 +95,37 @@ El CLI parsea esta estructura:
 | `go_get` | Ejecuta `go get <package>` (agrega `@latest` si no incluyes versión) |
 | `env` | Agrega `KEY=example` en `.env` si la llave no existe |
 | `main_import` | Inserta import en `cmd/main.go` si falta |
-| `main_code` | Inserta código antes de `app.Listen()` en `cmd/main.go`; `guard` evita duplicados |
+| `main_code` | Inserta código antes de `app.Listen()` en `cmd/main.go`; `guard` evita duplicados; el campo `anchor` acepta `"before_listen"` |
+| `create_provider_file` | Crea un archivo Go (ej. `cmd/setup_database.go`) con una función de inicialización autocontenida, manteniendo `cmd/main.go` limpio; `guard` verifica la firma de la función antes de crear el archivo |
 
 Tipos de paso desconocidos fallan la instalación.
+
+### Patrón `create_provider_file`
+
+En lugar de llenar `cmd/main.go` con código de inicialización, los addons usan este paso para generar un archivo dedicado. Por ejemplo, `keel add gorm` crea `cmd/setup_database.go`:
+
+```go
+// cmd/setup_database.go — generado por keel add gorm
+package main
+
+func setupDatabase(app *core.App, log *logger.Logger) *database.DBinstance {
+    db, err := database.New(database.Config{...})
+    if err != nil {
+        log.Error("failed to initialize database: %v", err)
+    }
+    app.RegisterHealthChecker(database.NewHealthChecker(db))
+    return db
+}
+```
+
+Y un paso `main_code` agrega la llamada en `cmd/main.go`:
+
+```go
+db := setupDatabase(app, appLogger)
+defer db.Close()
+```
+
+Esto mantiene el wiring de cada addon aislado y `cmd/main.go` legible sin importar cuántos addons estén instalados.
 
 ## Comportamiento después de instalar
 

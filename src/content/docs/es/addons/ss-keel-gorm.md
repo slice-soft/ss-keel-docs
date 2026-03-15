@@ -34,22 +34,44 @@ go get github.com/slice-soft/ss-keel-gorm
 
 ## Bootstrap
 
+Al ejecutar `keel add gorm`, el CLI crea `cmd/setup_database.go` y agrega una línea en `cmd/main.go`:
+
 ```go
-import "github.com/slice-soft/ss-keel-gorm/database"
+// cmd/setup_database.go — creado por keel add gorm
+package main
 
-db, err := database.New(database.Config{
-    Engine: database.EnginePostgres,
-    DSN:    config.GetEnvOrDefault("DATABASE_URL", "postgres://user:pass@localhost:5432/db?sslmode=disable"),
-    Logger: appLogger,
-})
-if err != nil {
-    appLogger.Error("failed to start app: %v", err)
-    return
+import (
+    "github.com/slice-soft/ss-keel-core/config"
+    "github.com/slice-soft/ss-keel-core/core"
+    "github.com/slice-soft/ss-keel-core/logger"
+    "github.com/slice-soft/ss-keel-gorm/database"
+)
+
+// setupDatabase inicializa la conexión a la base de datos y registra el health checker.
+// Cambia database.EnginePostgres al motor que corresponde con tu DATABASE_URL.
+func setupDatabase(app *core.App, log *logger.Logger) *database.DBinstance {
+    databaseURL := config.GetEnvOrDefault("DATABASE_URL", "postgres://user:pass@localhost:5432/db?sslmode=disable")
+    db, err := database.New(database.Config{
+        Engine: database.EnginePostgres,
+        DSN:    databaseURL,
+        Logger: log,
+    })
+    if err != nil {
+        log.Error("failed to initialize database: %v", err)
+    }
+    app.RegisterHealthChecker(database.NewHealthChecker(db))
+    return db
 }
-defer db.Close()
-
-app.RegisterHealthChecker(database.NewHealthChecker(db))
 ```
+
+Lo siguiente se inyecta en `cmd/main.go`:
+
+```go
+db := setupDatabase(app, appLogger)
+defer db.Close()
+```
+
+Esto mantiene la inicialización aislada de `cmd/main.go`. Cada addon obtiene su propio archivo de setup.
 
 Defaults útiles del addon:
 
@@ -130,6 +152,7 @@ repo.FindByID(ctx, id)
 repo.FindAll(ctx, httpx.PageQuery{Page: 1, Limit: 20})
 repo.Create(ctx, &entity)
 repo.Update(ctx, id, &entity)
+repo.Patch(ctx, id, &entity)
 repo.Delete(ctx, id)
 ```
 
@@ -137,7 +160,8 @@ Comportamiento tomado de la implementación real:
 
 - `FindByID` devuelve `nil, nil` cuando el registro no existe
 - `FindAll` cuenta el total de filas y devuelve `httpx.Page[T]`
-- `Update` usa `Save`
+- `Update` usa `Save` — reemplaza todos los campos (semántica HTTP PUT)
+- `Patch` usa `Updates` — solo escribe los campos no-cero (semántica HTTP PATCH)
 - `Delete` respeta el comportamiento soft-delete de GORM cuando el modelo lo soporta
 
 ## Consultas personalizadas
