@@ -124,16 +124,26 @@ Credenciales: [gitlab.com/-/user_settings/applications](https://gitlab.com/-/use
 ## Interfaz TokenSigner
 
 `ss-keel-oauth` **no** importa `ss-keel-jwt` directamente.
-Depende de la interfaz `TokenSigner`, que cualquier implementación puede satisfacer:
+Depende de la interfaz `contracts.TokenSigner` definida en `ss-keel-core`:
 
 ```go
+// contracts.TokenSigner
 type TokenSigner interface {
-    Sign(subject string, claims map[string]interface{}) (string, error)
+    Sign(subject string, data map[string]any) (string, error)
 }
 ```
 
+`ss-keel-jwt` satisface esta interfaz — pasa `jwtProvider` directamente:
+
+```go
+oauth.New(oauth.Config{
+    Signer: jwtProvider, // *jwt.JWT implementa contracts.TokenSigner
+    ...
+})
+```
+
 El `subject` tiene el formato `"<proveedor>:<user-id>"` (p.ej. `"google:1234567890"`).
-El mapa `claims` incluye:
+El mapa `data` que envía el callback incluye:
 
 | Clave | Valor |
 |---|---|
@@ -142,13 +152,12 @@ El mapa `claims` incluye:
 | `avatar_url` | URL de la foto de perfil |
 | `provider` | Nombre del proveedor: `"google"`, `"github"` o `"gitlab"` |
 
-`ss-keel-jwt` implementará esta interfaz.
-Hasta entonces puedes usar cualquier signer personalizado:
+También puedes proveer una implementación personalizada:
 
 ```go
 type miJwtSigner struct{}
 
-func (s *miJwtSigner) Sign(subject string, claims map[string]interface{}) (string, error) {
+func (s *miJwtSigner) Sign(subject string, data map[string]any) (string, error) {
     // tu lógica de firma JWT
 }
 ```
