@@ -63,7 +63,7 @@ httpx.GET("/login/google/callback", oauthManager.CallbackHandler(oauth.ProviderG
 
 ## Proveedores
 
-Configura solo los proveedores que necesitas — un proveedor se omite cuando su `ProviderConfig` es `nil`.
+Configura solo los proveedores que necesitas — un proveedor se omite cuando su `ProviderConfig` es `nil` o está incompleto.
 
 ### Google
 
@@ -120,6 +120,10 @@ Credenciales: [gitlab.com/-/user_settings/applications](https://gitlab.com/-/use
 | `OAUTH_GITLAB_CLIENT_ID` | Application ID de GitLab |
 | `OAUTH_GITLAB_CLIENT_SECRET` | Client secret de GitLab |
 | `OAUTH_REDIRECT_BASE_URL` | URL base para construir las callback URLs |
+| `OAUTH_ROUTE_PREFIX` | Prefijo de ruta usado por el controller OAuth generado (default: `/auth`) |
+| `OAUTH_ENABLED_PROVIDERS` | Lista opcional separada por comas para permitir proveedores (`google,github,gitlab`) |
+
+El `cmd/setup_oauth.go` generado por `keel add oauth` lee credenciales de los tres proveedores, construye las callback URLs desde `OAUTH_REDIRECT_BASE_URL` y solo activa los providers con credenciales completas. `OAUTH_ENABLED_PROVIDERS` permite restringir aún más qué rutas se exponen.
 
 ## Interfaz TokenSigner
 
@@ -238,7 +242,7 @@ puede llamar al endpoint de callback directamente.
 
 ## Rutas
 
-`NewController` registra automáticamente las siguientes rutas para cada proveedor configurado:
+`NewController` registra automáticamente las siguientes rutas para cada proveedor habilitado:
 
 | Ruta | Descripción |
 |---|---|
@@ -249,7 +253,7 @@ puede llamar al endpoint de callback directamente.
 | `GET /auth/gitlab` | Redirige a la página de autorización de GitLab |
 | `GET /auth/gitlab/callback` | Intercambia código, firma JWT, devuelve token |
 
-Los proveedores no configurados se omiten silenciosamente — solo se registran rutas para los que tienen `ProviderConfig` no nulo.
+Los proveedores con credenciales incompletas se omiten silenciosamente — solo se registran rutas para los providers habilitados con configuración completa.
 
 ## Ejemplo completo
 
