@@ -11,7 +11,7 @@ Implementa el mismo contrato de repositorio compartido usado por `ss-keel-gorm`:
 contracts.Repository[T, ID, httpx.PageQuery, httpx.Page[T]]
 ```
 
-Encima de ese contrato, expone capacidades nativas de Mongo como consultas por filtro, acceso directo a colecciones y conversión de `ObjectID`.
+Encima de ese contrato, expone capacidades nativas de Mongo como consultas por filtro, acceso directo a colecciones y conversión personalizada de IDs.
 
 ## Instalación
 
@@ -116,7 +116,7 @@ El repositorio generado los llama automáticamente — `OnCreate()` antes de ins
 
 ## Wrapper de repositorio generado por el CLI
 
-El template Mongo genera un tipo de documento interno separado (`ProductMongoDocument`) que mapea `primitive.ObjectID` hacia y desde el `string` ID usado en la entidad. La entidad y el documento Mongo se mantienen separados para que la capa de dominio nunca dependa de tipos de Mongo.
+El template Mongo genera un tipo de documento interno separado (`ProductMongoDocument`) que conserva IDs UUID string y separa la entidad de dominio de la representación BSON almacenada. La entidad y el documento Mongo se mantienen separados para que la capa de dominio nunca dependa de detalles específicos de Mongo.
 
 Ese wrapper se genera con:
 
@@ -130,7 +130,7 @@ La forma generada es:
 // ProductMongoDocument es la representación interna de Mongo.
 // Nunca se expone fuera del repositorio.
 type ProductMongoDocument struct {
-    ID        primitive.ObjectID `bson:"_id,omitempty"`
+    ID        string             `bson:"_id,omitempty"`
     CreatedAt int64              `bson:"created_at"`
     UpdatedAt int64              `bson:"updated_at"`
     Name      string             `bson:"name"`
@@ -143,35 +143,26 @@ type ProductRepository struct {
 
 func NewProductRepository(log *logger.Logger, client *mongo.Client) *ProductRepository {
     return &ProductRepository{
-        repo: mongo.NewRepository[ProductMongoDocument, string](
-            client, "product", mongo.WithObjectIDHex[ProductMongoDocument](),
-        ),
+        repo: mongo.NewRepository[ProductMongoDocument, string](client, "product"),
         log: log,
     }
 }
 
-// Create sella los timestamps con OnCreate, convierte a ProductMongoDocument,
-// genera un nuevo ObjectID si no hay uno asignado, y refleja el hex ID de vuelta a la entidad.
+// Create sella los timestamps con OnCreate y persiste el documento basado en UUID sin conversiones extra.
 func (r *ProductRepository) Create(ctx context.Context, entity *ProductEntity) error {
     entity.OnCreate()
-    document, err := toProductMongoDocument(entity)
-    if err != nil {
-        return err
-    }
-    if document.ID.IsZero() {
-        document.ID = primitive.NewObjectID()
-    }
+    document := toProductMongoDocument(entity)
     if err := r.repo.Create(ctx, &document); err != nil {
         return err
     }
-    entity.ID = document.ID.Hex()
+    entity.ID = document.ID
     return nil
 }
 
 // Update reemplaza todos los campos del documento (semántica HTTP PUT).
 func (r *ProductRepository) Update(ctx context.Context, id string, entity *ProductEntity) error {
     entity.OnUpdate()
-    // normaliza ObjectID, convierte a documento, delega a r.repo.Update
+    // normaliza el ID recibido, convierte a documento y delega a r.repo.Update
     ...
 }
 
@@ -182,11 +173,8 @@ func (r *ProductRepository) Patch(ctx context.Context, id string, entity *Produc
     if err != nil {
         return err
     }
-    document, err := toProductMongoDocument(entity)
-    if err != nil {
-        return err
-    }
-    return r.repo.Patch(ctx, normalizedID, document)
+    document := toProductMongoDocument(entity)
+    return r.repo.Patch(ctx, normalizedID, &document)
 }
 
 // FindByID, FindAll y Delete siguen el mismo patrón de conversión documento↔entidad.
@@ -238,12 +226,6 @@ cursor, err := coll.Find(ctx, bson.M{"profile.country": "CO"})
 ```
 
 ## Estrategias de ID
-
-Si tu API recibe hex strings pero Mongo almacena `_id` como `ObjectID`, usa:
-
-```go
-mongo.WithObjectIDHex[ProductMongoDocument]()
-```
 
 También puedes personalizar el campo ID o la lógica de conversión:
 

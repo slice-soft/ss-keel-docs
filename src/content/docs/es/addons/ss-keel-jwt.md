@@ -24,14 +24,21 @@ go get github.com/slice-soft/ss-keel-jwt
 
 ```go
 import (
-    "github.com/slice-soft/ss-keel-jwt/jwt"
+    "strings"
+
     "github.com/slice-soft/ss-keel-core/config"
+    "github.com/slice-soft/ss-keel-jwt/jwt"
 )
+
+issuer := strings.TrimSpace(config.GetEnvOrDefault("JWT_ISSUER", ""))
+if issuer == "" {
+    issuer = config.GetEnvOrDefault("SERVICE_NAME", "keel-app")
+}
 
 jwtProvider, err := jwt.New(jwt.Config{
     SecretKey:     config.GetEnvOrDefault("JWT_SECRET", "change-me-in-production"),
-    Issuer:        config.GetEnvOrDefault("JWT_ISSUER", "my-app"),
-    TokenTTLHours: 24,
+    Issuer:        issuer,
+    TokenTTLHours: uint(config.GetEnvIntOrDefault("JWT_TOKEN_TTL_HOURS", 24)),
     Logger:        appLogger,
 })
 if err != nil {
@@ -128,7 +135,7 @@ El token resultante puede validarse con `jwtProvider.ValidateToken` y su payload
 | Variable | Ejemplo | Descripción |
 |---|---|---|
 | `JWT_SECRET` | `change-me-in-production` | Secreto HMAC usado para firmar y verificar tokens |
-| `JWT_ISSUER` | `my-app` | Claim del emisor del token (`iss`) |
+| `JWT_ISSUER` | `my-app` | Claim del emisor del token (`iss`). El setup generado por Keel usa `SERVICE_NAME` cuando queda vacío |
 | `JWT_TOKEN_TTL_HOURS` | `24` | Tiempo de vida del token en horas |
 
 Consulta [Autenticación](/es/guides/authentication) para la visión general de autenticación.

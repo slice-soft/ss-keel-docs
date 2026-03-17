@@ -10,7 +10,7 @@ Today the official persistence integrations are:
 | Addon | Backend | Implements | Extra capabilities |
 |---|---|---|---|
 | `ss-keel-gorm` | PostgreSQL, MySQL, MariaDB, SQLite, SQL Server, Oracle | `contracts.Repository[T, ID, httpx.PageQuery, httpx.Page[T]]` | GORM access, SQL engines, migration helpers, DB health checker |
-| `ss-keel-mongo` | MongoDB | `contracts.Repository[T, ID, httpx.PageQuery, httpx.Page[T]]` | Filter queries, direct collection access, ObjectID conversion, Mongo health checker |
+| `ss-keel-mongo` | MongoDB | `contracts.Repository[T, ID, httpx.PageQuery, httpx.Page[T]]` | Filter queries, direct collection access, custom ID conversion, Mongo health checker |
 
 ## Official example coverage
 
@@ -74,11 +74,11 @@ func NewProductRepository(log *logger.Logger, db *database.DBinstance) *ProductR
 
 Mongo template shape from `ss-keel-cli`:
 
-The Mongo template generates a separate internal document type (`ProductMongoDocument`) that maps `primitive.ObjectID` to and from the `string` ID used in the entity. Timestamps are stamped automatically via `entity.OnCreate()` / `entity.OnUpdate()` in each CRUD method.
+The Mongo template generates a separate internal document type (`ProductMongoDocument`) that keeps the domain entity isolated from BSON details while preserving Keel's string UUID IDs across every backend. Timestamps are stamped automatically via `entity.OnCreate()` / `entity.OnUpdate()` in each CRUD method.
 
 ```go
 type ProductMongoDocument struct {
-    ID        primitive.ObjectID `bson:"_id,omitempty"`
+    ID        string             `bson:"_id,omitempty"`
     CreatedAt int64              `bson:"created_at"`
     UpdatedAt int64              `bson:"updated_at"`
     Name      string             `bson:"name"`
@@ -91,9 +91,7 @@ type ProductRepository struct {
 
 func NewProductRepository(log *logger.Logger, client *mongo.Client) *ProductRepository {
     return &ProductRepository{
-        repo: mongo.NewRepository[ProductMongoDocument, string](
-            client, "product", mongo.WithObjectIDHex[ProductMongoDocument](),
-        ),
+        repo: mongo.NewRepository[ProductMongoDocument, string](client, "product"),
         log: log,
     }
 }
