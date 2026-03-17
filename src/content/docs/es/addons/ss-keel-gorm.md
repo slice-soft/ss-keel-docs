@@ -99,10 +99,12 @@ El repositorio oficial de ejemplos incluye `ss-keel-examples/examples/08-gorm-po
 // database.EntityBase
 type EntityBase struct {
     ID        string `json:"id"         gorm:"primaryKey"`
-    CreatedAt int64  `json:"created_at" gorm:"autoCreateTime"`
-    UpdatedAt int64  `json:"updated_at" gorm:"autoUpdateTime"`
+    CreatedAt int64  `json:"created_at" gorm:"autoCreateTime:milli"`
+    UpdatedAt int64  `json:"updated_at" gorm:"autoUpdateTime:milli"`
 }
 ```
+
+`CreatedAt` y `UpdatedAt` almacenan Unix en **milisegundos**. El hook `BeforeCreate` de GORM se ejecuta automáticamente antes de cada inserción y asigna un nuevo UUID v4 a `ID` si el campo está vacío — no necesitas generar IDs manualmente.
 
 Ejemplo de uso:
 
@@ -116,7 +118,7 @@ type ProductEntity struct {
 }
 ```
 
-`autoCreateTime` y `autoUpdateTime` son poblados automáticamente por GORM al insertar y actualizar, por lo que no necesitas asignarlos manualmente.
+Al llamar `repo.Create(ctx, &product)`, GORM ejecuta `BeforeCreate` que genera un UUID para `product.ID` (si está vacío) y luego asigna `CreatedAt` y `UpdatedAt` al tiempo actual en milisegundos.
 
 ## Wrapper de repositorio generado por el CLI
 
