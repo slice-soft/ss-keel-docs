@@ -25,9 +25,8 @@ La capa de persistencia no está integrada en `core`. Vive en addons oficiales.
 Cobertura oficial de ejemplos hoy:
 
 - `ss-keel-examples/examples/08-gorm-postgres` para `ss-keel-gorm`
+- `ss-keel-examples/examples/13-mongo` para `ss-keel-mongo`
 - `ss-keel-examples/examples/10-addon-example` para patrones de consumo de addons
-
-Los snippets de Mongo en la documentación usan ejemplos neutrales respaldados por la API oficial de `ss-keel-mongo` y los templates del CLI hasta que exista un ejemplo oficial de Mongo.
 
 Consulta [Persistencia](/es/guides/persistence) para la visión oficial de persistencia.
 

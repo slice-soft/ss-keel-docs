@@ -25,9 +25,8 @@ The persistence layer is not built into `core`. It lives in official addons.
 Official example coverage today:
 
 - `ss-keel-examples/examples/08-gorm-postgres` for `ss-keel-gorm`
+- `ss-keel-examples/examples/13-mongo` for `ss-keel-mongo`
 - `ss-keel-examples/examples/10-addon-example` for addon consumption patterns
-
-Mongo snippets in the docs use neutral examples backed by the official `ss-keel-mongo` API and CLI templates until an official Mongo example is added.
 
 See [Persistence](/en/guides/persistence) for the official persistence overview.
 

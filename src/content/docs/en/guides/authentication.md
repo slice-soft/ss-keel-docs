@@ -119,7 +119,8 @@ Mark a route as secured and declare the scheme in the docs configuration:
 
 ```go
 httpx.DELETE("/users/:id", deleteHandler).
-    WithSecured("bearerAuth")
+    WithSecured("bearerAuth").
+    WithResponse(httpx.WithResponse[struct{}](204))
 ```
 
 The scheme is declared in `DocsConfig` (applied globally):
@@ -209,5 +210,6 @@ func RequireRole(role string) fiber.Handler {
 
 // Usage
 httpx.DELETE("/users/:id", deleteHandler).
-    Use(RequireRole("admin"))
+    Use(RequireRole("admin")).
+    WithResponse(httpx.WithResponse[struct{}](204))
 ```
