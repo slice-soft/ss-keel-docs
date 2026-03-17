@@ -68,7 +68,8 @@ Minimal practical example:
     { "type": "go_get", "package": "github.com/your-org/your-addon@v0.1.0" },
     { "type": "env", "key": "MY_ADDON_ENABLED", "example": "true" },
     { "type": "create_provider_file", "filename": "cmd/setup_myaddon.go", "guard": "func setupMyAddon(", "content": "package main\n\n// ..." },
-    { "type": "main_code", "anchor": "before_listen", "guard": "setupMyAddon(", "code": "setupMyAddon(app, appLogger)" }
+    { "type": "main_code", "anchor": "before_modules", "guard": "setupMyAddon(", "code": "setupMyAddon(app, appLogger)" },
+    { "type": "note", "message": "Next step: wire a protected route or docs hint" }
   ]
 }
 ```
@@ -80,6 +81,7 @@ Step types supported by CLI today:
 - `main_import`
 - `main_code`
 - `create_provider_file`
+- `note`
 
 If you use an unknown step type, installation fails.
 
@@ -89,7 +91,7 @@ Optional array of addon aliases that must be installed before this addon works. 
 
 ### `create_provider_file`
 
-This step creates a dedicated Go file (e.g. `cmd/setup_database.go`) containing the addon's initialization function, instead of inserting all the setup code directly into `cmd/main.go`. A companion `main_code` step then calls that function.
+This step creates a dedicated Go file (e.g. `cmd/setup_gorm.go`) containing the addon's initialization function, instead of inserting all the setup code directly into `cmd/main.go`. A companion `main_code` step then calls that function.
 
 This keeps each addon isolated and `cmd/main.go` readable regardless of how many addons are installed. The `guard` field contains a string that is checked in the target file before creating it — if the string is already present, the file is not overwritten.
 

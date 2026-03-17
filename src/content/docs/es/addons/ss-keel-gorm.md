@@ -34,10 +34,10 @@ go get github.com/slice-soft/ss-keel-gorm
 
 ## Bootstrap
 
-Al ejecutar `keel add gorm`, el CLI crea `cmd/setup_database.go` y agrega una línea en `cmd/main.go`:
+Al ejecutar `keel add gorm`, el CLI crea `cmd/setup_gorm.go` y agrega una línea en `cmd/main.go`:
 
 ```go
-// cmd/setup_database.go — creado por keel add gorm
+// cmd/setup_gorm.go — creado por keel add gorm
 package main
 
 import (
@@ -47,9 +47,9 @@ import (
     "github.com/slice-soft/ss-keel-gorm/database"
 )
 
-// setupDatabase inicializa la conexión a la base de datos y registra el health checker.
+// setupGorm inicializa la conexión a la base de datos y registra el health checker.
 // Cambia database.EnginePostgres al motor que corresponde con tu DATABASE_URL.
-func setupDatabase(app *core.App, log *logger.Logger) *database.DBinstance {
+func setupGorm(app *core.App, log *logger.Logger) *database.DBinstance {
     databaseURL := config.GetEnvOrDefault("DATABASE_URL", "postgres://user:pass@localhost:5432/db?sslmode=disable")
     db, err := database.New(database.Config{
         Engine: database.EnginePostgres,
@@ -67,7 +67,7 @@ func setupDatabase(app *core.App, log *logger.Logger) *database.DBinstance {
 Lo siguiente se inyecta en `cmd/main.go`:
 
 ```go
-db := setupDatabase(app, appLogger)
+db := setupGorm(app, appLogger)
 defer db.Close()
 ```
 

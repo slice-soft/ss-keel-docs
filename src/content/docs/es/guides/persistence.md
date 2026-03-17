@@ -17,8 +17,7 @@ Hoy las integraciones oficiales de persistencia son:
 Los ejemplos oficiales actualmente cubren:
 
 - `ss-keel-examples/examples/08-gorm-postgres` para persistencia relacional con `ss-keel-gorm`
-
-Todavía no existe un ejemplo oficial de Mongo en `ss-keel-examples`, así que los snippets de Mongo más abajo son ejemplos neutrales derivados de la API real de `ss-keel-mongo` y de los templates oficiales del CLI.
+- `ss-keel-examples/examples/13-mongo` para persistencia documental con `ss-keel-mongo`
 
 ## Integración GORM desde el repositorio oficial de ejemplos
 

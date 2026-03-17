@@ -182,6 +182,7 @@ func (c *UserController) Routes() []httpx.Route {
         httpx.DELETE("/users/:id", c.delete).
             Tag("users").
             Describe("Delete user").
+            WithResponse(httpx.WithResponse[struct{}](204)).
             WithSecured("bearerAuth"),
     }
 }

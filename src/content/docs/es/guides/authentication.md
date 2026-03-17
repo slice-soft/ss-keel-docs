@@ -119,7 +119,8 @@ Marca una ruta como protegida y declara el esquema en la configuración de docs:
 
 ```go
 httpx.DELETE("/users/:id", deleteHandler).
-    WithSecured("bearerAuth")
+    WithSecured("bearerAuth").
+    WithResponse(httpx.WithResponse[struct{}](204))
 ```
 
 El esquema se declara en `DocsConfig` (aplicado globalmente):
@@ -209,5 +210,6 @@ func RequireRole(role string) fiber.Handler {
 
 // Uso
 httpx.DELETE("/users/:id", deleteHandler).
-    Use(RequireRole("admin"))
+    Use(RequireRole("admin")).
+    WithResponse(httpx.WithResponse[struct{}](204))
 ```

@@ -17,8 +17,7 @@ Today the official persistence integrations are:
 The official examples currently cover:
 
 - `ss-keel-examples/examples/08-gorm-postgres` for relational persistence with `ss-keel-gorm`
-
-There is not yet an official Mongo example in `ss-keel-examples`, so the Mongo snippets below are neutral examples derived from the real `ss-keel-mongo` API and the official CLI templates.
+- `ss-keel-examples/examples/13-mongo` for document persistence with `ss-keel-mongo`
 
 ## GORM integration from the official examples repo
 
