@@ -24,7 +24,7 @@ export default defineConfig({
                     tag: 'link',
                     attrs: {
                         rel: 'stylesheet',
-                        href: 'https://cdn.slicesoft.dev/design-system/latest/css/_variables.css',
+                        href: 'https://cdn.slicesoft.dev/design-system/ss-design-system-v1.0.3/css/_variables.css',
                     },
                 },
                 {
