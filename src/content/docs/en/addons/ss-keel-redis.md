@@ -1,74 +1,180 @@
 ---
 title: ss-keel-redis
-description: Redis cache and session storage via go-redis.
+description: Redis cache via go-redis — implements contracts.Cache with health check support.
 ---
 
-:::caution[Coming Soon]
-This addon is under development. The interface it implements is already stable. See [Cache](/en/reference/interfaces#cache).
-:::
+`ss-keel-redis` is the official cache addon for Keel. It wraps [go-redis v9](https://redis.uptrace.dev/) and implements the `contracts.Cache` interface defined in `ss-keel-core`.
 
-`ss-keel-redis` provides a `Cache` implementation on top of [go-redis](https://redis.uptrace.dev/). It also includes optional session middleware.
+**Implements:** [`contracts.Cache`](/en/reference/interfaces#cache)
 
-**Implements:** [`Cache`](/en/reference/interfaces#cache)
+## Installation
 
-## Installation (planned)
+```bash
+keel add redis
+```
+
+Or manually:
 
 ```bash
 go get github.com/slice-soft/ss-keel-redis
 ```
 
-## Usage (planned)
+## Bootstrap
 
-### Cache
-
-```go
-import "github.com/slice-soft/ss-keel-redis"
-
-cache, err := ssredis.NewCache(ssredis.Config{
-    URL: os.Getenv("REDIS_URL"), // redis://localhost:6379
-})
-
-// cache implements core.Cache
-cache.Set(ctx, "user:123", data, 5*time.Minute)
-cache.Get(ctx, "user:123")
-cache.Delete(ctx, "user:123")
-cache.Exists(ctx, "user:123")
-```
-
-Inject it into services via module:
+When you run `keel add redis`, the CLI creates `cmd/setup_redis.go` and adds one line to `cmd/main.go`:
 
 ```go
-type UserModule struct{}
+// cmd/setup_redis.go — created by keel add redis
+package main
 
-func (m *UserModule) Register(app *core.App) {
-    cache, _ := ssredis.NewCache(ssredis.Config{URL: os.Getenv("REDIS_URL")})
+import (
+    "github.com/slice-soft/ss-keel-core/config"
+    "github.com/slice-soft/ss-keel-core/core"
+    "github.com/slice-soft/ss-keel-core/logger"
+    ssredis "github.com/slice-soft/ss-keel-redis/redis"
+)
 
-    service := NewUserService(repo, cache)
-    app.RegisterController(NewUserController(service))
-
-    app.OnShutdown(func(ctx context.Context) error {
-        return cache.Close()
+// setupRedis initialises the Redis connection and registers a health checker.
+func setupRedis(app *core.App, log *logger.Logger) *ssredis.Client {
+    redisURL := config.GetEnvOrDefault("REDIS_URL", "redis://localhost:6379")
+    client, err := ssredis.New(ssredis.Config{
+        URL:    redisURL,
+        Logger: log,
     })
+    if err != nil {
+        log.Error("failed to initialize redis: %v", err)
+    }
+    app.RegisterHealthChecker(ssredis.NewHealthChecker(client))
+    return client
 }
 ```
 
-### Sessions
+The following is injected into `cmd/main.go`:
 
 ```go
-// Session middleware
-app.Fiber().Use(ssredis.SessionMiddleware(cache))
+redisClient := setupRedis(app, appLogger)
+defer redisClient.Close()
+```
 
-// Read/write session in handlers
-func handler(c *httpx.Ctx) error {
-    session := ssredis.GetSession(c)
-    session.Set("user_id", "abc-123")
-    return c.OK("ok")
+The required environment variable is added to `.env`:
+
+```
+REDIS_URL=redis://localhost:6379
+```
+
+## Configuration
+
+```go
+client, err := ssredis.New(ssredis.Config{
+    URL:      "redis://localhost:6379",  // required
+    SkipPing: false,                     // set true in tests
+    Pool: ssredis.PoolConfig{
+        MaxActiveConns:  10,
+        MinIdleConns:    2,
+        MaxIdleConns:    5,
+        ConnMaxIdleTime: 5 * time.Minute,
+        ConnMaxLifetime: 30 * time.Minute,
+    },
+    Logger: log, // optional — logs "redis connected [url=...]"
+})
+```
+
+Useful defaults:
+
+- `MaxActiveConns`: `10`
+- `MinIdleConns`: `2`
+- `MaxIdleConns`: `5`
+- `ConnMaxIdleTime`: `5m`
+- `ConnMaxLifetime`: `30m`
+
+The `URL` field uses the standard Redis URL format: `redis://[:password@]host[:port][/db-number]`.
+
+## Cache operations
+
+`contracts.Cache` covers the four core operations:
+
+```go
+import (
+    "context"
+    "time"
+)
+
+ctx := context.Background()
+
+// Store a value with a TTL
+err := redisClient.Set(ctx, "user:123", []byte(`{"name":"Alice"}`), 5*time.Minute)
+
+// Retrieve — returns nil, nil when the key does not exist
+val, err := redisClient.Get(ctx, "user:123")
+
+// Remove a key
+err = redisClient.Delete(ctx, "user:123")
+
+// Check existence without reading the value
+exists, err := redisClient.Exists(ctx, "user:123")
+```
+
+A zero TTL in `Set` means no expiration.
+
+## Injecting the cache into a module
+
+Pass `*ssredis.Client` to any service that declares `contracts.Cache`:
+
+```go
+// modules/users/module.go
+package users
+
+import (
+    "github.com/slice-soft/ss-keel-core/contracts"
+    "github.com/slice-soft/ss-keel-core/core"
+    ssredis "github.com/slice-soft/ss-keel-redis/redis"
+)
+
+type UsersModule struct {
+    cache *ssredis.Client
+}
+
+func NewUsersModule(cache *ssredis.Client) *UsersModule {
+    return &UsersModule{cache: cache}
+}
+
+func (m *UsersModule) Register(app *core.App) {
+    repo    := NewUserRepository(app.Logger())
+    service := NewUserService(repo, m.cache)
+    app.RegisterController(NewUserController(service))
 }
 ```
 
-## Health check
+In `cmd/main.go`, pass the client when registering the module:
 
 ```go
-app.RegisterHealthChecker(ssredis.NewHealthChecker(cache))
-// → "redis": "UP" in GET /health
+redisClient := setupRedis(app, appLogger)
+defer redisClient.Close()
+
+app.RegisterModule(users.NewUsersModule(redisClient))
+```
+
+## Advanced operations
+
+When the generic `contracts.Cache` interface is not enough, use `RDB()` to access the full go-redis client:
+
+```go
+pipe := redisClient.RDB().Pipeline()
+pipe.Incr(ctx, "counter")
+pipe.Expire(ctx, "counter", time.Hour)
+_, err := pipe.Exec(ctx)
+```
+
+## Health integration
+
+`NewHealthChecker(client)` implements `contracts.HealthChecker` and exposes the dependency under `GET /health` as:
+
+```json
+{ "redis": "UP" }
+```
+
+`setupRedis` registers it automatically. If you initialise the client manually, register it explicitly:
+
+```go
+app.RegisterHealthChecker(ssredis.NewHealthChecker(client))
 ```
