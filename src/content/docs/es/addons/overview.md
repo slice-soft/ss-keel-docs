@@ -26,6 +26,7 @@ Cobertura oficial de ejemplos hoy:
 
 - `ss-keel-examples/examples/08-gorm-postgres` para `ss-keel-gorm`
 - `ss-keel-examples/examples/13-mongo` para `ss-keel-mongo`
+- `ss-keel-examples/examples/14-redis-cache` para `ss-keel-redis`
 - `ss-keel-examples/examples/10-addon-example` para patrones de consumo de addons
 
 Consulta [Persistencia](/es/guides/persistence) para la visión oficial de persistencia.
@@ -34,7 +35,7 @@ Consulta [Persistencia](/es/guides/persistence) para la visión oficial de persi
 
 El ecosistema de addons se organiza en tres repositorios:
 
-- `ss-keel-cli`: expone `keel add` y ejecuta los pasos de instalación del addon
+- `keel`: expone `keel add` y ejecuta los pasos de instalación del addon
 - `ss-keel-addon-template`: template de GitHub para bootstrap de nuevos repositorios addon
 - `ss-keel-addons`: registry oficial de aliases consumido por `keel add`
 
@@ -43,7 +44,7 @@ Puntos de entrada recomendados:
 - Instalar addons: [Comando `add`](/es/cli/add/)
 - Crear y publicar addons: [Ecosistema de Addons](/es/addons/ecosystem/)
 
-## Categorías de addons disponibles
+## Categorías de addons live
 
 ### Bases de datos
 
@@ -64,45 +65,6 @@ Puntos de entrada recomendados:
 |---|---|---|
 | [`ss-keel-jwt`](/es/addons/ss-keel-jwt) | Generación, validación y guards JWT | `Guard` |
 | [`ss-keel-oauth`](/es/addons/ss-keel-oauth) | Proveedores OAuth2 y guards | `Guard` |
-
-### Mensajería
-
-| Paquete | Descripción | Contrato |
-|---|---|---|
-| [`ss-keel-amqp`](/es/addons/ss-keel-amqp) | RabbitMQ vía amqp091-go | `Publisher` / `Subscriber` |
-| [`ss-keel-kafka`](/es/addons/ss-keel-kafka) | Kafka vía franz-go | `Publisher` / `Subscriber` |
-
-### Comunicación
-
-| Paquete | Descripción | Contrato |
-|---|---|---|
-| [`ss-keel-mail`](/es/addons/ss-keel-mail) | Correo vía SMTP, Resend o SendGrid | `Mailer` |
-| [`ss-keel-ws`](/es/addons/ss-keel-ws) | WebSockets sobre Fiber | — |
-
-### Almacenamiento
-
-| Paquete | Descripción | Contrato |
-|---|---|---|
-| [`ss-keel-storage`](/es/addons/ss-keel-storage) | S3, GCS y disco local con API unificada | `Storage` |
-
-### Observabilidad
-
-| Paquete | Descripción | Contrato |
-|---|---|---|
-| [`ss-keel-metrics`](/es/addons/ss-keel-metrics) | Métricas Prometheus + endpoint `/metrics` | `MetricsCollector` |
-| [`ss-keel-tracing`](/es/addons/ss-keel-tracing) | Tracing distribuido con OpenTelemetry | `Tracer` |
-
-### Jobs
-
-| Paquete | Descripción | Contrato |
-|---|---|---|
-| [`ss-keel-cron`](/es/addons/ss-keel-cron) | Jobs programados con expresiones cron | `Scheduler` |
-
-### i18n
-
-| Paquete | Descripción | Contrato |
-|---|---|---|
-| [`ss-keel-i18n`](/es/addons/ss-keel-i18n) | Internacionalización y traducciones | `Translator` |
 
 ## Construye tu propio adapter
 

@@ -100,6 +100,34 @@ Dependiendo del tipo generado, el CLI puede:
 - registrar controllers: `app.RegisterController(...)`
 - registrar scheduler/checker/hook
 - crear controlador inline con `contracts.ControllerFunc` (`--in-main`)
+- ejecutar `go mod tidy` al finalizar la generación de `module` y el wiring del proyecto
+
+## Salida del scaffold de `module`
+
+`keel generate module users` crea el scaffold base del módulo dentro de `internal/modules/users/`:
+
+- `users_module.go`
+- `users_module_test.go`
+- `users_dto.go`
+- `users_entity.go`
+- `users_service.go`
+- `users_service_test.go`
+- `users_controller.go`
+- `users_controller_test.go`
+
+También actualiza `cmd/main.go` con `app.Use(users.NewModule(appLogger))`.
+
+Si usas `--gorm` o `--mongo`, el CLI además genera:
+
+- `users_repository.go`
+- `users_repository_test.go`
+
+Y `cmd/main.go` se cablea con la dependencia correspondiente:
+
+- `app.Use(users.NewModule(appLogger, db))` para `--gorm`
+- `app.Use(users.NewModule(appLogger, mongoClient))` para `--mongo`
+
+Si usas `--transactional`, se omiten los archivos de controller y el módulo generado queda cableado sin handlers HTTP.
 
 ## Comportamiento con archivos existentes
 

@@ -89,6 +89,15 @@ Valores por defecto:
 
 El campo `URL` usa el formato estándar de Redis: `redis://[:password@]host[:port][/db-number]`.
 
+## Ejemplo oficial
+
+El repositorio oficial de ejemplos incluye `ss-keel-examples/examples/14-redis-cache`, que demuestra:
+
+- `ssredis.New(...)` y `ssredis.NewHealthChecker(...)`
+- inyección de `*ssredis.Client` en un módulo
+- uso de `contracts.Cache` en la capa de servicio
+- un flujo cache-aside con `GET /notes/:id`, TTL en Redis e invalidación de cache en escrituras
+
 ## Operaciones de cache
 
 `contracts.Cache` cubre las cuatro operaciones fundamentales:

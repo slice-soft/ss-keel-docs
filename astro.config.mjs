@@ -107,27 +107,6 @@ export default defineConfig({
                             { label: 'ss-keel-jwt',   slug: 'addons/ss-keel-jwt' },
                             { label: 'ss-keel-oauth', slug: 'addons/ss-keel-oauth' },
                         ]},
-                        { label: 'Messaging',      translations: { es: 'Mensajería' },     items: [
-                            { label: 'ss-keel-amqp',  slug: 'addons/ss-keel-amqp' },
-                            { label: 'ss-keel-kafka', slug: 'addons/ss-keel-kafka' },
-                        ]},
-                        { label: 'Communication',  translations: { es: 'Comunicación' },   items: [
-                            { label: 'ss-keel-mail', slug: 'addons/ss-keel-mail' },
-                            { label: 'ss-keel-ws',   slug: 'addons/ss-keel-ws' },
-                        ]},
-                        { label: 'Storage',        translations: { es: 'Almacenamiento' }, items: [
-                            { label: 'ss-keel-storage', slug: 'addons/ss-keel-storage' },
-                        ]},
-                        { label: 'Observability',  translations: { es: 'Observabilidad' }, items: [
-                            { label: 'ss-keel-metrics', slug: 'addons/ss-keel-metrics' },
-                            { label: 'ss-keel-tracing', slug: 'addons/ss-keel-tracing' },
-                        ]},
-                        { label: 'Jobs',           items: [
-                            { label: 'ss-keel-cron', slug: 'addons/ss-keel-cron' },
-                        ]},
-                        { label: 'i18n',           items: [
-                            { label: 'ss-keel-i18n', slug: 'addons/ss-keel-i18n' },
-                        ]},
                     ],
                 },
                 {
