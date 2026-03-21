@@ -22,35 +22,57 @@ go get github.com/slice-soft/ss-keel-jwt
 
 ## Bootstrap
 
+Al ejecutar `keel add jwt`, el CLI crea `cmd/setup_jwt.go` e inyecta una línea en `cmd/main.go`:
+
 ```go
+// cmd/setup_jwt.go — creado por keel add jwt
+package main
+
 import (
     "strings"
 
     "github.com/slice-soft/ss-keel-core/config"
+    "github.com/slice-soft/ss-keel-core/core"
+    "github.com/slice-soft/ss-keel-core/logger"
     "github.com/slice-soft/ss-keel-jwt/jwt"
 )
 
-issuer := strings.TrimSpace(config.GetEnvOrDefault("JWT_ISSUER", ""))
-if issuer == "" {
-    issuer = config.GetEnvOrDefault("SERVICE_NAME", "keel-app")
-}
+// setupJWT inicializa el proveedor JWT para firmar tokens y proteger rutas.
+// El issuer usa SERVICE_NAME por defecto para que los tokens estén namespaciados por servicio.
+func setupJWT(app *core.App, log *logger.Logger) *jwt.JWT {
+    _ = app // reservado para soporte futuro de health checker
 
-jwtProvider, err := jwt.New(jwt.Config{
-    SecretKey:     config.GetEnvOrDefault("JWT_SECRET", "change-me-in-production"),
-    Issuer:        issuer,
-    TokenTTLHours: uint(config.GetEnvIntOrDefault("JWT_TOKEN_TTL_HOURS", 24)),
-    Logger:        appLogger,
-})
-if err != nil {
-    appLogger.Error("failed to initialize JWT: %v", err)
+    issuer := strings.TrimSpace(config.GetEnvOrDefault("JWT_ISSUER", ""))
+    if issuer == "" {
+        issuer = config.GetEnvOrDefault("SERVICE_NAME", "keel-app")
+    }
+
+    jwtProvider, err := jwt.New(jwt.Config{
+        SecretKey:     config.GetEnvOrDefault("JWT_SECRET", "change-me-in-production"),
+        Issuer:        issuer,
+        TokenTTLHours: uint(config.GetEnvIntOrDefault("JWT_TOKEN_TTL_HOURS", 24)),
+        Logger:        log,
+    })
+    if err != nil {
+        log.Error("failed to initialize JWT: %v", err)
+    }
+    return jwtProvider
 }
+```
+
+Lo siguiente se inyecta en `cmd/main.go`:
+
+```go
+jwtProvider := setupJWT(app, appLogger)
+// TODO: usa jwtProvider.Middleware() para proteger rutas
+_ = jwtProvider
 ```
 
 Defaults aplicados cuando los campos no están configurados:
 
 | Campo | Default |
 |---|---|
-| `Issuer` | `"keel"` |
+| `Issuer` | Variable de entorno `SERVICE_NAME` (fallback: `"keel-app"`) |
 | `TokenTTLHours` | `24` |
 
 ## Generar un token
