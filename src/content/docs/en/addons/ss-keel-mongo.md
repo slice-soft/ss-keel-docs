@@ -74,11 +74,16 @@ Useful defaults from the addon:
 - `MaxPoolSize`: `25`
 - `MaxConnIdleTime`: `15m`
 
-## Official coverage status
+## Official example
 
-The official examples repository does not yet include a Mongo-specific example.
+The official examples repository includes `ss-keel-examples/examples/13-mongo`, which demonstrates:
 
-The repository wrapper below comes from the official `ss-keel-cli` Mongo repository template, and the runtime bootstrap in this page comes from the real `ss-keel-mongo` API.
+- `mongo.New(...)`
+- `mongo.NewRepository[Note, string](...)`
+- `mongo.NewHealthChecker(...)`
+- CRUD routes with pagination, `EntityBase`, and `OnCreate()` / `OnUpdate()`
+
+The repository wrapper below comes from the official `keel` Mongo repository template, and the runtime bootstrap in this page comes from the real `ss-keel-mongo` API.
 
 ## EntityBase
 

@@ -50,7 +50,7 @@ Ese ejemplo también muestra:
 
 Cuando quieres repositorios a nivel de módulo en lugar de llamar al driver o al ORM directamente desde los handlers, los templates oficiales del CLI generan wrappers como estos.
 
-Forma del template GORM en `ss-keel-cli`:
+Forma del template GORM en `keel`:
 
 ```go
 type ProductEntity struct {
@@ -71,7 +71,7 @@ func NewProductRepository(log *logger.Logger, db *database.DBinstance) *ProductR
 }
 ```
 
-Forma del template Mongo en `ss-keel-cli`:
+Forma del template Mongo en `keel`:
 
 El template Mongo genera un tipo de documento interno separado (`ProductMongoDocument`) que mantiene la entidad de dominio aislada de los detalles BSON mientras conserva los UUID string de Keel en todos los backends. Los timestamps se sellan automáticamente mediante `entity.OnCreate()` / `entity.OnUpdate()` en cada método CRUD.
 

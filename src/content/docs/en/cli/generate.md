@@ -100,6 +100,34 @@ Depending on the generated type, the CLI may:
 - register controllers: `app.RegisterController(...)`
 - register scheduler/checker/hook
 - create inline controller with `contracts.ControllerFunc` (`--in-main`)
+- run `go mod tidy` after `module` generation finishes wiring the project
+
+## `module` scaffold output
+
+`keel generate module users` creates the base module scaffold under `internal/modules/users/`:
+
+- `users_module.go`
+- `users_module_test.go`
+- `users_dto.go`
+- `users_entity.go`
+- `users_service.go`
+- `users_service_test.go`
+- `users_controller.go`
+- `users_controller_test.go`
+
+It also updates `cmd/main.go` with `app.Use(users.NewModule(appLogger))`.
+
+If you use `--gorm` or `--mongo`, the CLI also generates:
+
+- `users_repository.go`
+- `users_repository_test.go`
+
+And `cmd/main.go` is wired with the matching dependency:
+
+- `app.Use(users.NewModule(appLogger, db))` for `--gorm`
+- `app.Use(users.NewModule(appLogger, mongoClient))` for `--mongo`
+
+If you use `--transactional`, controller files are omitted and the generated module is wired without HTTP handlers.
 
 ## Behavior with existing files
 

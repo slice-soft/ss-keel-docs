@@ -51,18 +51,29 @@ lint  = "golangci-lint run"
 keel generate module users
 ```
 
-Salida esperada (paths principales):
-
-- `internal/modules/users/users_module.go`
-- `internal/modules/users/users_service.go`
-- `internal/modules/users/users_controller.go`
-- actualización de `cmd/main.go` con `app.Use(users.NewModule(appLogger))`
+Esto crea el scaffold base del módulo, actualiza `cmd/main.go` con `app.Use(users.NewModule(appLogger))` y ejecuta `go mod tidy`.
 
 Para generar también un repositorio, pasa `--gorm` o `--mongo`:
 
 ```bash
 keel generate module users --gorm
 ```
+
+Salida esperada (paths principales) para un módulo con persistencia:
+
+- `internal/modules/users/users_module.go`
+- `internal/modules/users/users_module_test.go`
+- `internal/modules/users/users_dto.go`
+- `internal/modules/users/users_entity.go`
+- `internal/modules/users/users_service.go`
+- `internal/modules/users/users_service_test.go`
+- `internal/modules/users/users_controller.go`
+- `internal/modules/users/users_controller_test.go`
+- `internal/modules/users/users_repository.go`
+- `internal/modules/users/users_repository_test.go`
+- actualización de `cmd/main.go` con `app.Use(users.NewModule(appLogger, db))`
+
+Si usas `--mongo`, el template del repository se genera con la implementación Mongo y `cmd/main.go` se cablea con `mongoClient` en lugar de `db`.
 
 ## 5) Verifica endpoints base
 

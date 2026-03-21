@@ -5,17 +5,15 @@ description: Create, install, and publish Keel addons using the template, CLI ad
 
 This page is based on:
 
-- `ss-keel-cli` source code (`cmd/add` and `internal/addon/*`)
+- `keel` source code (`cmd/add` and `internal/addon/*`)
 - `ss-keel-addon-template` repository structure and README
 - `ss-keel-addons` registry and contribution process
-
-Validated as of **March 8, 2026**.
 
 ## Ecosystem repositories
 
 | Repository | Role in the ecosystem |
 |---|---|
-| `ss-keel-cli` | Installs addons with `keel add`, resolves aliases, reads `keel-addon.json`, and runs integration steps |
+| `keel` | Installs addons with `keel add`, resolves aliases, reads `keel-addon.json`, and runs integration steps |
 | `ss-keel-addon-template` | GitHub template to bootstrap a new addon repository |
 | `ss-keel-addons` | Public alias registry used by `keel add <alias>` |
 

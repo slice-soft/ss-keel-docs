@@ -10,7 +10,7 @@ El ecosistema oficial de Keel se organiza alrededor de cuatro piezas:
 | Core | `ss-keel-core` | Runtime, abstracciones HTTP, ciclo de vida de la app, endpoint de health, bridge OpenAPI |
 | Contratos | `ss-keel-core/contracts` | Interfaces estables compartidas por el runtime, los addons y las aplicaciones |
 | Addons | `ss-keel-gorm`, `ss-keel-mongo` y otros repos oficiales de addons | Integraciones opcionales de infraestructura que implementan contratos |
-| CLI | `ss-keel-cli`, `ss-keel-addons`, `ss-keel-addon-template` | Scaffold de proyectos, generación de código, instalación de addons y ejecución de scripts |
+| CLI | `keel`, `ss-keel-addons`, `ss-keel-addon-template` | Scaffold de proyectos, generación de código, instalación de addons y ejecución de scripts |
 
 Esta separación mantiene a Keel alineado con los principios de SliceSoft: arquitectura modular, límites SOLID, abstracciones DRY y separación clara entre el runtime del core y la infraestructura de addons.
 
@@ -72,6 +72,7 @@ Ejemplos oficiales relacionados con addons:
 
 - `ss-keel-examples/examples/08-gorm-postgres` muestra la integración con GORM + PostgreSQL
 - `ss-keel-examples/examples/10-addon-example` muestra patrones de consumo de addons y conceptos de metadata de addons
+- `ss-keel-examples/examples/14-redis-cache` muestra wiring cache-aside con `ss-keel-redis`
 
 El runtime se mantiene estable mientras los addons aportan comportamiento específico de infraestructura.
 
@@ -79,7 +80,7 @@ El runtime se mantiene estable mientras los addons aportan comportamiento espec�
 
 El CLI es la capa oficial de workflow del ecosistema Keel.
 
-Según el código en `ss-keel-cli`:
+Según el código en `keel`:
 
 - `keel new` crea un proyecto con `cmd/main.go`, `keel.toml` y opcionalmente `internal/modules/starter`
 - `keel generate` crea módulos, controllers, services, repositories, middleware, guards, schedulers y más

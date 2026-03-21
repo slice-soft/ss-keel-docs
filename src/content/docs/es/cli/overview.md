@@ -5,13 +5,13 @@ description: Panorama del CLI de Keel, comandos disponibles y su relación con s
 
 `keel` es el CLI oficial del ecosistema Keel para crear, inicializar y mantener proyectos Go estructurados.
 
-Esta sección está validada contra el código real de `ss-keel-cli` y `ss-keel-core` (incluyendo tests y plantillas) con corte al **6 de marzo de 2026**.
+Esta sección se basa en el código real de `keel` y `ss-keel-core`, incluyendo tests y plantillas del generador.
 
 ## Fuentes de verdad
 
-- `ss-keel-cli/cmd/*`: definición real de comandos, argumentos, aliases y flags.
-- `ss-keel-cli/internal/generator/templates/*`: archivos y estructura exacta que genera el CLI.
-- `ss-keel-cli/cmd/*_test.go`: casos de comportamiento esperado y errores.
+- `keel/cmd/*`: definición real de comandos, argumentos, aliases y flags.
+- `keel/internal/generator/templates/*`: archivos y estructura exacta que genera el CLI.
+- `keel/cmd/*_test.go`: casos de comportamiento esperado y errores.
 - `ss-keel-core/core/*`: runtime HTTP resultante (`/health`, `/docs`, OpenAPI, lifecycle).
 
 ## Qué resuelve el CLI
@@ -55,8 +55,8 @@ keel run dev
 # 4) Generar primer módulo
 keel generate module users --gorm
 
-# 5) Instalar un addon
-keel add gorm
+# 5) Instalar otro addon
+keel add jwt
 
 # 6) Verificar comandos y versión
 keel --help

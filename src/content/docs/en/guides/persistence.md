@@ -50,7 +50,7 @@ That example also shows:
 
 When you want module-level repositories instead of calling the driver or ORM directly from handlers, the official CLI templates generate wrappers like these.
 
-GORM template shape from `ss-keel-cli`:
+GORM template shape from `keel`:
 
 ```go
 type ProductEntity struct {
@@ -71,7 +71,7 @@ func NewProductRepository(log *logger.Logger, db *database.DBinstance) *ProductR
 }
 ```
 
-Mongo template shape from `ss-keel-cli`:
+Mongo template shape from `keel`:
 
 The Mongo template generates a separate internal document type (`ProductMongoDocument`) that keeps the domain entity isolated from BSON details while preserving Keel's string UUID IDs across every backend. Timestamps are stamped automatically via `entity.OnCreate()` / `entity.OnUpdate()` in each CRUD method.
 
