@@ -22,35 +22,57 @@ go get github.com/slice-soft/ss-keel-jwt
 
 ## Bootstrap
 
+When you run `keel add jwt`, the CLI creates `cmd/setup_jwt.go` and adds one line to `cmd/main.go`:
+
 ```go
+// cmd/setup_jwt.go — created by keel add jwt
+package main
+
 import (
     "strings"
 
     "github.com/slice-soft/ss-keel-core/config"
+    "github.com/slice-soft/ss-keel-core/core"
+    "github.com/slice-soft/ss-keel-core/logger"
     "github.com/slice-soft/ss-keel-jwt/jwt"
 )
 
-issuer := strings.TrimSpace(config.GetEnvOrDefault("JWT_ISSUER", ""))
-if issuer == "" {
-    issuer = config.GetEnvOrDefault("SERVICE_NAME", "keel-app")
-}
+// setupJWT initialises the JWT provider used for token signing and route protection.
+// The issuer defaults to SERVICE_NAME so tokens are namespaced per service.
+func setupJWT(app *core.App, log *logger.Logger) *jwt.JWT {
+    _ = app // reserved for future health checker support
 
-jwtProvider, err := jwt.New(jwt.Config{
-    SecretKey:     config.GetEnvOrDefault("JWT_SECRET", "change-me-in-production"),
-    Issuer:        issuer,
-    TokenTTLHours: uint(config.GetEnvIntOrDefault("JWT_TOKEN_TTL_HOURS", 24)),
-    Logger:        appLogger,
-})
-if err != nil {
-    appLogger.Error("failed to initialize JWT: %v", err)
+    issuer := strings.TrimSpace(config.GetEnvOrDefault("JWT_ISSUER", ""))
+    if issuer == "" {
+        issuer = config.GetEnvOrDefault("SERVICE_NAME", "keel-app")
+    }
+
+    jwtProvider, err := jwt.New(jwt.Config{
+        SecretKey:     config.GetEnvOrDefault("JWT_SECRET", "change-me-in-production"),
+        Issuer:        issuer,
+        TokenTTLHours: uint(config.GetEnvIntOrDefault("JWT_TOKEN_TTL_HOURS", 24)),
+        Logger:        log,
+    })
+    if err != nil {
+        log.Error("failed to initialize JWT: %v", err)
+    }
+    return jwtProvider
 }
+```
+
+The following is injected into `cmd/main.go`:
+
+```go
+jwtProvider := setupJWT(app, appLogger)
+// TODO: use jwtProvider.Middleware() to protect routes
+_ = jwtProvider
 ```
 
 Defaults applied when fields are not set:
 
 | Field | Default |
 |---|---|
-| `Issuer` | `"keel"` |
+| `Issuer` | `SERVICE_NAME` env var (fallback: `"keel-app"`) |
 | `TokenTTLHours` | `24` |
 
 ## Generate a token
