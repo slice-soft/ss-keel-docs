@@ -134,6 +134,7 @@ Pasa `*ssredis.Client` a cualquier servicio que declare `contracts.Cache`:
 package users
 
 import (
+    "github.com/slice-soft/ss-keel-core/contracts"
     "github.com/slice-soft/ss-keel-core/core"
     ssredis "github.com/slice-soft/ss-keel-redis/redis"
 )
