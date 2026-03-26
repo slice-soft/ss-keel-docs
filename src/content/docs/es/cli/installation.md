@@ -52,7 +52,7 @@ go install github.com/slice-soft/keel@latest
 Instalar versión específica:
 
 ```bash
-go install github.com/slice-soft/keel@v1.0.0
+go install github.com/slice-soft/keel@v1.8.0
 ```
 
 Validar:
