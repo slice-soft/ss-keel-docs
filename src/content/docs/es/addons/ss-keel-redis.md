@@ -36,11 +36,10 @@ import (
 
 // setupRedis inicializa la conexión a Redis y registra el health checker.
 func setupRedis(app *core.App, log *logger.Logger) *ssredis.Client {
-    redisURL := config.GetEnvOrDefault("REDIS_URL", "redis://localhost:6379")
-    client, err := ssredis.New(ssredis.Config{
-        URL:    redisURL,
-        Logger: log,
-    })
+    redisConfig := config.MustLoadConfig[ssredis.Config]()
+    redisConfig.Logger = log
+
+    client, err := ssredis.New(redisConfig)
     if err != nil {
         log.Error("failed to initialize redis: %v", err)
     }

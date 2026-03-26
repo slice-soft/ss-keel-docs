@@ -87,7 +87,7 @@ El CLI parsea esta estructura:
 }
 ```
 
-`depends_on` es opcional. Cuando está presente, el CLI verifica si cada alias listado ya está instalado y avisa al usuario que instale las dependencias faltantes primero. Por ejemplo, `ss-keel-oauth` declara `"depends_on": ["jwt"]` porque necesita `ss-keel-jwt` para firmar tokens.
+`depends_on` es opcional. Cuando está presente, el CLI verifica si cada alias listado ya está instalado. Si falta alguno, muestra un prompt con default en sí para instalar la dependencia antes del addon solicitado. Por ejemplo, `ss-keel-oauth` declara `"depends_on": ["jwt"]` porque necesita `ss-keel-jwt` para firmar tokens.
 
 ## Tipos de paso soportados
 
@@ -111,7 +111,10 @@ En lugar de llenar `cmd/main.go` con código de inicialización, los addons usan
 package main
 
 func setupGorm(app *core.App, log *logger.Logger) *database.DBinstance {
-    db, err := database.New(database.Config{...})
+    dbConfig := config.MustLoadConfig[database.Config]()
+    dbConfig.Logger = log
+
+    db, err := database.New(dbConfig)
     if err != nil {
         log.Error("failed to initialize database: %v", err)
     }
@@ -135,6 +138,7 @@ Esto mantiene el wiring de cada addon aislado y `cmd/main.go` legible sin import
 - Luego el CLI ejecuta `go mod tidy`.
 - Al final imprime los pasos `note`, si existen.
 - Si `go mod tidy` falla, el CLI muestra advertencia pero no falla toda la instalación.
+- Si aceptas prompts de dependencias, esas instalaciones ocurren antes del addon objetivo y comparten el `tidy` final.
 
 ## Ejemplos
 

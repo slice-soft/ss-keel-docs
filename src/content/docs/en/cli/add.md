@@ -87,7 +87,7 @@ The CLI parses this structure:
 }
 ```
 
-`depends_on` is optional. When present, the CLI checks if each listed alias is already installed and warns the user to install missing dependencies first. For example, `ss-keel-oauth` declares `"depends_on": ["jwt"]` because it requires `ss-keel-jwt` to sign tokens.
+`depends_on` is optional. When present, the CLI checks whether each listed alias is already installed. Missing dependencies trigger a default-yes prompt so the CLI can install them before the requested addon. For example, `ss-keel-oauth` declares `"depends_on": ["jwt"]` because it requires `ss-keel-jwt` to sign tokens.
 
 ## Supported installation step types
 
@@ -111,7 +111,10 @@ Instead of bloating `cmd/main.go` with initialization code, addons use this step
 package main
 
 func setupGorm(app *core.App, log *logger.Logger) *database.DBinstance {
-    db, err := database.New(database.Config{...})
+    dbConfig := config.MustLoadConfig[database.Config]()
+    dbConfig.Logger = log
+
+    db, err := database.New(dbConfig)
     if err != nil {
         log.Error("failed to initialize database: %v", err)
     }
@@ -135,6 +138,7 @@ This keeps each addon's wiring isolated and `cmd/main.go` readable regardless of
 - Then CLI runs `go mod tidy`.
 - Finally, any `note` steps are printed.
 - If `go mod tidy` fails, the CLI prints a warning but does not fail the full install.
+- If dependency prompts are accepted, their installs run before the target addon and share the same final tidy pass.
 
 ## Examples
 

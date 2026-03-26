@@ -37,20 +37,28 @@ import (
     "github.com/slice-soft/ss-keel-jwt/jwt"
 )
 
+type jwtSetupConfig struct {
+    AppName       string `keel:"app.name,required"`
+    SecretKey     string `keel:"jwt.secret,required"`
+    Issuer        string `keel:"jwt.issuer"`
+    TokenTTLHours uint   `keel:"jwt.token-ttl-hours,required"`
+}
+
 // setupJWT inicializa el proveedor JWT para firmar tokens y proteger rutas.
-// El issuer usa SERVICE_NAME por defecto para que los tokens estén namespaciados por servicio.
+// El issuer usa app.name por defecto para que los tokens estén namespaciados por servicio.
 func setupJWT(app *core.App, log *logger.Logger) *jwt.JWT {
     _ = app // reservado para soporte futuro de health checker
 
-    issuer := strings.TrimSpace(config.GetEnvOrDefault("JWT_ISSUER", ""))
+    jwtConfig := config.MustLoadConfig[jwtSetupConfig]()
+    issuer := strings.TrimSpace(jwtConfig.Issuer)
     if issuer == "" {
-        issuer = config.GetEnvOrDefault("SERVICE_NAME", "keel-app")
+        issuer = jwtConfig.AppName
     }
 
     jwtProvider, err := jwt.New(jwt.Config{
-        SecretKey:     config.GetEnvOrDefault("JWT_SECRET", "change-me-in-production"),
+        SecretKey:     jwtConfig.SecretKey,
         Issuer:        issuer,
-        TokenTTLHours: uint(config.GetEnvIntOrDefault("JWT_TOKEN_TTL_HOURS", 24)),
+        TokenTTLHours: jwtConfig.TokenTTLHours,
         Logger:        log,
     })
     if err != nil {
@@ -65,6 +73,7 @@ Lo siguiente se inyecta en `cmd/main.go`:
 ```go
 jwtProvider := setupJWT(app, appLogger)
 // TODO: usa jwtProvider.Middleware() para proteger rutas
+// Ejemplo: protected := app.Group("/api", jwtProvider.Middleware())
 _ = jwtProvider
 ```
 
@@ -72,7 +81,7 @@ Defaults aplicados cuando los campos no están configurados:
 
 | Campo | Default |
 |---|---|
-| `Issuer` | Variable de entorno `SERVICE_NAME` (fallback: `"keel-app"`) |
+| `Issuer` | `app.name` desde `application.properties` |
 | `TokenTTLHours` | `24` |
 
 ## Generar un token
@@ -157,7 +166,7 @@ El token resultante puede validarse con `jwtProvider.ValidateToken` y su payload
 | Variable | Ejemplo | Descripción |
 |---|---|---|
 | `JWT_SECRET` | `change-me-in-production` | Secreto HMAC usado para firmar y verificar tokens |
-| `JWT_ISSUER` | `my-app` | Claim del emisor del token (`iss`). El setup generado por Keel usa `SERVICE_NAME` cuando queda vacío |
+| `JWT_ISSUER` | `my-app` | Claim del emisor del token (`iss`). El setup generado por Keel usa `app.name` cuando queda vacío |
 | `JWT_TOKEN_TTL_HOURS` | `24` | Tiempo de vida del token en horas |
 
 Consulta [Autenticación](/es/guides/authentication) para la visión general de autenticación.

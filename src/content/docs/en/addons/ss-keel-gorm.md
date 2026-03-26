@@ -48,14 +48,12 @@ import (
 )
 
 // setupGorm initialises the database connection and registers a health checker.
-// Change database.EnginePostgres to the engine that matches your DATABASE_URL.
+// SQLite is used by default so a fresh project can run locally without external infrastructure.
 func setupGorm(app *core.App, log *logger.Logger) *database.DBinstance {
-    databaseURL := config.GetEnvOrDefault("DATABASE_URL", "postgres://user:pass@localhost:5432/db?sslmode=disable")
-    db, err := database.New(database.Config{
-        Engine: database.EnginePostgres,
-        DSN:    databaseURL,
-        Logger: log,
-    })
+    dbConfig := config.MustLoadConfig[database.Config]()
+    dbConfig.Logger = log
+
+    db, err := database.New(dbConfig)
     if err != nil {
         log.Error("failed to initialize database: %v", err)
     }
@@ -75,6 +73,8 @@ This keeps initialization isolated from `cmd/main.go`. Each addon gets its own s
 
 Useful defaults from the addon:
 
+- `Engine`: `sqlite`
+- `DSN`: `./app.db`
 - `MaxOpenConns`: `25`
 - `MaxIdleConns`: `5`
 - `ConnMaxLifetime`: `30m`

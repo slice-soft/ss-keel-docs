@@ -15,6 +15,14 @@ como JSON o como redirect con el token en el query string.
 keel add oauth
 ```
 
+Si `jwt` todavía no está instalado, el CLI ofrece instalarlo primero:
+
+```text
+Install "jwt" now? [Y/n]
+```
+
+Presionar Enter acepta el default e instala la dependencia automáticamente antes de `oauth`.
+
 O de forma manual:
 
 ```bash
@@ -23,34 +31,61 @@ go get github.com/slice-soft/ss-keel-oauth
 
 ## Bootstrap
 
-Inicializa el addon y registra todas las rutas de los proveedores con una sola llamada desde `cmd/main.go`:
+Cuando ejecutas `keel add oauth`, el CLI crea `cmd/setup_oauth.go`, conserva el binding `jwtProvider := setupJWT(app, appLogger)` del addon JWT e inyecta `setupOAuth(app, jwtProvider, appLogger)` en `cmd/main.go`.
+
+El archivo generado usa configuración tipada cargada desde `application.properties`:
 
 ```go
+package main
+
 import (
-    "github.com/slice-soft/ss-keel-oauth/oauth"
+    "strings"
+
     "github.com/slice-soft/ss-keel-core/config"
+    "github.com/slice-soft/ss-keel-core/core"
+    "github.com/slice-soft/ss-keel-core/logger"
+    "github.com/slice-soft/ss-keel-jwt/jwt"
+    "github.com/slice-soft/ss-keel-oauth/oauth"
 )
 
-redirectBase := config.GetEnvOrDefault("OAUTH_REDIRECT_BASE_URL", "http://localhost:7331")
-routePrefix := config.GetEnvOrDefault("OAUTH_ROUTE_PREFIX", "/auth")
+type oauthSetupConfig struct {
+    GoogleClientID     string `keel:"oauth.google.client-id"`
+    GoogleClientSecret string `keel:"oauth.google.client-secret"`
+    GitHubClientID     string `keel:"oauth.github.client-id"`
+    GitHubClientSecret string `keel:"oauth.github.client-secret"`
+    GitLabClientID     string `keel:"oauth.gitlab.client-id"`
+    GitLabClientSecret string `keel:"oauth.gitlab.client-secret"`
+    RedirectBaseURL    string `keel:"oauth.redirect-base-url,required"`
+    RoutePrefix        string `keel:"oauth.route-prefix,required"`
+    EnabledProviders   string `keel:"oauth.enabled-providers"`
+    RedirectOnSuccess  string `keel:"oauth.redirect-on-success"`
+    RedirectTokenParam string `keel:"oauth.redirect-token-param,required"`
+}
 
-oauthManager := oauth.New(oauth.Config{
-    Google: &oauth.ProviderConfig{
-        ClientID:     config.GetEnvOrDefault("OAUTH_GOOGLE_CLIENT_ID", ""),
-        ClientSecret: config.GetEnvOrDefault("OAUTH_GOOGLE_CLIENT_SECRET", ""),
-        RedirectURL:  redirectBase + routePrefix + "/google/callback",
-    },
-    Signer:             jwtAddon, // cualquier TokenSigner, e.g. de ss-keel-jwt
-    Logger:             appLogger,
-    RedirectOnSuccess:  config.GetEnvOrDefault("OAUTH_REDIRECT_ON_SUCCESS", ""),
-    RedirectTokenParam: config.GetEnvOrDefault("OAUTH_REDIRECT_TOKEN_PARAM", "token"),
-})
+func setupOAuth(app *core.App, jwtProvider *jwt.JWT, log *logger.Logger) {
+    oauthConfig := config.MustLoadConfig[oauthSetupConfig]()
+    routePrefix := normalizeOAuthRoutePrefix(oauthConfig.RoutePrefix)
+    redirectBase := normalizeOAuthRedirectBase(oauthConfig.RedirectBaseURL)
+    redirectOnSuccess := normalizeOAuthSuccessRedirect(oauthConfig.RedirectOnSuccess)
+    redirectTokenParam := normalizeOAuthRedirectTokenParam(oauthConfig.RedirectTokenParam)
+    enabledProviders := parseOAuthEnabledProviders(oauthConfig.EnabledProviders)
 
-// Registra GET /auth/google + GET /auth/google/callback (por cada proveedor configurado)
-app.RegisterController(oauth.NewController(oauthManager, routePrefix))
+    oauthManager := oauth.New(oauth.Config{
+        Google: oauthProviderConfig(redirectBase, routePrefix, enabledProviders, oauth.ProviderGoogle, oauthConfig.GoogleClientID, oauthConfig.GoogleClientSecret),
+        GitHub: oauthProviderConfig(redirectBase, routePrefix, enabledProviders, oauth.ProviderGitHub, oauthConfig.GitHubClientID, oauthConfig.GitHubClientSecret),
+        GitLab: oauthProviderConfig(redirectBase, routePrefix, enabledProviders, oauth.ProviderGitLab, oauthConfig.GitLabClientID, oauthConfig.GitLabClientSecret),
+        Signer:             jwtProvider,
+        Logger:             log,
+        RedirectOnSuccess:  redirectOnSuccess,
+        RedirectTokenParam: redirectTokenParam,
+    })
+    app.RegisterController(oauth.NewController(oauthManager, routePrefix))
+}
 ```
 
-`NewController` acepta un prefijo opcional para sobreescribir el `/auth` por defecto:
+El mismo archivo generado también incluye `oauthProviderConfig`, `parseOAuthEnabledProviders`, `normalizeOAuthRoutePrefix`, `normalizeOAuthRedirectBase`, `normalizeOAuthSuccessRedirect` y `normalizeOAuthRedirectTokenParam`. La base de redirect usa `http://127.0.0.1:7331` por defecto cuando queda vacía.
+
+`NewController` sigue aceptando un prefijo opcional si cableas el addon manualmente:
 
 ```go
 app.RegisterController(oauth.NewController(oauthManager, "/sign-in"))
@@ -122,13 +157,13 @@ Credenciales: [gitlab.com/-/user_settings/applications](https://gitlab.com/-/use
 | `OAUTH_GITHUB_CLIENT_SECRET` | Client secret de GitHub |
 | `OAUTH_GITLAB_CLIENT_ID` | Application ID de GitLab |
 | `OAUTH_GITLAB_CLIENT_SECRET` | Client secret de GitLab |
-| `OAUTH_REDIRECT_BASE_URL` | URL base para construir las callback URLs |
+| `OAUTH_REDIRECT_BASE_URL` | URL base para construir las callback URLs (valor dev por defecto: `http://127.0.0.1:7331`) |
 | `OAUTH_ROUTE_PREFIX` | Prefijo de ruta usado por el controller OAuth generado (default: `/auth`) |
 | `OAUTH_ENABLED_PROVIDERS` | Lista opcional separada por comas para permitir proveedores (`google,github,gitlab`) |
 | `OAUTH_REDIRECT_ON_SUCCESS` | URL opcional del frontend usada para el modo redirect después de firmar el JWT |
 | `OAUTH_REDIRECT_TOKEN_PARAM` | Nombre del query parameter usado cuando `OAUTH_REDIRECT_ON_SUCCESS` está activo (default: `token`) |
 
-El `cmd/setup_oauth.go` generado por `keel add oauth` lee credenciales de los tres proveedores, construye las callback URLs desde `OAUTH_REDIRECT_BASE_URL`, soporta el modo redirect vía variables de entorno y solo activa los providers con credenciales completas. `OAUTH_ENABLED_PROVIDERS` permite restringir aún más qué rutas se exponen. El CLI también imprime un snippet de seguimiento para una ruta protegida `/api/me` que consume claims JWT.
+El `cmd/setup_oauth.go` generado por `keel add oauth` lee credenciales de los tres proveedores, construye las callback URLs desde `OAUTH_REDIRECT_BASE_URL`, soporta el modo redirect vía variables de entorno y solo activa los providers con credenciales completas. `OAUTH_ENABLED_PROVIDERS` permite restringir aún más qué rutas se exponen. Cuando `jwt` se instaló antes de forma standalone, el CLI también reemplaza la línea placeholder `_ = jwtProvider` por `setupOAuth(app, jwtProvider, appLogger)` e imprime un snippet de seguimiento para una ruta protegida `/api/me` que consume claims JWT.
 
 ## Interfaz TokenSigner
 
@@ -262,29 +297,13 @@ puede llamar al endpoint de callback directamente.
 
 Los proveedores con credenciales incompletas se omiten silenciosamente — solo se registran rutas para los providers habilitados con configuración completa.
 
-## Ejemplo completo
+## Wiring generado
 
 ```go
 // cmd/main.go
-redirectBase := config.GetEnvOrDefault("OAUTH_REDIRECT_BASE_URL", "http://localhost:7331")
-routePrefix := config.GetEnvOrDefault("OAUTH_ROUTE_PREFIX", "/auth")
+jwtProvider := setupJWT(app, appLogger)
+setupOAuth(app, jwtProvider, appLogger)
 
-oauthManager := oauth.New(oauth.Config{
-    Google: &oauth.ProviderConfig{
-        ClientID:     config.GetEnvOrDefault("OAUTH_GOOGLE_CLIENT_ID", ""),
-        ClientSecret: config.GetEnvOrDefault("OAUTH_GOOGLE_CLIENT_SECRET", ""),
-        RedirectURL:  redirectBase + routePrefix + "/google/callback",
-    },
-    GitHub: &oauth.ProviderConfig{
-        ClientID:     config.GetEnvOrDefault("OAUTH_GITHUB_CLIENT_ID", ""),
-        ClientSecret: config.GetEnvOrDefault("OAUTH_GITHUB_CLIENT_SECRET", ""),
-        RedirectURL:  redirectBase + routePrefix + "/github/callback",
-    },
-    Signer:             jwtSigner,
-    Logger:             appLogger,
-    RedirectOnSuccess:  config.GetEnvOrDefault("OAUTH_REDIRECT_ON_SUCCESS", ""),
-    RedirectTokenParam: config.GetEnvOrDefault("OAUTH_REDIRECT_TOKEN_PARAM", "token"),
-})
-
-app.RegisterController(oauth.NewController(oauthManager, routePrefix))
+protected := app.Group("/api", jwtProvider.Middleware())
+// registra aquí tus rutas protegidas
 ```
