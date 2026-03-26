@@ -85,7 +85,7 @@ If you use an unknown step type, installation fails.
 
 ### `depends_on`
 
-Optional array of addon aliases that must be installed before this addon works. The CLI checks for missing dependencies and warns the user. Example: `ss-keel-oauth` declares `"depends_on": ["jwt"]` because it needs `ss-keel-jwt` to sign tokens after authentication.
+Optional array of addon aliases that must be installed before this addon works. The CLI checks for missing dependencies and prompts to install them before the target addon, defaulting to yes when the user presses Enter. Example: `ss-keel-oauth` declares `"depends_on": ["jwt"]` because it needs `ss-keel-jwt` to sign tokens after authentication.
 
 ### `create_provider_file`
 

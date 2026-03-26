@@ -42,11 +42,10 @@ import (
 
 // setupMongo inicializa el cliente MongoDB y registra el health checker.
 func setupMongo(app *core.App, log *logger.Logger) *mongo.Client {
-    mongoClient, err := mongo.New(mongo.Config{
-        URI:      config.GetEnvOrDefault("MONGO_URI", "mongodb://localhost:27017"),
-        Database: config.GetEnvOrDefault("MONGO_DATABASE", "app"),
-        Logger:   log,
-    })
+    mongoConfig := config.MustLoadConfig[mongo.Config]()
+    mongoConfig.Logger = log
+
+    mongoClient, err := mongo.New(mongoConfig)
     if err != nil {
         log.Error("failed to initialize MongoDB: %v", err)
     }

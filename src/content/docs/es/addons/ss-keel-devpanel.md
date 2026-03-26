@@ -32,13 +32,10 @@ import (
 )
 
 // setupDevPanel monta el panel de observabilidad en la app Fiber.
-// Establece KEEL_PANEL_ENABLED=false en producción para deshabilitar el panel.
+// Establece panel.enabled=false en producción para deshabilitar el panel.
 func setupDevPanel(app *core.App) *devpanel.DevPanel {
-    panel := devpanel.New(devpanel.Config{
-        Enabled: config.GetEnvOrDefault("KEEL_PANEL_ENABLED", "true") != "false",
-        Secret:  config.GetEnvOrDefault("KEEL_PANEL_SECRET", ""),
-        Path:    config.GetEnvOrDefault("KEEL_PANEL_PATH", "/keel/panel"),
-    })
+    panelConfig := config.MustLoadConfig[devpanel.Config]()
+    panel := devpanel.New(panelConfig)
     fiberApp := app.Fiber()
     fiberApp.Use(panel.RequestMiddleware())
     fiberApp.Use(panel.GlobalGuard())
@@ -62,7 +59,7 @@ KEEL_PANEL_SECRET=
 KEEL_PANEL_PATH=/keel/panel
 ```
 
-Abre `http://localhost:3000/keel/panel` en tu navegador una vez que el servidor esté corriendo.
+Abre `http://localhost:7331/keel/panel` en tu navegador una vez que el servidor esté corriendo.
 
 ## Configuración
 
@@ -76,7 +73,7 @@ panel := devpanel.New(devpanel.Config{
 
 | Campo     | Tipo   | Default       | Descripción                                         |
 |-----------|--------|---------------|-----------------------------------------------------|
-| `Enabled` | bool   | `false`       | Habilita el panel. Siempre `false` en producción.   |
+| `Enabled` | bool   | `true`        | Habilita el panel. Establece `false` en producción. |
 | `Secret`  | string | `""`          | Bearer token. Vacío = sin autenticación.            |
 | `Path`    | string | `/keel/panel` | Prefijo de URL para todas las rutas del panel.      |
 
