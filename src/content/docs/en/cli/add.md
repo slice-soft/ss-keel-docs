@@ -9,6 +9,13 @@ description: Install official or community Keel addons and wire them into the cu
 keel add [alias|repo]
 ```
 
+Non-interactive options:
+
+```bash
+keel add [alias|repo] --yes
+keel add [alias|repo] --no-input
+```
+
 With registry refresh:
 
 ```bash
@@ -59,6 +66,9 @@ Install anyway? [y/N]
 
 Only `y` continues. Any other answer aborts the install.
 
+- `--yes` auto-confirms this prompt and any dependency prompts.
+- `--no-input` disables prompts. Default-yes dependency prompts are accepted automatically, while default-no prompts for non-official addons fail fast and instruct you to rerun with `--yes`.
+
 ## `keel-addon.json` contract
 
 For a repository target, the CLI downloads:
@@ -87,7 +97,7 @@ The CLI parses this structure:
 }
 ```
 
-`depends_on` is optional. When present, the CLI checks whether each listed alias is already installed. Missing dependencies trigger a default-yes prompt so the CLI can install them before the requested addon. For example, `ss-keel-oauth` declares `"depends_on": ["jwt"]` because it requires `ss-keel-jwt` to sign tokens.
+`depends_on` is optional. When present, the CLI checks whether each listed alias is already installed. Missing dependencies trigger a default-yes prompt so the CLI can install them before the requested addon. For scripted runs, use `--yes` to auto-approve all prompts, or `--no-input` to accept the default dependency answer without blocking. For example, `ss-keel-oauth` declares `"depends_on": ["jwt"]` because it requires `ss-keel-jwt` to sign tokens.
 
 ## Supported installation step types
 
@@ -139,6 +149,7 @@ This keeps each addon's wiring isolated and `cmd/main.go` readable regardless of
 - Finally, any `note` steps are printed.
 - If `go mod tidy` fails, the CLI prints a warning but does not fail the full install.
 - If dependency prompts are accepted, their installs run before the target addon and share the same final tidy pass.
+- In non-interactive runs, dependency prompts use their default answer instead of waiting on stdin.
 
 ## Examples
 
@@ -164,6 +175,12 @@ Force refresh alias registry:
 
 ```bash
 keel add gorm --refresh
+```
+
+Install OAuth and auto-accept its JWT dependency in CI:
+
+```bash
+keel add oauth --yes
 ```
 
 ## Common errors

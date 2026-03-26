@@ -9,6 +9,13 @@ description: Instala addons oficiales o comunitarios de Keel y los integra en el
 keel add [alias|repo]
 ```
 
+Opciones no interactivas:
+
+```bash
+keel add [alias|repo] --yes
+keel add [alias|repo] --no-input
+```
+
 Con refresh de registry:
 
 ```bash
@@ -59,6 +66,9 @@ Install anyway? [y/N]
 
 Solo `y` continúa. Cualquier otra respuesta cancela la instalación.
 
+- `--yes` auto-confirma este prompt y cualquier prompt de dependencias.
+- `--no-input` deshabilita prompts. Las dependencias con default en sí se aceptan automáticamente, mientras que los prompts con default en no para addons no oficiales fallan rápido y te indican relanzar con `--yes`.
+
 ## Contrato `keel-addon.json`
 
 Para un repositorio objetivo, el CLI descarga:
@@ -87,7 +97,7 @@ El CLI parsea esta estructura:
 }
 ```
 
-`depends_on` es opcional. Cuando está presente, el CLI verifica si cada alias listado ya está instalado. Si falta alguno, muestra un prompt con default en sí para instalar la dependencia antes del addon solicitado. Por ejemplo, `ss-keel-oauth` declara `"depends_on": ["jwt"]` porque necesita `ss-keel-jwt` para firmar tokens.
+`depends_on` es opcional. Cuando está presente, el CLI verifica si cada alias listado ya está instalado. Si falta alguno, muestra un prompt con default en sí para instalar la dependencia antes del addon solicitado. Para flujos automatizados, usa `--yes` para auto-aprobar todos los prompts, o `--no-input` para aceptar la respuesta por defecto de dependencias sin bloquear. Por ejemplo, `ss-keel-oauth` declara `"depends_on": ["jwt"]` porque necesita `ss-keel-jwt` para firmar tokens.
 
 ## Tipos de paso soportados
 
@@ -139,6 +149,7 @@ Esto mantiene el wiring de cada addon aislado y `cmd/main.go` legible sin import
 - Al final imprime los pasos `note`, si existen.
 - Si `go mod tidy` falla, el CLI muestra advertencia pero no falla toda la instalación.
 - Si aceptas prompts de dependencias, esas instalaciones ocurren antes del addon objetivo y comparten el `tidy` final.
+- En ejecuciones no interactivas, los prompts de dependencias usan su respuesta por defecto en lugar de esperar stdin.
 
 ## Ejemplos
 
@@ -164,6 +175,12 @@ Forzar refresh del registry de aliases:
 
 ```bash
 keel add gorm --refresh
+```
+
+Instalar OAuth y auto-aceptar su dependencia JWT en CI:
+
+```bash
+keel add oauth --yes
 ```
 
 ## Errores frecuentes

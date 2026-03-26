@@ -23,6 +23,8 @@ Install "jwt" now? [Y/n]
 
 Presionar Enter acepta el default e instala la dependencia automáticamente antes de `oauth`.
 
+Para instalaciones automatizadas, usa `keel add oauth --yes` para auto-aceptar el prompt de dependencia, o `keel add oauth --no-input` para ejecutar sin bloquear por stdin mientras mantienes la respuesta por defecto de la dependencia.
+
 O de forma manual:
 
 ```bash

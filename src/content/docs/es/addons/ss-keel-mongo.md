@@ -73,6 +73,22 @@ Defaults útiles del addon:
 - `MaxPoolSize`: `25`
 - `MaxConnIdleTime`: `15m`
 
+## Configuración generada
+
+Cuando instalas `ss-keel-mongo` con `keel add mongo`, el CLI agrega estas claves generadas:
+
+| application.properties | .env | Default | Propósito |
+|---|---|---|---|
+| `mongo.uri` | `MONGO_URI` | `mongodb://localhost:27017` | URI del servidor MongoDB usada por el bootstrap generado `setupMongo`. |
+| `mongo.database` | `MONGO_DATABASE` | `app` | Nombre de la base de datos usada por `mongo.New(...)` y el wiring generado del repositorio. |
+
+Snippet generado:
+
+```properties
+mongo.uri=${MONGO_URI:mongodb://localhost:27017}
+mongo.database=${MONGO_DATABASE:app}
+```
+
 ## Ejemplo oficial
 
 El repositorio oficial de ejemplos incluye `ss-keel-examples/examples/13-mongo`, que demuestra:

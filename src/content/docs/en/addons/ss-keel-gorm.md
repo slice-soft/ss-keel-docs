@@ -82,6 +82,22 @@ Useful defaults from the addon:
 - `SSLMode`: `disable`
 - `TimeZone`: `UTC`
 
+## Generated configuration
+
+When you install `ss-keel-gorm` with `keel add gorm`, the CLI appends these generated keys:
+
+| application.properties | .env | Default | Purpose |
+|---|---|---|---|
+| `database.engine` | `DATABASE_ENGINE` | `sqlite` | Database engine used by `database.New(...)`. Supported values include `postgres`, `mysql`, `mariadb`, `sqlite`, `sqlserver`, and addon-registered dialectors. |
+| `database.url` | `DATABASE_URL` | `./app.db` | Connection string or SQLite file path used by the generated `setupGorm` bootstrap. |
+
+Generated snippet:
+
+```properties
+database.engine=${DATABASE_ENGINE:sqlite}
+database.url=${DATABASE_URL:./app.db}
+```
+
 ## Official example
 
 The official examples repository includes `ss-keel-examples/examples/08-gorm-postgres`, which demonstrates:
