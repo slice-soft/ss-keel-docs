@@ -82,6 +82,22 @@ Defaults útiles del addon:
 - `SSLMode`: `disable`
 - `TimeZone`: `UTC`
 
+## Configuración generada
+
+Cuando instalas `ss-keel-gorm` con `keel add gorm`, el CLI agrega estas claves generadas:
+
+| application.properties | .env | Default | Propósito |
+|---|---|---|---|
+| `database.engine` | `DATABASE_ENGINE` | `sqlite` | Motor de base de datos usado por `database.New(...)`. Soporta valores como `postgres`, `mysql`, `mariadb`, `sqlite`, `sqlserver` y dialectors registrados por addons. |
+| `database.url` | `DATABASE_URL` | `./app.db` | Connection string o path SQLite usado por el bootstrap generado `setupGorm`. |
+
+Snippet generado:
+
+```properties
+database.engine=${DATABASE_ENGINE:sqlite}
+database.url=${DATABASE_URL:./app.db}
+```
+
 ## Ejemplo oficial
 
 El repositorio oficial de ejemplos incluye `ss-keel-examples/examples/08-gorm-postgres`, que demuestra:

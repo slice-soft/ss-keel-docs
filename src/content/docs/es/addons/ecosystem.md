@@ -85,7 +85,7 @@ Si usas un tipo de paso desconocido, la instalación falla.
 
 ### `depends_on`
 
-Array opcional de aliases de addons que deben estar instalados antes que este addon funcione. El CLI verifica las dependencias faltantes y ofrece instalarlas antes del addon objetivo, con default en sí al presionar Enter. Ejemplo: `ss-keel-oauth` declara `"depends_on": ["jwt"]` porque necesita `ss-keel-jwt` para firmar tokens tras la autenticación.
+Array opcional de aliases de addons que deben estar instalados antes que este addon funcione. El CLI verifica las dependencias faltantes y ofrece instalarlas antes del addon objetivo, con default en sí al presionar Enter. En flujos automatizados, `--yes` auto-aprueba todos los prompts y `--no-input` acepta el default de dependencias sin bloquear por stdin. Ejemplo: `ss-keel-oauth` declara `"depends_on": ["jwt"]` porque necesita `ss-keel-jwt` para firmar tokens tras la autenticación.
 
 ### `create_provider_file`
 
@@ -114,11 +114,18 @@ Refresh de caché del registry:
 keel add gorm --refresh
 ```
 
+Instalación automatizada con auto-aceptación de dependencias:
+
+```bash
+keel add oauth --yes
+```
+
 Detalles del CLI:
 
 - Exige `go.mod`, `cmd/main.go` e `internal/`.
 - Usa caché `~/.keel/registry.json` (TTL de 1 hora).
 - Para objetivos no oficiales, solicita confirmación antes de instalar.
+- `--no-input` deshabilita prompts; las dependencias aceptan su respuesta por defecto, mientras que los installs no oficiales requieren `--yes`.
 
 ## 4) Enviar addon al registry oficial (`ss-keel-addons`)
 

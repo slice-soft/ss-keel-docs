@@ -23,6 +23,8 @@ Install "jwt" now? [Y/n]
 
 Pressing Enter accepts the default and installs the dependency automatically before `oauth`.
 
+For scripted installs, use `keel add oauth --yes` to auto-accept the dependency prompt, or `keel add oauth --no-input` to run without blocking on stdin while still accepting the default dependency answer.
+
 Or manually:
 
 ```bash
