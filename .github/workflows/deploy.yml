@@ -10,6 +10,7 @@ jobs:
     uses: slice-soft/ss-pipeline/.github/workflows/pages-deploy.yml@v0
     with:
       project-name: ss-keel-docs
+      node-version: 22
     secrets:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
