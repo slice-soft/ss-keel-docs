@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    uses: slice-soft/ss-github-iac/.github/workflows/pages-deploy.yml@v0
+    uses: slice-soft/ss-pipeline/.github/workflows/pages-deploy.yml@v0
     with:
       project_name: ss-keel-docs
     secrets:
