@@ -60,8 +60,10 @@ myapp/
 │       └── starter/           # optional
 ├── go.mod
 ├── keel.toml
-├── .env                       # optional
-└── .air.toml                  # optional
+├── application.properties
+├── .env
+├── .env.example
+└── .air.toml
 ```
 
 ### Initial endpoints

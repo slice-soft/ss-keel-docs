@@ -5,6 +5,13 @@ description: Real-time observability dev panel for Keel applications — request
 
 `ss-keel-devpanel` is the official observability addon for Keel. It embeds a real-time UI directly in your Go binary to inspect HTTP requests, logs, addon events, registered routes, and runtime configuration — with zero external dependencies.
 
+## Browse this addon
+
+- [Overview](/en/addons/ss-keel-devpanel/overview/)
+- [Installation](/en/addons/ss-keel-devpanel/installation/)
+- [Configuration](/en/addons/ss-keel-devpanel/configuration/)
+- [Examples](/en/addons/ss-keel-devpanel/examples/)
+
 ## Installation
 
 ```bash

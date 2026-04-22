@@ -156,6 +156,9 @@ my-app/
 │           └── dto.go
 ├── go.mod
 ├── keel.toml
+├── application.properties
+├── .env
+├── .env.example
 └── .gitignore
 ```
 

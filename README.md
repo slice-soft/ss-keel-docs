@@ -15,6 +15,7 @@ architecture, automatic OpenAPI, and built-in validation.
 
 **Live site:** [docs.keel-go.dev](https://docs.keel-go.dev)
 **Framework repo:** [slice-soft/ss-keel-core](https://github.com/slice-soft/ss-keel-core)
+**Tracks:** `ss-keel-core` `v0.11.0` plus split documentation for live addons
 
 ## Content structure
 
@@ -22,7 +23,7 @@ architecture, automatic OpenAPI, and built-in validation.
 src/content/docs/
 ├── guides/          # Step-by-step guides (getting started, controllers, modules…)
 ├── cli/             # CLI reference
-├── addons/          # Official addon documentation (ss-keel-gorm, ss-keel-jwt…)
+├── addons/          # Addon hub pages plus split sections (overview, installation…)
 └── reference/       # API reference (App, Route, Ctx, errors…)
 ```
 
@@ -42,7 +43,7 @@ npm run preview   # Preview the built site locally
 
 ## Contributing
 
-Content lives in `src/content/docs/` — find the relevant `.md` file and edit it directly. New pages are picked up automatically by filename; update the sidebar in `astro.config.mjs` if you add a new section.
+Content lives in `src/content/docs/` — addon home pages live at `addons/ss-keel-*.md`, and deeper addon guides live in sibling folders such as `addons/ss-keel-jwt/overview.md`. Update `astro.config.mjs` whenever you add or move navigable pages.
 
 The base workflow, commit conventions, and community standards live in [ss-community](https://github.com/slice-soft/ss-community/blob/main/CONTRIBUTING.md).
 For changes to the framework itself, open a PR in the [core repo](https://github.com/slice-soft/ss-keel-core).

@@ -8,6 +8,14 @@ After a successful provider flow the addon signs a JWT and returns it to the cli
 either as JSON or as a redirect with the token in the query string.
 
 **Supported providers:** Google · GitHub · GitLab
+**Current stable release:** `v1.10.0` (2026-04-22)
+
+## Browse this addon
+
+- [Overview](/en/addons/ss-keel-oauth/overview/)
+- [Installation](/en/addons/ss-keel-oauth/installation/)
+- [Configuration](/en/addons/ss-keel-oauth/configuration/)
+- [Examples](/en/addons/ss-keel-oauth/examples/)
 
 ## Installation
 

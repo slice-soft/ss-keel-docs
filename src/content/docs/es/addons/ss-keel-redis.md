@@ -7,6 +7,13 @@ description: Cache Redis vía go-redis — implementa contracts.Cache con soport
 
 **Implementa:** [`contracts.Cache`](/es/reference/interfaces#cache)
 
+## Navega este addon
+
+- [Resumen](/es/addons/ss-keel-redis/overview/)
+- [Instalacion](/es/addons/ss-keel-redis/installation/)
+- [Configuracion](/es/addons/ss-keel-redis/configuration/)
+- [Ejemplos](/es/addons/ss-keel-redis/examples/)
+
 ## Instalación
 
 ```bash
