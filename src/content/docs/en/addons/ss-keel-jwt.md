@@ -80,9 +80,13 @@ The following is injected into `cmd/main.go`:
 
 ```go
 jwtProvider := setupJWT(app, appLogger)
-// TODO: use jwtProvider.Middleware() to protect routes
-// Example: protected := app.Group("/api", jwtProvider.Middleware())
 _ = jwtProvider
+```
+
+`_ = jwtProvider` is a placeholder that keeps the code compilable until you wire a protected route or install the OAuth addon. Replace it with your actual usage — for example:
+
+```go
+protected := app.Group("/api", jwtProvider.Middleware())
 ```
 
 Defaults applied when fields are not set:

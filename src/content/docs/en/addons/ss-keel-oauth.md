@@ -310,11 +310,17 @@ Providers with incomplete credentials are silently skipped — only routes for e
 
 ## Generated wiring
 
+`keel add oauth` injects exactly these two lines into `cmd/main.go`:
+
 ```go
-// cmd/main.go
 jwtProvider := setupJWT(app, appLogger)
 setupOAuth(app, jwtProvider, appLogger)
+```
 
+The `protected` group below is **not generated** — add it yourself where you register the modules that require authentication:
+
+```go
+// Add this after setupOAuth, before or alongside your module registrations:
 protected := app.Group("/api", jwtProvider.Middleware())
-// register protected routes here
+protected.Use(users.NewModule(appLogger, db))
 ```
