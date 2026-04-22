@@ -13,6 +13,15 @@ contracts.Repository[T, ID, httpx.PageQuery, httpx.Page[T]]
 
 Encima de ese contrato, expone capacidades nativas de Mongo como consultas por filtro, acceso directo a colecciones y conversión personalizada de IDs.
 
+**Release estable actual:** `v1.7.0` (2026-04-22)
+
+## Navega este addon
+
+- [Resumen](/es/addons/ss-keel-mongo/overview/)
+- [Instalacion](/es/addons/ss-keel-mongo/installation/)
+- [Configuracion](/es/addons/ss-keel-mongo/configuration/)
+- [Ejemplos](/es/addons/ss-keel-mongo/examples/)
+
 ## Instalación
 
 ```bash

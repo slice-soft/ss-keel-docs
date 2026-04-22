@@ -183,6 +183,17 @@ Install OAuth and auto-accept its JWT dependency in CI:
 keel add oauth --yes
 ```
 
+## Dependency churn
+
+`keel add` runs `go get <addon>@latest` under the hood. In addition to the addon itself, this can:
+
+- Update the `go` directive in `go.mod` (e.g. `go 1.25.0 → go 1.25.7`)
+- Add or upgrade indirect dependencies
+
+This is normal Go module behaviour. Keel prints a short summary when the `go` directive changes or new indirect dependencies are added, so you can spot unexpected churn before committing.
+
+If you want a narrower diff, pin the addon to a specific version by editing `go.mod` manually after install.
+
 ## Common errors
 
 - `keel add must be executed inside a Keel project`

@@ -20,6 +20,15 @@ Los motores soportados vienen del código real del addon en `ss-keel-gorm/databa
 - SQL Server
 - Oracle
 
+**Release estable actual:** `v1.7.0` (2026-04-22)
+
+## Navega este addon
+
+- [Resumen](/es/addons/ss-keel-gorm/overview/)
+- [Instalacion](/es/addons/ss-keel-gorm/installation/)
+- [Configuracion](/es/addons/ss-keel-gorm/configuration/)
+- [Ejemplos](/es/addons/ss-keel-gorm/examples/)
+
 ## Instalación
 
 ```bash

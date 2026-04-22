@@ -4,6 +4,7 @@ description: The shared contracts in ss-keel-core/contracts used by the runtime,
 ---
 
 `ss-keel-core/contracts` is the stable boundary between the Keel runtime and infrastructure integrations.
+This reference tracks `ss-keel-core` `v0.11.0`.
 
 The runtime depends on contracts, official addons implement contracts, and applications can build their own adapters on top of the same interfaces. This is the layer that keeps Keel modular without leaking infrastructure details into `ss-keel-core`.
 
@@ -114,6 +115,91 @@ type TokenSigner interface {
 `data` is an arbitrary claims map embedded in the token payload under the `"data"` key.
 
 **Implemented by:** `ss-keel-jwt` · **Used by:** `ss-keel-oauth`
+
+## Addon
+
+Base contract implemented by every addon.
+
+```go
+type Addon interface {
+    ID() string
+}
+```
+
+`ID()` returns the stable addon identifier used across the runtime, CLI, and docs, for example `gorm`, `redis`, or `devpanel`.
+
+## Manifestable
+
+Contract for addons that expose machine-readable metadata to the CLI and dev panel.
+
+```go
+type EnvVar struct {
+    Key         string
+    ConfigKey   string
+    Description string
+    Required    bool
+    Secret      bool
+    Default     string
+    Source      string
+}
+
+type AddonManifest struct {
+    ID           string
+    Version      string
+    Capabilities []string
+    Resources    []string
+    EnvVars      []EnvVar
+}
+
+type Manifestable interface {
+    Manifest() AddonManifest
+}
+```
+
+Use `Manifest()` when an addon needs to publish its capabilities, resources, and config-facing environment variables.
+
+## Debuggable and PanelRegistry
+
+Contracts used by `ss-keel-devpanel` to collect live addon events.
+
+```go
+type PanelEvent struct {
+    Timestamp time.Time
+    AddonID   string
+    Label     string
+    Detail    map[string]any
+    Level     string
+}
+
+type Debuggable interface {
+    PanelID() string
+    PanelLabel() string
+    PanelEvents() <-chan PanelEvent
+}
+
+type PanelRegistry interface {
+    RegisterAddon(d Debuggable)
+}
+```
+
+`Debuggable` addons stream events to the panel, while `PanelRegistry` is the contract implemented by the panel itself so addons can register during their own setup.
+
+## PanelComponent and DebuggableWithView
+
+Optional contracts for addons that want a custom panel view instead of the default event table.
+
+```go
+type PanelComponent interface {
+    Render(ctx context.Context, w io.Writer) error
+}
+
+type DebuggableWithView interface {
+    Debuggable
+    PanelView() PanelComponent
+}
+```
+
+`PanelComponent` is intentionally minimal so `ss-keel-core` does not need to depend on a specific UI package. Any compatible renderer can satisfy it through Go's structural typing.
 
 ## Publisher and Subscriber
 

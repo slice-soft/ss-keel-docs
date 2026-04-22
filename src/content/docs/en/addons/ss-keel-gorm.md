@@ -20,6 +20,15 @@ Supported engines come from the real addon code in `ss-keel-gorm/database`:
 - SQL Server
 - Oracle
 
+**Current stable release:** `v1.7.0` (2026-04-22)
+
+## Browse this addon
+
+- [Overview](/en/addons/ss-keel-gorm/overview/)
+- [Installation](/en/addons/ss-keel-gorm/installation/)
+- [Configuration](/en/addons/ss-keel-gorm/configuration/)
+- [Examples](/en/addons/ss-keel-gorm/examples/)
+
 ## Installation
 
 ```bash

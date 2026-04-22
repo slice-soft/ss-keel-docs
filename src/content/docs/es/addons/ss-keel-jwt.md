@@ -7,6 +7,14 @@ description: Guard de generación, validación y protección de rutas con JWT pa
 Provee generación de tokens, validación, renovación y un `Guard` listo para proteger rutas mediante el header `Authorization`.
 
 **Implementa:** [`Guard`](/es/reference/interfaces#guard), [`TokenSigner`](/es/reference/interfaces#tokensigner)
+**Release estable actual:** `v1.8.0` (2026-04-22)
+
+## Navega este addon
+
+- [Resumen](/es/addons/ss-keel-jwt/overview/)
+- [Instalacion](/es/addons/ss-keel-jwt/installation/)
+- [Configuracion](/es/addons/ss-keel-jwt/configuration/)
+- [Ejemplos](/es/addons/ss-keel-jwt/examples/)
 
 ## Instalación
 
