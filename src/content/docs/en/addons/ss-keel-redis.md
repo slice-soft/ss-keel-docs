@@ -6,6 +6,7 @@ description: Redis cache via go-redis — implements contracts.Cache with health
 `ss-keel-redis` is the official cache addon for Keel. It wraps [go-redis v9](https://redis.uptrace.dev/) and implements the `contracts.Cache` interface defined in `ss-keel-core`.
 
 **Implements:** [`contracts.Cache`](/en/reference/interfaces#cache)
+**Current stable release:** `v1.3.2` (2026-04-22)
 
 ## Browse this addon
 
@@ -62,10 +63,18 @@ redisClient := setupRedis(app, appLogger)
 defer redisClient.Close()
 ```
 
-The required environment variable is added to `.env`:
+## Generated configuration
 
-```
-REDIS_URL=redis://localhost:6379
+When you install `ss-keel-redis` with `keel add redis`, the CLI appends these generated keys:
+
+| application.properties | .env | Default | Purpose |
+|---|---|---|---|
+| `redis.url` | `REDIS_URL` | `redis://localhost:6379` | Redis connection URL used by the generated `setupRedis` bootstrap. |
+
+Generated snippet:
+
+```properties
+redis.url=${REDIS_URL:redis://localhost:6379}
 ```
 
 ## Configuration
