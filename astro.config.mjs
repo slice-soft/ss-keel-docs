@@ -145,6 +145,7 @@ export default defineConfig({
                                 { label: 'Configuration', translations: { es: 'Configuracion' },  slug: 'addons/ss-keel-devpanel/configuration' },
                                 { label: 'Examples',      translations: { es: 'Ejemplos' },       slug: 'addons/ss-keel-devpanel/examples' },
                             ]},
+                            { label: 'ss-keel-otel',     slug: 'addons/ss-keel-otel' },
                         ]},
                     ],
                 },
