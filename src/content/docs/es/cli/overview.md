@@ -19,11 +19,13 @@ Esta sección se basa en el código real de `keel` y `ss-keel-core`, incluyendo 
 - Creación de proyectos listos para trabajar (`keel new`)
 - Adopción de Keel en proyectos existentes (`keel init`)
 - Generación de componentes con wiring automático (`keel generate`)
-- Instalación de addons con wiring automático (`keel add`)
+- Instalación, eliminación y actualización de addons (`keel add`, `keel addon`)
 - Ejecución de scripts del proyecto (`keel run`)
+- Diagnóstico de salud del proyecto (`keel doctor`)
+- Gestión de variables de entorno (`keel env`)
 - Autocompletado para shell (`keel completion`)
 
-## Comandos disponibles hoy
+## Comandos disponibles
 
 | Comando | Alias | Propósito |
 |---|---|---|
@@ -31,13 +33,17 @@ Esta sección se basa en el código real de `keel` y `ss-keel-core`, incluyendo 
 | `keel init` | — | Genera `keel.toml` en un proyecto existente |
 | `keel generate [type] [name]` | `keel g` | Genera módulos/componentes y ajusta `cmd/main.go` |
 | `keel add [alias\|repo]` | — | Instala un addon del registry oficial o de un repo GitHub directo |
+| `keel addon remove <alias>` | — | Elimina un addon instalado y deshace su wiring |
+| `keel addon upgrade [alias]` | — | Actualiza uno o todos los addons instalados |
 | `keel run [script]` | — | Ejecuta scripts de `[scripts]` en `keel.toml` |
+| `keel doctor` | — | Diagnostica la salud del proyecto (keel.toml, addons, env, build) |
+| `keel env sync` | — | Genera/actualiza `.env.example` desde `application.properties` |
+| `keel env generate` | — | Genera `.env` con solo las claves faltantes |
+| `keel env check` | — | Valida variables de entorno requeridas (útil en CI) |
+| `keel telemetry status\|enable\|disable` | — | Gestiona la recolección anónima de datos de uso |
+| `keel upgrade` | — | Actualiza el CLI de Keel via la fuente de instalación detectada |
 | `keel completion ...` | — | Genera/instala autocompletado (`zsh`, `bash`, `fish`, `powershell`) |
-| `keel --version` | `keel -v` | Muestra versión, commit, build date y plataforma |
-
-:::caution[Importante]
-El binario actual no expone subcomando `keel upgrade` en `--help`. Para actualizar, usa el método de instalación (`go install`, `brew` o release manual).
-:::
+| `keel version` | `keel --version`, `-v` | Muestra versión, commit, build date y plataforma |
 
 ## Flujo recomendado
 
@@ -85,6 +91,10 @@ Cuando ejecutas un proyecto generado, heredas el comportamiento del core:
 - [Comando `new`](/es/cli/new/)
 - [Comando `generate`](/es/cli/generate/)
 - [Comando `add`](/es/cli/add/)
+- [Comando `addon`](/es/cli/addon/)
+- [Comando `doctor`](/es/cli/doctor/)
+- [Comando `env`](/es/cli/env/)
+- [Comando `upgrade`](/es/cli/upgrade/)
 - [Resolución de problemas](/es/cli/troubleshooting/)
 
 :::note[Repositorio]

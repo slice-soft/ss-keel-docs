@@ -19,11 +19,13 @@ This section is based on the real code of `keel` and `ss-keel-core`, including t
 - Creating projects ready to work with (`keel new`)
 - Adopting Keel in existing projects (`keel init`)
 - Generating components with automatic wiring (`keel generate`)
-- Installing addons with automatic project wiring (`keel add`)
+- Installing, removing, and upgrading addons (`keel add`, `keel addon`)
 - Running project scripts (`keel run`)
+- Diagnosing project health (`keel doctor`)
+- Managing environment variables (`keel env`)
 - Shell autocompletion (`keel completion`)
 
-## Available commands today
+## Available commands
 
 | Command | Alias | Purpose |
 |---|---|---|
@@ -31,13 +33,17 @@ This section is based on the real code of `keel` and `ss-keel-core`, including t
 | `keel init` | — | Generates `keel.toml` in an existing project |
 | `keel generate [type] [name]` | `keel g` | Generates modules/components and updates `cmd/main.go` |
 | `keel add [alias\|repo]` | — | Installs an addon from the official registry or a direct GitHub repo |
+| `keel addon remove <alias>` | — | Removes an installed addon and undoes its wiring |
+| `keel addon upgrade [alias]` | — | Upgrades one or all installed addons |
 | `keel run [script]` | — | Runs scripts from `[scripts]` in `keel.toml` |
+| `keel doctor` | — | Diagnoses project health (keel.toml, addons, env vars, build) |
+| `keel env sync` | — | Generates/updates `.env.example` from `application.properties` |
+| `keel env generate` | — | Generates `.env` with only missing keys |
+| `keel env check` | — | Validates required env vars (useful in CI) |
+| `keel telemetry status\|enable\|disable` | — | Manages anonymous usage data collection |
+| `keel upgrade` | — | Updates Keel CLI via the detected installation source |
 | `keel completion ...` | — | Generates/installs autocompletion (`zsh`, `bash`, `fish`, `powershell`) |
-| `keel --version` | `keel -v` | Shows version, commit, build date and platform |
-
-:::caution[Important]
-The current binary does not expose a `keel upgrade` subcommand in `--help`. To update, use your installation method (`go install`, `brew` or manual release).
-:::
+| `keel version` | `keel --version`, `-v` | Shows version, commit, build date, and platform |
 
 ## Recommended workflow
 
@@ -85,6 +91,10 @@ When you run a generated project, you inherit the core's behavior:
 - [`new` command](/en/cli/new/)
 - [`generate` command](/en/cli/generate/)
 - [`add` command](/en/cli/add/)
+- [`addon` command](/en/cli/addon/)
+- [`doctor` command](/en/cli/doctor/)
+- [`env` command](/en/cli/env/)
+- [`upgrade` command](/en/cli/upgrade/)
 - [Troubleshooting](/en/cli/troubleshooting/)
 
 :::note[Repository]
