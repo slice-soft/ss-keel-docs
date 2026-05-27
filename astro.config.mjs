@@ -24,7 +24,7 @@ export default defineConfig({
                     tag: 'link',
                     attrs: {
                         rel: 'stylesheet',
-                        href: 'https://cdn.slicesoft.dev/design-system/ss-design-system-v1.0.3/css/_variables.css',
+                        href: 'https://cdn.slicesoft.dev/design-system/latest/css/_variables.css',
                     },
                 },
                 {
@@ -150,7 +150,13 @@ export default defineConfig({
                                 { label: 'Configuration', translations: { es: 'Configuracion' },  slug: 'addons/ss-keel-devpanel/configuration' },
                                 { label: 'Examples',      translations: { es: 'Ejemplos' },       slug: 'addons/ss-keel-devpanel/examples' },
                             ]},
-                            { label: 'ss-keel-otel',     slug: 'addons/ss-keel-otel' },
+                            { label: 'ss-keel-otel', items: [
+                                { label: 'Home',          translations: { es: 'Inicio' },         slug: 'addons/ss-keel-otel' },
+                                { label: 'Overview',      translations: { es: 'Resumen' },        slug: 'addons/ss-keel-otel/overview' },
+                                { label: 'Installation',  translations: { es: 'Instalacion' },    slug: 'addons/ss-keel-otel/installation' },
+                                { label: 'Configuration', translations: { es: 'Configuracion' },  slug: 'addons/ss-keel-otel/configuration' },
+                                { label: 'Examples',      translations: { es: 'Ejemplos' },       slug: 'addons/ss-keel-otel/examples' },
+                            ]},
                         ]},
                     ],
                 },

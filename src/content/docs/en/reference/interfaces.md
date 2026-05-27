@@ -184,6 +184,8 @@ type PanelRegistry interface {
 
 `Debuggable` addons stream events to the panel, while `PanelRegistry` is the contract implemented by the panel itself so addons can register during their own setup.
 
+**Implemented by:** `ss-keel-gorm`, `ss-keel-mongo`, `ss-keel-redis`, `ss-keel-jwt`, `ss-keel-oauth`, `ss-keel-otel`
+
 ## PanelComponent and DebuggableWithView
 
 Optional contracts for addons that want a custom panel view instead of the default event table.
