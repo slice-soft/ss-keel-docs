@@ -6,16 +6,16 @@ description: Claves generadas, defaults y setup runtime para ss-keel-mongo.
 El bootstrap generado es:
 
 ```go
-func setupMongo(app *core.App, log *logger.Logger) *mongo.Client {
-    mongoConfig := config.MustLoadConfig[mongo.Config]()
-    mongoConfig.Logger = log
+func setupMongo(app *core.App, log contracts.Logger) *mongo.Client {
+	mongoConfig := config.MustLoadConfig[mongo.Config]()
+	mongoConfig.Logger = log
 
-    mongoClient, err := mongo.New(mongoConfig)
-    if err != nil {
-        log.Error("failed to initialize MongoDB: %v", err)
-    }
-    app.RegisterHealthChecker(mongo.NewHealthChecker(mongoClient))
-    return mongoClient
+	mongoClient, err := mongo.New(mongoConfig)
+	if err != nil {
+		log.Error("failed to initialize MongoDB: %v", err)
+	}
+	app.RegisterHealthChecker(mongo.NewHealthChecker(mongoClient))
+	return mongoClient
 }
 ```
 

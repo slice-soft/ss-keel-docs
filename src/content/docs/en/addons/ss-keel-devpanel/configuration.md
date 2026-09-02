@@ -7,13 +7,13 @@ The generated setup mounts the panel before application routes:
 
 ```go
 func setupDevPanel(app *core.App) *devpanel.DevPanel {
-    panelConfig := config.MustLoadConfig[devpanel.Config]()
-    panel := devpanel.New(panelConfig)
-    fiberApp := app.Fiber()
-    fiberApp.Use(panel.RequestMiddleware())
-    fiberApp.Use(panel.GlobalGuard())
-    panel.Mount(fiberApp)
-    return panel
+	panelConfig := config.MustLoadConfig[devpanel.Config]()
+	panel := devpanel.New(panelConfig)
+	fiberApp := app.Fiber()
+	fiberApp.Use(panel.RequestMiddleware())
+	fiberApp.Use(panel.GlobalGuard())
+	panel.Mount(fiberApp)
+	return panel
 }
 ```
 

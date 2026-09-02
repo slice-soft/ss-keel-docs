@@ -1,0 +1,37 @@
+name: CI
+
+# Nothing validated a docs PR before merge: deploy.yml only runs on push to
+# main, so a broken directive or a snippet that no longer matches the addon
+# reached production and was found by a reader.
+#
+# Two gates, both cheap:
+#   - the site has to build
+#   - the "created by keel add <addon>" blocks have to match what the addon
+#     actually generates, so the drift this repo just cleaned up cannot come
+#     back through a hand edit
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build the site
+        run: npm run build
+
+      - name: Addon snippets match the generated code
+        run: node scripts/sync-addon-snippets.mjs --check

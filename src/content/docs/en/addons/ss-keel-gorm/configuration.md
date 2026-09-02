@@ -6,16 +6,16 @@ description: Generated config keys, defaults, and bootstrap flow for ss-keel-gor
 The generated bootstrap is intentionally thin:
 
 ```go
-func setupGorm(app *core.App, log *logger.Logger) *database.DBinstance {
-    dbConfig := config.MustLoadConfig[database.Config]()
-    dbConfig.Logger = log
+func setupGorm(app *core.App, log contracts.Logger) *database.DBinstance {
+	dbConfig := config.MustLoadConfig[database.Config]()
+	dbConfig.Logger = log
 
-    db, err := database.New(dbConfig)
-    if err != nil {
-        log.Error("failed to initialize database: %v", err)
-    }
-    app.RegisterHealthChecker(database.NewHealthChecker(db))
-    return db
+	db, err := database.New(dbConfig)
+	if err != nil {
+		log.Error("failed to initialize database: %v", err)
+	}
+	app.RegisterHealthChecker(database.NewHealthChecker(db))
+	return db
 }
 ```
 

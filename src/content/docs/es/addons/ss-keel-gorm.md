@@ -50,24 +50,24 @@ Al ejecutar `keel add gorm`, el CLI crea `cmd/setup_gorm.go` y agrega una línea
 package main
 
 import (
-    "github.com/slice-soft/ss-keel-core/config"
-    "github.com/slice-soft/ss-keel-core/core"
-    "github.com/slice-soft/ss-keel-core/logger"
-    "github.com/slice-soft/ss-keel-gorm/database"
+	"github.com/slice-soft/ss-keel-core/config"
+	"github.com/slice-soft/ss-keel-core/contracts"
+	"github.com/slice-soft/ss-keel-core/core"
+	"github.com/slice-soft/ss-keel-gorm/database"
 )
 
-// setupGorm inicializa la conexión a la base de datos y registra el health checker.
-// SQLite se usa por defecto para que un proyecto nuevo pueda correr localmente sin infraestructura externa.
-func setupGorm(app *core.App, log *logger.Logger) *database.DBinstance {
-    dbConfig := config.MustLoadConfig[database.Config]()
-    dbConfig.Logger = log
+// setupGorm initialises the database connection and registers a health checker.
+// SQLite is used by default so a fresh project can run locally without external infrastructure.
+func setupGorm(app *core.App, log contracts.Logger) *database.DBinstance {
+	dbConfig := config.MustLoadConfig[database.Config]()
+	dbConfig.Logger = log
 
-    db, err := database.New(dbConfig)
-    if err != nil {
-        log.Error("failed to initialize database: %v", err)
-    }
-    app.RegisterHealthChecker(database.NewHealthChecker(db))
-    return db
+	db, err := database.New(dbConfig)
+	if err != nil {
+		log.Error("failed to initialize database: %v", err)
+	}
+	app.RegisterHealthChecker(database.NewHealthChecker(db))
+	return db
 }
 ```
 

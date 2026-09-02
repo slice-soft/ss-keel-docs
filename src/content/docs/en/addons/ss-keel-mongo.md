@@ -43,23 +43,23 @@ When you run `keel add mongo`, the CLI creates `cmd/setup_mongo.go` and adds one
 package main
 
 import (
-    "github.com/slice-soft/ss-keel-core/config"
-    "github.com/slice-soft/ss-keel-core/core"
-    "github.com/slice-soft/ss-keel-core/logger"
-    "github.com/slice-soft/ss-keel-mongo/mongo"
+	"github.com/slice-soft/ss-keel-core/config"
+	"github.com/slice-soft/ss-keel-core/contracts"
+	"github.com/slice-soft/ss-keel-core/core"
+	"github.com/slice-soft/ss-keel-mongo/mongo"
 )
 
 // setupMongo initialises the MongoDB client and registers a health checker.
-func setupMongo(app *core.App, log *logger.Logger) *mongo.Client {
-    mongoConfig := config.MustLoadConfig[mongo.Config]()
-    mongoConfig.Logger = log
+func setupMongo(app *core.App, log contracts.Logger) *mongo.Client {
+	mongoConfig := config.MustLoadConfig[mongo.Config]()
+	mongoConfig.Logger = log
 
-    mongoClient, err := mongo.New(mongoConfig)
-    if err != nil {
-        log.Error("failed to initialize MongoDB: %v", err)
-    }
-    app.RegisterHealthChecker(mongo.NewHealthChecker(mongoClient))
-    return mongoClient
+	mongoClient, err := mongo.New(mongoConfig)
+	if err != nil {
+		log.Error("failed to initialize MongoDB: %v", err)
+	}
+	app.RegisterHealthChecker(mongo.NewHealthChecker(mongoClient))
+	return mongoClient
 }
 ```
 

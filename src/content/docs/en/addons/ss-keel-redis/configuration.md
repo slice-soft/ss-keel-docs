@@ -6,16 +6,16 @@ description: Runtime config and defaults for ss-keel-redis.
 The generated setup uses typed addon config:
 
 ```go
-func setupRedis(app *core.App, log *logger.Logger) *ssredis.Client {
-    redisConfig := config.MustLoadConfig[ssredis.Config]()
-    redisConfig.Logger = log
+func setupRedis(app *core.App, log contracts.Logger) *ssredis.Client {
+	redisConfig := config.MustLoadConfig[ssredis.Config]()
+	redisConfig.Logger = log
 
-    client, err := ssredis.New(redisConfig)
-    if err != nil {
-        log.Error("failed to initialize redis: %v", err)
-    }
-    app.RegisterHealthChecker(ssredis.NewHealthChecker(client))
-    return client
+	client, err := ssredis.New(redisConfig)
+	if err != nil {
+		log.Error("failed to initialize redis: %v", err)
+	}
+	app.RegisterHealthChecker(ssredis.NewHealthChecker(client))
+	return client
 }
 ```
 

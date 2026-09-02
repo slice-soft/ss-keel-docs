@@ -37,42 +37,42 @@ When you run `keel add jwt`, the CLI creates `cmd/setup_jwt.go` and adds one lin
 package main
 
 import (
-    "strings"
+	"strings"
 
-    "github.com/slice-soft/ss-keel-core/config"
-    "github.com/slice-soft/ss-keel-core/core"
-    "github.com/slice-soft/ss-keel-core/logger"
-    "github.com/slice-soft/ss-keel-jwt/jwt"
+	"github.com/slice-soft/ss-keel-core/config"
+	"github.com/slice-soft/ss-keel-core/contracts"
+	"github.com/slice-soft/ss-keel-core/core"
+	"github.com/slice-soft/ss-keel-jwt/jwt"
 )
 
 type jwtSetupConfig struct {
-    AppName       string `keel:"app.name,required"`
-    SecretKey     string `keel:"jwt.secret,required"`
-    Issuer        string `keel:"jwt.issuer"`
-    TokenTTLHours uint   `keel:"jwt.token-ttl-hours,required"`
+	AppName       string `keel:"app.name,required"`
+	SecretKey     string `keel:"jwt.secret,required"`
+	Issuer        string `keel:"jwt.issuer"`
+	TokenTTLHours uint   `keel:"jwt.token-ttl-hours,required"`
 }
 
 // setupJWT initialises the JWT provider used for token signing and route protection.
 // The issuer defaults to app.name so tokens are namespaced per service.
-func setupJWT(app *core.App, log *logger.Logger) *jwt.JWT {
-    _ = app // reserved for future health checker support
+func setupJWT(app *core.App, log contracts.Logger) *jwt.JWT {
+	_ = app // reserved for future health checker support
 
-    jwtConfig := config.MustLoadConfig[jwtSetupConfig]()
-    issuer := strings.TrimSpace(jwtConfig.Issuer)
-    if issuer == "" {
-        issuer = jwtConfig.AppName
-    }
+	jwtConfig := config.MustLoadConfig[jwtSetupConfig]()
+	issuer := strings.TrimSpace(jwtConfig.Issuer)
+	if issuer == "" {
+		issuer = jwtConfig.AppName
+	}
 
-    jwtProvider, err := jwt.New(jwt.Config{
-        SecretKey:     jwtConfig.SecretKey,
-        Issuer:        issuer,
-        TokenTTLHours: jwtConfig.TokenTTLHours,
-        Logger:        log,
-    })
-    if err != nil {
-        log.Error("failed to initialize JWT: %v", err)
-    }
-    return jwtProvider
+	jwtProvider, err := jwt.New(jwt.Config{
+		SecretKey:     jwtConfig.SecretKey,
+		Issuer:        issuer,
+		TokenTTLHours: jwtConfig.TokenTTLHours,
+		Logger:        log,
+	})
+	if err != nil {
+		log.Error("failed to initialize JWT: %v", err)
+	}
+	return jwtProvider
 }
 ```
 

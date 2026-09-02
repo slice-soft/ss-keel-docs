@@ -13,25 +13,25 @@ type jwtSetupConfig struct {
     TokenTTLHours uint   `keel:"jwt.token-ttl-hours,required"`
 }
 
-func setupJWT(app *core.App, log *logger.Logger) *jwt.JWT {
-    _ = app
+func setupJWT(app *core.App, log contracts.Logger) *jwt.JWT {
+	_ = app // reserved for future health checker support
 
-    jwtConfig := config.MustLoadConfig[jwtSetupConfig]()
-    issuer := strings.TrimSpace(jwtConfig.Issuer)
-    if issuer == "" {
-        issuer = jwtConfig.AppName
-    }
+	jwtConfig := config.MustLoadConfig[jwtSetupConfig]()
+	issuer := strings.TrimSpace(jwtConfig.Issuer)
+	if issuer == "" {
+		issuer = jwtConfig.AppName
+	}
 
-    jwtProvider, err := jwt.New(jwt.Config{
-        SecretKey:     jwtConfig.SecretKey,
-        Issuer:        issuer,
-        TokenTTLHours: jwtConfig.TokenTTLHours,
-        Logger:        log,
-    })
-    if err != nil {
-        log.Error("failed to initialize JWT: %v", err)
-    }
-    return jwtProvider
+	jwtProvider, err := jwt.New(jwt.Config{
+		SecretKey:     jwtConfig.SecretKey,
+		Issuer:        issuer,
+		TokenTTLHours: jwtConfig.TokenTTLHours,
+		Logger:        log,
+	})
+	if err != nil {
+		log.Error("failed to initialize JWT: %v", err)
+	}
+	return jwtProvider
 }
 ```
 

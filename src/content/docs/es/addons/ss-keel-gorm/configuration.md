@@ -6,16 +6,16 @@ description: Claves generadas, defaults y flujo de bootstrap para ss-keel-gorm.
 El bootstrap generado es intencionalmente pequeno:
 
 ```go
-func setupGorm(app *core.App, log *logger.Logger) *database.DBinstance {
-    dbConfig := config.MustLoadConfig[database.Config]()
-    dbConfig.Logger = log
+func setupGorm(app *core.App, log contracts.Logger) *database.DBinstance {
+	dbConfig := config.MustLoadConfig[database.Config]()
+	dbConfig.Logger = log
 
-    db, err := database.New(dbConfig)
-    if err != nil {
-        log.Error("failed to initialize database: %v", err)
-    }
-    app.RegisterHealthChecker(database.NewHealthChecker(db))
-    return db
+	db, err := database.New(dbConfig)
+	if err != nil {
+		log.Error("failed to initialize database: %v", err)
+	}
+	app.RegisterHealthChecker(database.NewHealthChecker(db))
+	return db
 }
 ```
 
