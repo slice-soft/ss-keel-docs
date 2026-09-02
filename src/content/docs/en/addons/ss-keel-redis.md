@@ -36,23 +36,23 @@ When you run `keel add redis`, the CLI creates `cmd/setup_redis.go` and adds one
 package main
 
 import (
-    "github.com/slice-soft/ss-keel-core/config"
-    "github.com/slice-soft/ss-keel-core/core"
-    "github.com/slice-soft/ss-keel-core/logger"
-    ssredis "github.com/slice-soft/ss-keel-redis/redis"
+	"github.com/slice-soft/ss-keel-core/config"
+	"github.com/slice-soft/ss-keel-core/contracts"
+	"github.com/slice-soft/ss-keel-core/core"
+	ssredis "github.com/slice-soft/ss-keel-redis/redis"
 )
 
 // setupRedis initialises the Redis connection and registers a health checker.
-func setupRedis(app *core.App, log *logger.Logger) *ssredis.Client {
-    redisConfig := config.MustLoadConfig[ssredis.Config]()
-    redisConfig.Logger = log
+func setupRedis(app *core.App, log contracts.Logger) *ssredis.Client {
+	redisConfig := config.MustLoadConfig[ssredis.Config]()
+	redisConfig.Logger = log
 
-    client, err := ssredis.New(redisConfig)
-    if err != nil {
-        log.Error("failed to initialize redis: %v", err)
-    }
-    app.RegisterHealthChecker(ssredis.NewHealthChecker(client))
-    return client
+	client, err := ssredis.New(redisConfig)
+	if err != nil {
+		log.Error("failed to initialize redis: %v", err)
+	}
+	app.RegisterHealthChecker(ssredis.NewHealthChecker(client))
+	return client
 }
 ```
 

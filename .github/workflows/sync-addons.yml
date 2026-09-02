@@ -1,0 +1,44 @@
+name: Sync addons
+
+# Two things on these pages drifted for months because only a person kept them
+# true: the version each addon declares, and the code block that claims to show
+# what `keel add <addon>` generates. The second was the worse of the two — the
+# OAuth page carried an entire earlier version of the file, 71 lines away from
+# reality, referencing helper functions the addon no longer generates.
+#
+# Both are synced in one job so a single PR carries both corrections instead of
+# two that fight over the same files.
+#
+# Requires DOCS_SYNC_TOKEN: a PAT with Contents and Pull requests (read/write)
+# on this repository.
+
+on:
+  schedule:
+    # Mondays at 06:00 UTC, so a PR is waiting at the start of the week.
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+jobs:
+  sync:
+    uses: slice-soft/ss-pipeline/.github/workflows/run-script-and-pr.yml@v0
+    secrets:
+      token: ${{ secrets.DOCS_SYNC_TOKEN }}
+    with:
+      script-path: scripts/sync-addons.sh
+      commit-message: "docs: sync addon versions and generated snippets"
+      pr-title: "docs: sync addon versions and generated snippets"
+      pr-body: |
+        Automated by `.github/workflows/sync-addons.yml`.
+
+        - **Versions** — the stable-release line of each addon page, in both
+          locales, set to the latest GitHub release of the matching repository.
+        - **Snippets** — every "created by `keel add <addon>`" block replaced
+          with the manifest's own content, so the page shows what the addon
+          actually generates rather than a transcription of it.
+
+        Review the diff before merging. A changed snippet means the addon's
+        generated file moved, which usually deserves a line in the prose too.
+      branch: docs/sync-addons
+      add-paths: |
+        src/content/docs/en/addons/*.md
+        src/content/docs/es/addons/*.md

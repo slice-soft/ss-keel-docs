@@ -35,21 +35,21 @@ When you run `keel add devpanel`, the CLI creates `cmd/setup_devpanel.go` and in
 package main
 
 import (
-    "github.com/slice-soft/ss-keel-core/config"
-    "github.com/slice-soft/ss-keel-core/core"
-    "github.com/slice-soft/ss-keel-devpanel/devpanel"
+	"github.com/slice-soft/ss-keel-core/config"
+	"github.com/slice-soft/ss-keel-core/core"
+	"github.com/slice-soft/ss-keel-devpanel/devpanel"
 )
 
 // setupDevPanel mounts the real-time observability panel on the Fiber app.
 // Set panel.enabled=false in production to disable the panel.
 func setupDevPanel(app *core.App) *devpanel.DevPanel {
-    panelConfig := config.MustLoadConfig[devpanel.Config]()
-    panel := devpanel.New(panelConfig)
-    fiberApp := app.Fiber()
-    fiberApp.Use(panel.RequestMiddleware())
-    fiberApp.Use(panel.GlobalGuard())
-    panel.Mount(fiberApp)
-    return panel
+	panelConfig := config.MustLoadConfig[devpanel.Config]()
+	panel := devpanel.New(panelConfig)
+	fiberApp := app.Fiber()
+	fiberApp.Use(panel.RequestMiddleware())
+	fiberApp.Use(panel.GlobalGuard())
+	panel.Mount(fiberApp)
+	return panel
 }
 ```
 

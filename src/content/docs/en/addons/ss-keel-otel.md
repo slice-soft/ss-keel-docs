@@ -29,29 +29,29 @@ When you run `keel add otel`, the CLI creates `cmd/setup_otel.go` and adds one l
 package main
 
 import (
-    "github.com/slice-soft/ss-keel-core/config"
-    "github.com/slice-soft/ss-keel-core/core"
-    "github.com/slice-soft/ss-keel-core/logger"
-    ssotel "github.com/slice-soft/ss-keel-otel/otel"
+	"github.com/slice-soft/ss-keel-core/config"
+	"github.com/slice-soft/ss-keel-core/contracts"
+	"github.com/slice-soft/ss-keel-core/core"
+	ssotel "github.com/slice-soft/ss-keel-otel/otel"
 )
 
 // setupOtel initialises the OpenTelemetry SDK and registers the Fiber HTTP middleware.
 // All telemetry is skipped when OTEL_ENABLED=false.
-func setupOtel(app *core.App, log *logger.Logger) *ssotel.Provider {
-    otelConfig := config.MustLoadConfig[ssotel.Config]()
-    otelConfig.Logger = log
+func setupOtel(app *core.App, log contracts.Logger) *ssotel.Provider {
+	otelConfig := config.MustLoadConfig[ssotel.Config]()
+	otelConfig.Logger = log
 
-    provider, err := ssotel.New(otelConfig)
-    if err != nil {
-        log.Error("failed to initialise otel: %v", err)
-        return provider
-    }
+	provider, err := ssotel.New(otelConfig)
+	if err != nil {
+		log.Error("failed to initialise otel: %v", err)
+		return provider
+	}
 
-    app.SetTracer(provider)
-    app.Fiber().Use(provider.Middleware())
-    app.OnShutdown(provider.Shutdown)
+	app.SetTracer(provider)
+	app.Fiber().Use(provider.Middleware())
+	app.OnShutdown(provider.Shutdown)
 
-    return provider
+	return provider
 }
 ```
 
