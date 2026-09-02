@@ -122,12 +122,75 @@ If you use `--gorm` or `--mongo`, the CLI also generates:
 - `users_repository.go`
 - `users_repository_test.go`
 
+With `--gorm` it additionally writes the table's base schema:
+
+- `db/schema/users.sql`
+
 And `cmd/main.go` is wired with the matching dependency:
 
 - `app.Use(users.NewModule(appLogger, db))` for `--gorm`
 - `app.Use(users.NewModule(appLogger, mongoClient))` for `--mongo`
 
 If you use `--transactional`, controller files are omitted and the generated module is wired without HTTP handlers.
+
+## Base schema (`--gorm`)
+
+**Keel does not run migrations.** A GORM-backed module needs its table to exist
+before the application starts, so `keel generate module <name> --gorm` writes the
+DDL that provisions it to `db/schema/<table>.sql` and leaves applying it to you.
+
+```sql
+-- db/schema/users.sql
+CREATE TABLE IF NOT EXISTS users (
+    id         TEXT NOT NULL,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL,
+    name       TEXT NOT NULL,
+    CONSTRAINT pk_users PRIMARY KEY (id)
+);
+```
+
+Apply it when provisioning the database:
+
+```bash
+sqlite3 ./app.db < db/schema/users.sql      # sqlite
+psql "$DATABASE_URL" -f db/schema/users.sql # postgres
+```
+
+The DDL is generated for the engine the project is configured for. The CLI reads
+`DATABASE_ENGINE` from `.env` first, then the default declared by
+`database.engine` in `application.properties`, and falls back to `sqlite`.
+Column types follow the engine — `TEXT`/`INTEGER` on sqlite, `VARCHAR(36)`/`BIGINT`
+on postgres and mysql, `NVARCHAR(36)` on sqlserver (which also gets an
+`IF OBJECT_ID(...) IS NULL` guard instead of `CREATE TABLE IF NOT EXISTS`). An
+engine the CLI does not ship types for still produces a file, using ANSI types
+and a warning comment.
+
+`id`, `created_at` and `updated_at` come from `database.EntityBase` and are
+required by the repository contract. Timestamps are Unix milliseconds. The `name`
+column is a placeholder: replace it with your real columns as you replace the
+placeholder field on the entity.
+
+### The table name is pinned
+
+The generated entity carries a `TableName()` method so the table matches the DDL:
+
+```go
+func (UsersEntity) TableName() string {
+	return "users"
+}
+```
+
+Without it GORM would derive `users_entities` from the Go type. Rename the table
+in both places or neither.
+
+:::caution[A missing schema file is a hard error]
+`keel doctor` fails when a GORM-backed module has no `db/schema/<table>.sql`. The
+table would not exist and every endpoint of that module would answer 500 at the
+first request.
+:::
+
+`--mongo` writes no schema — MongoDB creates collections on demand.
 
 ## Behavior with existing files
 

@@ -20,7 +20,7 @@ Supported engines come from the real addon code in `ss-keel-gorm/database`:
 - SQL Server
 - Oracle
 
-**Current stable release:** `v1.7.0` (2026-04-22)
+**Current stable release:** `v1.7.1` (2026-05-08)
 
 ## Browse this addon
 
@@ -209,6 +209,26 @@ func (r *UserRepository) FindByEmail(ctx context.Context, email string) (*User, 
     return &user, err
 }
 ```
+
+## Provisioning tables
+
+Keel runs no migrations at startup, so a table must exist before the application
+uses it. `keel generate module <name> --gorm` writes the DDL for it to
+`db/schema/<table>.sql`, generated for the engine set in `database.engine`, and
+you apply it when provisioning the database:
+
+```bash
+sqlite3 ./app.db < db/schema/users.sql      # sqlite
+psql "$DATABASE_URL" -f db/schema/users.sql # postgres
+```
+
+The generated entity pins the table with a `TableName()` method so it matches the
+DDL — without one, GORM would derive `users_entities` from the Go type. `keel
+doctor` fails when a GORM-backed module has no schema file.
+
+`AutoMigrate` remains available for local convenience (example
+`08-gorm-postgres` uses it), but the generated projects do not call it: the DDL
+file is the source of truth for the schema.
 
 ## Migrations and engine extensions
 

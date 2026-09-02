@@ -7,7 +7,7 @@ description: JWT generation, validation, and route protection guard for Keel.
 It provides token generation, validation, token refresh, and a ready-to-use `Guard` that protects routes via the `Authorization` header.
 
 **Implements:** [`Guard`](/en/reference/interfaces#guard), [`TokenSigner`](/en/reference/interfaces#tokensigner)
-**Current stable release:** `v1.8.0` (2026-04-22)
+**Current stable release:** `v1.8.2` (2026-05-08)
 
 ## Browse this addon
 

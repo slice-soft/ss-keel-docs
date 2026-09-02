@@ -122,12 +122,77 @@ Si usas `--gorm` o `--mongo`, el CLI además genera:
 - `users_repository.go`
 - `users_repository_test.go`
 
+Con `--gorm` escribe además el esquema base de la tabla:
+
+- `db/schema/users.sql`
+
 Y `cmd/main.go` se cablea con la dependencia correspondiente:
 
 - `app.Use(users.NewModule(appLogger, db))` para `--gorm`
 - `app.Use(users.NewModule(appLogger, mongoClient))` para `--mongo`
 
 Si usas `--transactional`, se omiten los archivos de controller y el módulo generado queda cableado sin handlers HTTP.
+
+## Esquema base (`--gorm`)
+
+**Keel no ejecuta migraciones.** Un módulo con GORM necesita que su tabla exista
+antes de arrancar la aplicación, así que `keel generate module <nombre> --gorm`
+escribe el DDL que la crea en `db/schema/<tabla>.sql` y deja en tus manos cuándo
+aplicarlo.
+
+```sql
+-- db/schema/users.sql
+CREATE TABLE IF NOT EXISTS users (
+    id         TEXT NOT NULL,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL,
+    name       TEXT NOT NULL,
+    CONSTRAINT pk_users PRIMARY KEY (id)
+);
+```
+
+Aplícalo al aprovisionar la base de datos:
+
+```bash
+sqlite3 ./app.db < db/schema/users.sql      # sqlite
+psql "$DATABASE_URL" -f db/schema/users.sql # postgres
+```
+
+El DDL se genera para el motor que tiene configurado el proyecto. El CLI lee
+`DATABASE_ENGINE` de `.env` primero, luego el valor por defecto declarado en
+`database.engine` de `application.properties`, y si no hay ninguno asume `sqlite`.
+Los tipos siguen al motor — `TEXT`/`INTEGER` en sqlite, `VARCHAR(36)`/`BIGINT` en
+postgres y mysql, `NVARCHAR(36)` en sqlserver (que además recibe una guarda
+`IF OBJECT_ID(...) IS NULL` en lugar de `CREATE TABLE IF NOT EXISTS`). Un motor
+del que el CLI no trae tipos genera igualmente el archivo, con tipos ANSI y un
+comentario de aviso.
+
+`id`, `created_at` y `updated_at` vienen de `database.EntityBase` y los exige el
+contrato del repositorio. Las marcas de tiempo son milisegundos Unix. La columna
+`name` es un placeholder: sustitúyela por tus columnas reales igual que
+sustituyes el campo placeholder de la entidad.
+
+### El nombre de la tabla queda fijado
+
+La entidad generada trae un método `TableName()` para que la tabla coincida con
+el DDL:
+
+```go
+func (UsersEntity) TableName() string {
+	return "users"
+}
+```
+
+Sin él, GORM derivaría `users_entities` a partir del tipo Go. Renombra la tabla en
+los dos sitios o en ninguno.
+
+:::caution[Que falte el esquema es un error duro]
+`keel doctor` falla cuando un módulo con GORM no tiene su `db/schema/<tabla>.sql`.
+La tabla no existiría y todos los endpoints de ese módulo responderían 500 en la
+primera petición.
+:::
+
+`--mongo` no escribe esquema — MongoDB crea las colecciones bajo demanda.
 
 ## Comportamiento con archivos existentes
 
