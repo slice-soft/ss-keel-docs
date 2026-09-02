@@ -6,7 +6,7 @@ description: OpenTelemetry instrumentation for Keel — traces, metrics, and aut
 `ss-keel-otel` is the official observability addon for Keel. It initializes the [OpenTelemetry Go SDK](https://opentelemetry.io/docs/languages/go/), creates a root span for every HTTP request, and exports traces and metrics through OTLP to any compatible backend — Grafana, Jaeger, Datadog, New Relic, AWS X-Ray, Honeycomb, or your own OTel Collector.
 
 **Implements:** [`contracts.Tracer`](/en/reference/interfaces#tracer)
-**Current stable release:** `v0.1.0`
+**Current stable release:** `v1.1.2` (2026-05-08)
 
 ## Installation
 

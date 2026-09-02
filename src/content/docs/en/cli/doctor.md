@@ -11,6 +11,11 @@ keel doctor
 
 No arguments or flags. Must be run inside a Keel project.
 
+A directory holding neither `keel.toml` nor `go.mod` is not a project: `doctor`
+reports it as an error and exits non-zero instead of grading it, so a wrong
+working directory or a broken checkout cannot pass CI in green. A Go project that
+has not adopted `keel.toml` yet — the `keel init` path — is only a warning.
+
 ## What it checks
 
 `keel doctor` runs a set of static checks in sequence:
@@ -63,7 +68,23 @@ If the `oauth` addon is declared in `keel.toml`:
 - Supported providers: `GOOGLE`, `GITHUB`, `GITLAB`.
 - If none are configured → `⚠` warning (the addon would mount zero routes at runtime).
 
-### 7. Module and build readiness
+### 7. Base schema of GORM-backed modules
+
+Keel runs no migrations, so a GORM-backed module only works once its table has
+been created. For each module under `internal/modules/` that imports
+`ss-keel-gorm`:
+
+- Resolves the table from the entity's `TableName()` method.
+- Requires `db/schema/<table>.sql` to exist.
+- `✓` if present, `✗` **error** if missing — the table would not exist and every
+  endpoint of that module would answer 500 at the first request.
+
+When an entity declares no `TableName()`, the check reports the table GORM itself
+derives from the Go type (`OrderItemEntity` → `order_item_entities`) and suggests
+pinning a stable name. Mongo-backed modules are skipped: MongoDB creates
+collections on demand.
+
+### 8. Module and build readiness
 
 Runs two Go commands:
 
@@ -104,14 +125,13 @@ The command exits with a non-zero code when there are errors.
   Keel Doctor — project health check
 
   ✓  keel.toml is valid
-  ⚠  application.properties not found — generate it for the new runtime config contract
+  ✓  application.properties is valid
   ✓  addon "gorm" found in go.mod
   ✓  addon "jwt" found in go.mod
-  ✓  addon "gorm" is up to date (v0.4.1)
-  ✓  addon "jwt" is up to date (v0.3.0)
-  ✓  required var DB_DSN is set
-  ✓  required var JWT_SIGNING_KEY is set
-  ⚠  sensitive var JWT_SIGNING_KEY uses an insecure placeholder (.env) — replace it before production
+  ✓  addon "gorm" is up to date (v1.7.1)
+  ✓  addon "jwt" is up to date (v1.8.2)
+  ⚠  sensitive var JWT_SECRET uses an insecure placeholder (.env) — replace it before production
+  ✓  module "tasks" has its base schema (db/schema/tasks.sql)
   ✓  go.mod/go.sum are tidy
   ✓  go build ./... passed
 
@@ -121,9 +141,11 @@ The command exits with a non-zero code when there are errors.
 
 ## Common errors
 
+- `no Keel project here — no keel.toml and no go.mod found`
 - `keel.toml is not valid TOML: ...`
 - `addon "X" not found in go.mod — run: keel add X`
 - `required var X is not set — add it to .env`
+- `module "X" is GORM-backed but db/schema/<table>.sql is missing`
 - `go.mod/go.sum are not tidy — run: go mod tidy`
 - `go build ./... failed`
 
@@ -132,9 +154,16 @@ The command exits with a non-zero code when there are errors.
 Run `keel doctor` after:
 
 - installing or removing an addon (`keel add`, `keel addon remove`)
+- generating a module with `--gorm` (it checks the schema file landed)
 - editing `keel.toml` manually
 - pulling changes from teammates
 - before shipping to production
+
+Because it exits non-zero on errors, it works as a CI gate:
+
+```yaml
+- run: keel doctor
+```
 
 ```bash
 keel doctor

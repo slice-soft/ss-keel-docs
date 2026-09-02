@@ -176,6 +176,21 @@ keel generate repository billing/audit-log --mongo
 
 `keel add` installs and wires the addon. `keel generate repository` uses the official repository template for the selected backend.
 
+### Schema provisioning
+
+Keel does not run migrations. A GORM-backed module ships its table's DDL in
+`db/schema/<table>.sql`, generated for the engine declared in `database.engine`,
+and you apply it when provisioning the database:
+
+```bash
+sqlite3 ./app.db < db/schema/users.sql      # sqlite
+psql "$DATABASE_URL" -f db/schema/users.sql # postgres
+```
+
+`keel doctor` fails when a GORM-backed module has no schema file — without the
+table, every endpoint of that module answers 500 at the first request. Mongo
+modules need no equivalent: collections are created on demand.
+
 ## Choosing an addon
 
 - Use `ss-keel-gorm` for relational models and SQL-first persistence.

@@ -13,7 +13,7 @@ contracts.Repository[T, ID, httpx.PageQuery, httpx.Page[T]]
 
 Encima de ese contrato, expone capacidades nativas de Mongo como consultas por filtro, acceso directo a colecciones y conversión personalizada de IDs.
 
-**Release estable actual:** `v1.7.0` (2026-04-22)
+**Release estable actual:** `v1.7.1` (2026-05-08)
 
 ## Navega este addon
 

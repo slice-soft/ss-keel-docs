@@ -8,7 +8,7 @@ After a successful provider flow the addon signs a JWT and returns it to the cli
 either as JSON or as a redirect with the token in the query string.
 
 **Supported providers:** Google · GitHub · GitLab
-**Current stable release:** `v1.10.0` (2026-04-22)
+**Current stable release:** `v1.11.0` (2026-05-08)
 
 ## Browse this addon
 

@@ -173,6 +173,22 @@ keel generate repository billing/audit-log --mongo
 
 `keel add` instala e integra el addon. `keel generate repository` usa el template oficial de repositorio para el backend seleccionado.
 
+### Aprovisionamiento del esquema
+
+Keel no ejecuta migraciones. Un módulo con GORM trae el DDL de su tabla en
+`db/schema/<tabla>.sql`, generado para el motor declarado en `database.engine`, y
+tú lo aplicas al aprovisionar la base de datos:
+
+```bash
+sqlite3 ./app.db < db/schema/users.sql      # sqlite
+psql "$DATABASE_URL" -f db/schema/users.sql # postgres
+```
+
+`keel doctor` falla cuando un módulo con GORM no tiene su archivo de esquema — sin
+la tabla, todos los endpoints de ese módulo responden 500 en la primera petición.
+Los módulos con Mongo no necesitan equivalente: las colecciones se crean bajo
+demanda.
+
 ## Cómo elegir un addon
 
 - Usa `ss-keel-gorm` para modelos relacionales y persistencia SQL-first.

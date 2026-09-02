@@ -6,7 +6,7 @@ description: Redis cache via go-redis — implements contracts.Cache with health
 `ss-keel-redis` is the official cache addon for Keel. It wraps [go-redis v9](https://redis.uptrace.dev/) and implements the `contracts.Cache` interface defined in `ss-keel-core`.
 
 **Implements:** [`contracts.Cache`](/en/reference/interfaces#cache)
-**Current stable release:** `v1.3.2` (2026-04-22)
+**Current stable release:** `v1.3.3` (2026-05-08)
 
 ## Browse this addon
 

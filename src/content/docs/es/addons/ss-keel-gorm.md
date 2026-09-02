@@ -20,7 +20,7 @@ Los motores soportados vienen del código real del addon en `ss-keel-gorm/databa
 - SQL Server
 - Oracle
 
-**Release estable actual:** `v1.7.0` (2026-04-22)
+**Release estable actual:** `v1.7.1` (2026-05-08)
 
 ## Navega este addon
 
@@ -209,6 +209,26 @@ func (r *UserRepository) FindByEmail(ctx context.Context, email string) (*User, 
     return &user, err
 }
 ```
+
+## Aprovisionar tablas
+
+Keel no ejecuta migraciones al arrancar, así que la tabla debe existir antes de
+que la aplicación la use. `keel generate module <nombre> --gorm` escribe su DDL en
+`db/schema/<tabla>.sql`, generado para el motor configurado en `database.engine`,
+y tú lo aplicas al aprovisionar la base de datos:
+
+```bash
+sqlite3 ./app.db < db/schema/users.sql      # sqlite
+psql "$DATABASE_URL" -f db/schema/users.sql # postgres
+```
+
+La entidad generada fija la tabla con un método `TableName()` para que coincida
+con el DDL — sin él, GORM derivaría `users_entities` del tipo Go. `keel doctor`
+falla cuando un módulo con GORM no tiene su archivo de esquema.
+
+`AutoMigrate` sigue disponible para comodidad local (el ejemplo
+`08-gorm-postgres` lo usa), pero los proyectos generados no lo llaman: el archivo
+DDL es la fuente de verdad del esquema.
 
 ## Migraciones y extensiones de motores
 
